@@ -1,0 +1,6 @@
+# VSCODE
+.vscode/
+
+# MATLAB
+*.mexw64
+*.mexa64

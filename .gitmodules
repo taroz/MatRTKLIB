@@ -1,0 +1,7 @@
+[submodule "src/RTKLIB"]
+	path = src/RTKLIB
+	url = https://github.com/tomojitakasu/RTKLIB.git
+	branch = rtklib_2.4.3
+[submodule "+pb"]
+	path = +pb
+	url = https://github.com/JAAdrian/MatlabProgressBar.git
