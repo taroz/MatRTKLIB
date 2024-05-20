@@ -4,3 +4,6 @@
 # MATLAB
 *.mexw64
 *.mexa64
+
+# Development
+.dev/

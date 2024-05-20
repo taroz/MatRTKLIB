@@ -88,7 +88,11 @@ classdef Gobs < handle
                 obj gt.Gobs
                 file (1,:) char
             end
-            [obs, basepos, fcn] = rtklib.readrnxobs(file);
+            try
+                [obs, basepos, fcn] = rtklib.readrnxobs(file);
+            catch
+                error('Wrong RINEX observation file: %s',file);
+            end
 
             % pos
             if ~all(basepos==[0,0,0])

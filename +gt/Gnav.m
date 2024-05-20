@@ -68,6 +68,9 @@ classdef Gnav < handle
                 catch
                 end
             end
+            if ~exist('navstr','var')
+                error('Wrong RINEX navigation file: %s',file);
+            end
 
             obj.setNavStruct(navstr);
         end
