@@ -59,7 +59,7 @@ extern void mexFunction(int nargout, mxArray *argout[], int nargin,
             rs[0] = rsx[i + m * j];
             rs[1] = rsy[i + m * j];
             rs[2] = rsz[i + m * j];
-            if (mxIsNaN(rrs[0]) || mxIsNaN(rrs[1]) || mxIsNaN(rrs[2])) {
+            if (mxIsNaN(rr[0]) || mxIsNaN(rr[1]) || mxIsNaN(rr[2])) {
                 d[i + m * j] = ex[i + m * j] = ey[i + m * j] = ez[i + m * j] = mxGetNaN();
                 continue;
             }
