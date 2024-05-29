@@ -159,24 +159,27 @@ classdef Gpos < handle
         function addOffset(obj, offset, coordtype)
             arguments
                 obj gt.Gpos
-                offset (1,3) double
+                offset (:,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
+            end
+            if size(offset,1)~=obj.n || size(offset,1)~=1
+                error("Size of offset must be obj.n or 1");
             end
             switch coordtype
                 case 'enu'
                     if ~isempty(obj.enu)
-                        obj.setPos(obj.enu + offset, 'enu');
+                        obj.setPos(obj.enu+offset, 'enu');
                     else
                         % first position is origin
                         enu_ = rtklib.llh2enu(obj.llh, obj.llh(1,:));
-                        llh_ = rtklib.enu2llh(enu_ + offset, obj.llh(1,:));
+                        llh_ = rtklib.enu2llh(enu_+offset, obj.llh(1,:));
                         obj.setPos(llh_, 'llh');
                     end
                 case 'xyz'
                     if isempty(obj.xyz)
                         error('xyz must be set to a value');
                     end
-                    obj.setPos(obj.xyz + offset, 'xyz');
+                    obj.setPos(obj.xyz+offset, 'xyz');
             end
         end
 

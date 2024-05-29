@@ -132,20 +132,23 @@ classdef Gvel < handle
         function addOffset(obj, offset, coordtype)
             arguments
                 obj gt.Gvel
-                offset (1,3) double
+                offset (:,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
+            end
+            if size(offset,1)~=obj.n || size(offset,1)~=1
+                error("Size of offset must be obj.n or 1");
             end
             switch coordtype
                 case 'enu'
                     if isempty(obj.enu)
                         error('enu must be set to a value');
                     end
-                    obj.setVel(obj.enu + offset, 'enu');
+                    obj.setVel(obj.enu+offset, 'enu');
                 case 'xyz'
                     if isempty(obj.xyz)
                         error('xyz must be set to a value');
                     end
-                    obj.setVel(obj.xyz + offset, 'xyz');
+                    obj.setVel(obj.xyz+offset, 'xyz');
             end
         end
 

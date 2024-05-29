@@ -155,7 +155,10 @@ classdef Gtime < handle
         function addOffset(obj, offset)
             arguments
                 obj gt.Gtime
-                offset (1,1)
+                offset (:,1)
+            end
+            if size(offset,1)~=obj.n || size(offset,1)~=1
+                error("Size of offset must be obj.n or 1");
             end
             switch class(offset)
                 case 'double'
