@@ -12,6 +12,7 @@ classdef Gsat < handle
     %   sys       : 1x(obj.nsat), Satellite system (SYS_GPS, SYS_GLO, ...)
     %   satstr    : 1x(obj.nsat), Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
     %   time      : 1x1, Time, gt.Gtime class
+    %   dt        : 1x1, Time interval (s)
     %   x         : (obj.n)x(obj.nsat), satellite position in ECEF X (m)
     %   y         : (obj.n)x(obj.nsat), satellite position in ECEF Y (m)
     %   z         : (obj.n)x(obj.nsat), satellite position in ECEF Z (m)
@@ -44,7 +45,7 @@ classdef Gsat < handle
     %     Author: Taro Suzuki
 
     properties
-        n, nsat, sat, prn, sys, satstr, time, x, y, z, vx, vy, vz, dts, ddts, var, svh, pos, vel, rng, rate, ex, ey, ez, az, el;
+        n, nsat, sat, prn, sys, satstr, time, dt, x, y, z, vx, vy, vz, dts, ddts, var, svh, pos, vel, rng, rate, ex, ey, ez, az, el;
         trp; ionL1; ionL2; ionL5; ionL6; ionL7; ionL8; ionL9;
     end
     properties(Access=private)
@@ -91,6 +92,7 @@ classdef Gsat < handle
             obj.sys = gobs.sys;
             obj.satstr = gobs.satstr;
             obj.time = gobs.time;
+            obj.dt = gobs.dt;
             obj.obs = gobs;
             obj.nav = gnav;
         end
@@ -116,6 +118,7 @@ classdef Gsat < handle
             obj.sys = gt.C.SYS(sys_);
             obj.satstr = rtklib.satno2id(obj.sat);
             obj.time = gtime;
+            obj.dt = obj.time.estInterval();
             obj.obs = gobs;
             obj.nav = gnav;
         end
@@ -271,10 +274,9 @@ classdef Gsat < handle
                 ts gt.Gtime
                 te gt.Gtime
             end
-            ndec = floor(-log10(obj.time.estInterval()));
-            tr = obj.roundDateTime(obj.time.t,ndec);
-            tsr = obj.roundDateTime(ts.t,ndec);
-            ter = obj.roundDateTime(te.t,ndec);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tsr = obj.roundDateTime(ts.t, obj.dt);
+            ter = obj.roundDateTime(te.t, obj.dt);
             tidx = tr>=tsr & tr<=ter;
             gsat = obj.selectTime(tidx);
         end
@@ -432,8 +434,10 @@ classdef Gsat < handle
         end
 
         % round datetime
-        function dtr = roundDateTime(~, dt, dec)
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime");
         end
     end
 end

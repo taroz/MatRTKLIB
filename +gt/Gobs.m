@@ -424,9 +424,9 @@ classdef Gobs < handle
                 ts gt.Gtime
                 te gt.Gtime
             end
-            tr = obj.roundDateTime(obj.time.t,2);
-            tsr = obj.roundDateTime(ts.t,2);
-            ter = obj.roundDateTime(te.t,2);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tsr = obj.roundDateTime(ts.t, obj.dt);
+            ter = obj.roundDateTime(te.t, obj.dt);
             tidx = tr>=tsr & tr<=ter;
             gobs = obj.selectTime(tidx);
         end
@@ -461,8 +461,8 @@ classdef Gobs < handle
                 dt (1,1) double = 0
             end
             if dt==0; dt = obj.dt; end
-            tr = obj.roundDateTime(obj.time.t,2);
-            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',2);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))', dt);
             nfix = length(tfixr);
             tfix = NaT(nfix,1);
             [~, idx1,idx2] = intersect(tfixr,tr);
@@ -518,10 +518,8 @@ classdef Gobs < handle
                 obj gt.Gobs
                 gobsref gt.Gobs
             end
-            ndec = floor(-log10(obj.dt));
-            t = obj.roundDateTime(obj.time.t, ndec);
-            ndecref = floor(-log10(gobsref.dt));
-            tref = obj.roundDateTime(gobsref.time.t, ndecref);
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gobsref.time.t, gobsref.dt);
             [~,tidx1,tidx2] = intersect(t,tref);
             gobsc = obj.selectTime(tidx1);
             gobrefc = gobsref.selectTime(tidx2);
@@ -572,10 +570,8 @@ classdef Gobs < handle
                 obj gt.Gobs
                 gobsref gt.Gobs
             end
-            ndec = floor(-log10(obj.dt));
-            t = obj.roundDateTime(obj.time.t, ndec);
-            ndecref = floor(-log10(gobsref.dt));
-            tref = obj.roundDateTime(gobsref.time.t, ndecref);
+            t = obj.roundDateTime(obj.time.t, obj.time.dt);
+            tref = obj.roundDateTime(gobsref.time.t, gobsref.time.dt);
 
             [~,tidx1,tidx2] = intersect(tref,t);
             obsstr.n = gobsref.n;
@@ -813,8 +809,10 @@ classdef Gobs < handle
 
     methods(Access=private)
         % round datetime
-        function dtr = roundDateTime(~, dt, dec)
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime");
         end
 
         % select LLI
