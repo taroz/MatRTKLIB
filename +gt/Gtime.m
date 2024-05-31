@@ -125,7 +125,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.setEpoch(tow, week)
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %   tow : Mx1, Time of week in GPST (s)
             %   week: Mx1 or 1x1, GPS week
             %
@@ -179,7 +179,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.setDatetime(tow, week)
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %   tow : Mx1, Time of week in GPST (s)
             %   week: Mx1 or 1x1, GPS week
             %
@@ -202,7 +202,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.append(gtime)
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %   gtime : 1x1, gt.Gtime class
             %
             arguments
@@ -215,15 +215,15 @@ classdef Gtime < handle
         function addOffset(obj, offset)
             % addOffset: Add time offset
             % -------------------------------------------------------------
-            % Add a time offset to obj. The offset must be a scalar 
-            % or of the same size as obj. 
+            % Add a time offset to obj. The offset must be a scalar
+            % or of the same size as obj.
             % The offset must be of double or MATLAB duration.
             %
             % Usage: ------------------------------------------------------
             %   obj.addOffset(offset)
             %
-            % Input: ------------------------------------------------------       
-            %   offset : Mx1 or 1x1, Time offset 
+            % Input: ------------------------------------------------------
+            %   offset : Mx1 or 1x1, Time offset
             %              double (s) or MATLAB duration
             %
             arguments
@@ -250,7 +250,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.round([ndigit])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [ndigit] : 1x1, Arbitrary digit to round
             %              default: ndigit = 2
             %
@@ -265,13 +265,13 @@ classdef Gtime < handle
         function gtime = copy(obj)
             % copy: Copy object
             % -------------------------------------------------------------
-            % MATLAB handle class is used, so if you want to create a 
+            % MATLAB handle class is used, so if you want to create a
             % different instance, you need to use the copy method.
             %
             % Usage: ------------------------------------------------------
             %   gtime = obj.copy()
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   gtime : 1x1, Copied object
             %
             arguments
@@ -283,16 +283,16 @@ classdef Gtime < handle
         function gtime = select(obj, idx)
             % select: Select time from index
             % -------------------------------------------------------------
-            % Select time from the index and return a new object. 
+            % Select time from the index and return a new object.
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
             %   gtime = obj.select(idx)
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %   idx  : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   gtime: 1x1, Selected object
             %
             arguments
@@ -308,17 +308,17 @@ classdef Gtime < handle
         function [gtime, idx] = selectTimeSpan(obj, ts, te)
             % selectTimeSpan: Select time from time span
             % -------------------------------------------------------------
-            % Select time from the time span and return a new object. 
+            % Select time from the time span and return a new object.
             % Time span is the start and end time of gt.Gtime type.
             %
             % Usage: ------------------------------------------------------
             %   gtime = obj.selectTimeSpan(ts, te)
             %
-            % Input: ------------------------------------------------------       
-            %   ts  : 1x1, gt.Gtime, Start time        
-            %   te  : 1x1, gt.Gtime, End time 
+            % Input: ------------------------------------------------------
+            %   ts  : 1x1, gt.Gtime, Start time
+            %   te  : 1x1, gt.Gtime, End time
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   gtime: 1x1, Selected object
             %
             arguments
@@ -333,18 +333,18 @@ classdef Gtime < handle
         function dt = estInterval(obj, ndigit)
             % estInterval: Estimate time interval
             % -------------------------------------------------------------
-            % Estimate the time interval from the time vector. 
-            % If the time interval is not constant, use the median to 
+            % Estimate the time interval from the time vector.
+            % If the time interval is not constant, use the median to
             % output a reasonable time interval.
             %
             % Usage: ------------------------------------------------------
             %   gtime = obj.selectTimeSpan(ts, te)
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [ndigit] : 1x1, Arbitrary digit to estimated time interval
             %              default: ndigit = 2
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   dt: 1x1, double, Estimated time interval (s)
             %
             arguments
@@ -366,10 +366,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   doy = obj.doy([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   doy: Mx1, Day of year (0-365)
             %
             arguments
@@ -386,10 +386,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   dow = obj.dow([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   dow: Mx1, Day of week (0-6)
             %
             arguments
@@ -406,10 +406,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   sod = obj.sod([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   sod: Mx1, Seconds of day (0-86400)
             %
             arguments
@@ -426,10 +426,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   ymd = obj.ymd([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   ymd: Mx3, Year, Month, Day [year, month, day]
             %
             arguments
@@ -446,10 +446,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   hms = obj.hms([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   hms: Mx3, Hour, Minute, Second [hour, minute, second]
             %
             arguments
@@ -466,10 +466,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   yy = obj.yy([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   yy: Mx1, Hour, Two-digit year (0-99)
             %
             arguments
@@ -486,10 +486,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   year = obj.year([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   year: Mx1, Year
             %
             arguments
@@ -506,10 +506,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   month = obj.month([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   month: Mx1, Month
             %
             arguments
@@ -526,10 +526,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   day = obj.day([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   day: Mx1, Day
             %
             arguments
@@ -546,10 +546,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   hour = obj.hour([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   hour: Mx1, Hour
             %
             arguments
@@ -566,10 +566,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   minute = obj.minute([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   minute: Mx1, Minute
             %
             arguments
@@ -586,10 +586,10 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   second = obj.second([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------       
+            % Output: ------------------------------------------------------
             %   second: Mx1, Second
             %
             arguments
@@ -606,7 +606,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.plot([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
             arguments
@@ -626,7 +626,7 @@ classdef Gtime < handle
             % Usage: ------------------------------------------------------
             %   obj.plotDiff([idx])
             %
-            % Input: ------------------------------------------------------       
+            % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select
             %
             arguments
