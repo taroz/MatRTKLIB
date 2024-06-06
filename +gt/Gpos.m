@@ -683,7 +683,7 @@ classdef Gpos < handle
             %   idx: Integer and vector index to calculate (optional)
             %
             % Output: ------------------------------------------------------
-            %   oh : orthometric
+            %   oh : Orthometric
             %
             arguments
                 obj gt.Gpos
