@@ -1166,7 +1166,6 @@ classdef Gobs < handle
                 c = colorbar(gca,'northoutside');
                 c.Label.String = [freq ' SNR (dB-Hz)'];
                 drawnow
-                end
             end
         end
         function plotNSat(obj, freq, snrth, sidx)
