@@ -119,7 +119,7 @@ classdef Gpos < handle
 
         %% set coordinate orgin
         function setOrg(obj, org, orgtype)
-            % setOrg: Set coordinate origin position
+            % setOrg: Set coordinate origin
             % -------------------------------------------------------------
             % Geodetic position, ECEF position or Local ENU position can be
             % set.
@@ -128,7 +128,7 @@ classdef Gpos < handle
             %   obj.setOrg(pos, postype)
             %
             % Input: ------------------------------------------------------
-            %   org    : Position data
+            %   org    : coordinate origin position
             %   orgtype: Position type 'llh' or 'xyz' or 'enu'
             %
             arguments

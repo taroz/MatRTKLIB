@@ -1,6 +1,6 @@
 classdef Gcov < handle
     % Gcov: GNSS position/velocity covariance class
-    %
+    % ---------------------------------------------------------------------
     % Gcov Declaration:
     % obj = Gcov(cov, 'type', [orgpos], ['orgtype'])
     %   cov      : Nx6, vector of elements of covariance
@@ -13,14 +13,14 @@ classdef Gcov < handle
     % 
     % obj = Gcov(gpos)
     %   gpos   : 1x1, gt.Gpos
-    % 
+    % --------------------------------------------------------------------- 
     % Gcov Properties:
     %   n       : 1x1, Number of epochs
     %   xyz     : (obj.n)x6, vector of elements of covariance in ECEF
     %   enu     : (obj.n)x6, vector of elements of covariance in ENU
     %   orgllh  : 1x3, Coordinate origin (deg, deg, m)
     %   orgxyz  : 1x3, Coordinate origin in ECEF (m, m, m)
-    %
+    % ---------------------------------------------------------------------
     % Methods:
     %   setGpos(gpos):
     %   setCovVec(cov, type):
@@ -37,11 +37,16 @@ classdef Gcov < handle
     %   plot([idx]):
     %   plotXYZ([idx]):
     %   help()
-    %
+    % ---------------------------------------------------------------------
     % Author: Taro Suzuki
 
     properties
-        n, xyz, enu, orgllh, orgxyz;
+        % n, xyz, enu, orgllh, orgxyz;
+        n      % Number of epochs
+        xyz    % vector of elements of covariance in ECEF
+        enu    % vector of elements of covariance in ENU
+        orgllh % Coordinate origin (deg, deg, m)
+        orgxyz % Coordinate origin in ECEF (m, m, m)
     end
 
     methods
@@ -63,6 +68,15 @@ classdef Gcov < handle
 
         %% set gt.Gpos
         function setGpos(obj, gpos)
+            % setGpos: Set gt.Gpos class and calculate variance 
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos: gt.Gpos class
+            %
             arguments
                 obj gt.Gcov
                 gpos gt.Gpos
@@ -80,6 +94,16 @@ classdef Gcov < handle
 
         %% set covariance vector
         function setCovVec(obj, cov, covtype)
+            % setCovVec: Set coveriance vector
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setCovVec(cov, covtype)
+            %
+            % Input: ------------------------------------------------------
+            %   cov    : vector of elements of covariance
+            %   covtype: Coordinate type 'xyz' or 'enu'
+            %
             arguments
                 obj gt.Gcov
                 cov (:,6) double
@@ -98,6 +122,16 @@ classdef Gcov < handle
 
         %% set covariance matrix
         function setCov(obj, cov, covtype)
+            % setCov: Set coveriance matrix
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setCov(cov, covtype)
+            %
+            % Input: ------------------------------------------------------
+            %   cov    : vector of elements of covariance
+            %   covtype: Coordinate type 'xyz' or 'enu'
+            %
             arguments
                 obj gt.Gcov
                 cov (3,3,:) double
@@ -116,6 +150,16 @@ classdef Gcov < handle
 
         %% set coordinate orgin
         function setOrg(obj, org, orgtype)
+            % setOrg: Set coordinate origin and update coveriance matrix
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrg(org, orgtype)
+            %
+            % Input: ------------------------------------------------------
+            %   org    : coordinate origin 
+            %   orgtype: Position type 'xyz' or 'enu'
+            %
             arguments
                 obj gt.Gcov
                 org (1,3) double
@@ -138,6 +182,15 @@ classdef Gcov < handle
 
         %% append
         function append(obj, gcov)
+            % append: Append gt.Gcov class
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.append(gcov)
+            %
+            % Input: ------------------------------------------------------
+            %   gcov: gt.Gcov class
+            %
             arguments
                 obj gt.Gcov
                 gcov gt.Gcov
@@ -151,6 +204,15 @@ classdef Gcov < handle
 
         %% copy
         function gcov = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   gcov = obj.copy()       
+            %
+            % Output: ------------------------------------------------------
+            %   gcov: Copied object
+            %
             arguments
                 obj gt.Gcov
             end
@@ -159,6 +221,20 @@ classdef Gcov < handle
 
         %% select from index
         function gcov = select(obj, idx)
+            % select: Select object from index
+            % -------------------------------------------------------------
+            % Select covariance data from the index and return a new object.
+            % The index may be a logical or numeric index.
+            %
+            % Usage: ------------------------------------------------------
+            %   gpos = obj.select(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to select
+            %
+            % Output: ------------------------------------------------------
+            %   gcov: gt.Gcov class
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector}
@@ -177,6 +253,18 @@ classdef Gcov < handle
         %% access
         % 3X3 covariance matrix
         function cov = covXYZ(obj, idx)
+            % covXYZ: Convert xyz vector to 3X3 covariance matrix
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   cov = obj.covXYZ(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   cov : Covariance matrix in xyz coordinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -187,6 +275,18 @@ classdef Gcov < handle
             cov = obj.vec2matrix(obj.xyz(idx,:));
         end
         function cov = covENU(obj, idx)
+            % covENU: Convert enu vector to 3X3 covariance matrix
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   cov = obj.covENU(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   cov : Covariance matrix in enu coordinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -197,6 +297,18 @@ classdef Gcov < handle
             cov = obj.vec2matrix(obj.enu(idx,:));
         end
         function var = varXYZ(obj, idx)
+            % varXYZ: Calculate variance from xyz coordinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   var = obj.varXYZ(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   var : Varinance in xyz coorinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -207,6 +319,18 @@ classdef Gcov < handle
             var = obj.xyz(idx,1:3);
         end
         function var = varENU(obj, idx)
+            % varENU: Calculate variance from enu coordinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   var = obj.varENU(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   var : Varinance in enu coorinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -217,6 +341,18 @@ classdef Gcov < handle
             var = obj.enu(idx,1:3);
         end
         function sd = sdXYZ(obj, idx)
+            % sdXYZ: Calculate standard deviation from xyz coordinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   sd = obj.sdXYZ(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   sd : Standard deviation in xyz coorinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -227,6 +363,18 @@ classdef Gcov < handle
             sd = sqrt(obj.xyz(idx,1:3));
         end
         function sd = sdENU(obj, idx)
+            % sdENU: Calculate standard deviation from enu coordinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   sd = obj.sdENU(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to access (optional)
+            %
+            % Output: ------------------------------------------------------
+            %   sd : Standard deviation in enu coorinates
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -239,6 +387,15 @@ classdef Gcov < handle
 
         %% plot
         function plot(obj, idx)
+            % plot: Plot standard deviation in enu coorinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to plot (optional)
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -257,6 +414,15 @@ classdef Gcov < handle
             drawnow
         end
         function plotXYZ(obj, idx)
+            % plotXYZ: Plot standard deviation in xyz coorinates
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotXYZ(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx: Integer and vector index to plot (optional)
+            %
             arguments
                 obj gt.Gcov
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
