@@ -80,10 +80,11 @@ classdef Gobs < handle
         L9     % L9 observation struct
         Lwl    % Wide-lane linear combination struct
         Lml    % Middle-lane linear combination struct
-        Lif    % Iono-free linear combination struct
+        Lif12  % Iono-free linear combination struct
+        Lif15  % Iono-free linear combination struct
     end
     properties(Access=private)
-        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"];
+        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif12","Lif15"];
     end
     methods
         %% constractor
@@ -984,7 +985,13 @@ classdef Gobs < handle
             if ~isempty(obj.L1) && ~isempty(obj.L5)
                 gobs.Lml.freq = obj.L1.freq-obj.L5.freq;
                 gobs.Lml.lam = gt.C.CLIGHT./gobs.Lml.freq;
-                gobs.Lml.L = obj.L1.L-obj.L5.L;
+                gobs.Lml.L = obj.L1.L-obj.L5.L; % (cycle)
+            end
+            % wide-lane (L1-L2)
+            if ~isempty(obj.L1) && ~isempty(obj.L2)
+                gobs.Lwl.freq = obj.L1.freq-obj.L2.freq;
+                gobs.Lwl.lam = gt.C.CLIGHT./gobs.Lwl.freq;
+                gobs.Lwl.L = obj.L1.L-obj.L2.L; % (cycle)
             end
         end
         %% residuals
@@ -1014,24 +1021,29 @@ classdef Gobs < handle
             if obj.n ~= gsat.n
                 error('obj.n and gsat.n must be the same')
             end
-            if isempty(gsat.pos)
-                error('Call gsat.setRcvPos(gpos) first to set the receiver position');
-            end
-            if isempty(gsat.vel)
-                error('Call gsat.setRcvVel(gvel) first to set the receiver velocity');
+            if isempty(gsat.pos) & isempty(gsat.vel)
+                error('Call gsat.setRcvPos(gpos) or gsat.setRcvVel(gvel) first to set the receiver position/velocity');
             end
             gobs = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-gsat.rng+gsat.dts; end % pseudorange residuals
-                    if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L.*gobs.(f).lam-gsat.rng+gsat.dts; end % carrier phase residuals
-                    if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-gsat.rate+gsat.ddts; end % doppler residuals
-                    
+                    if ~isempty(gsat.pos)
+                        if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-gsat.rng+gsat.dts; end % pseudorange residuals (m)
+                        if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L-(gsat.rng+gsat.dts)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                    end
+                    if ~isempty(gsat.vel)
+                        if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-gsat.rate+gsat.ddts; end % doppler residuals (m/s)
+                    end
+
                     if isprop(gsat,"ion"+f)
                         if ~isempty(gsat.("ion"+f))
-                            if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals
-                            if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L.*gobs.(f).lam-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp); end % carrier phase residuals
-                            if isfield(gobs.(f),"D"); gobs.(f).resDc = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals
+                            if ~isempty(gsat.pos)
+                                if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals (m)
+                                if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                            end
+                            if ~isempty(gsat.vel)
+                                if isfield(gobs.(f),"D"); gobs.(f).resDc = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals (m/s)
+                            end
                         end
                     end
                 end
@@ -1143,6 +1155,7 @@ classdef Gobs < handle
                 for i=1:gobs.nsat
                     scatter(gobs.time.t,y(i)*ones(gobs.n,1),[],gobs.(freq).S(:,i),'filled');
                     hold on;
+                end
 
                 grid on;
                 xlim([gobs.time.t(1) gobs.time.t(end)]);
