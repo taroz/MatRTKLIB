@@ -24,7 +24,7 @@ classdef Gsol < handle
     %   stat   : (obj.n)x1, solution status (SOLQ_???)
     %   age    : (obj.n)x1, Age of differential (s)
     %   ratio  : (obj.n)x1, AR ratio factor for valiation
-    %   dt     : 1x1, solution time interval (s)
+    %   dt     : 1x1, Solution time interval (s)
     %   perr   : 1x1, Position error, gt.Gerr class
     %   verr   : 1x1, Velocity error, gt.Gerr class
     %
@@ -96,7 +96,6 @@ classdef Gsol < handle
             end
             obj.n = solstr.n;
             obj.time = gt.Gtime(solstr.ep);
-            obj.time.round(3);
             obj.dt = obj.time.estInterval();
             obj.dtr = solstr.dtr;
             obj.ns = solstr.ns;
@@ -283,9 +282,9 @@ classdef Gsol < handle
                 ts gt.Gtime
                 te gt.Gtime
             end
-            tr = obj.roundDateTime(obj.time.t,2);
-            tsr = obj.roundDateTime(ts.t,2);
-            ter = obj.roundDateTime(te.t,2);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tsr = obj.roundDateTime(ts.t, obj.dt);
+            ter = obj.roundDateTime(te.t, obj.dt);
 
             idx = tr>=tsr & tr<=ter;
             gsol = obj.select(idx);
@@ -347,8 +346,8 @@ classdef Gsol < handle
                 type = 0; % 0:xyz-ecef,1:enu-baseline
             end
 
-            tr = obj.roundDateTime(obj.time.t,2);
-            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',2);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))', obj.dt);
             nfix = length(tfixr);
             tfix = NaT(nfix,1);
             [~, idx1,idx2] = intersect(tfixr,tr);
@@ -393,8 +392,8 @@ classdef Gsol < handle
                 obj gt.Gsol
                 gsolref gt.Gsol
             end
-            t = obj.roundDateTime(obj.time.t,2);
-            tref = obj.roundDateTime(gsolref.time.t,2);
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gsolref.time.t, gsolref.dt);
             [~,tind,tindref] = intersect(t,tref);
             gsol = obj.select(tind);
             gsolref = gsolref.select(tindref);
@@ -581,8 +580,10 @@ classdef Gsol < handle
     %% private functions
     methods (Access = private)
         % round datetime
-        function dtr = roundDateTime(~, dt, dec)
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime");
         end
 
         function plotSolStat(~, x, y, stat, lflag)

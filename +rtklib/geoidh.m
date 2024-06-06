@@ -8,7 +8,7 @@
 %    model : 1x1, geoid model type
 %              0: EMBEDDED (default) 1: EGM96_M150, 
 %              2: EGM2008_M25, 3: EGM2008_M10, 4: GSI2000_M15
-%    file  : 1x1, geoid model file path
+%   [file] : 1x1, geoid model file path
 %
 % Outputs:
 %    geoh  : Mx1, geoid height (m) (0.0:error)

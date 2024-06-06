@@ -154,20 +154,23 @@ classdef Gerr < handle
         function addOffset(obj, offset, coordtype)
             arguments
                 obj gt.Gerr
-                offset (1,3) double
+                offset (:,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
+            end
+            if size(offset,1)~=obj.n || size(offset,1)~=1
+                error("Size of offset must be obj.n or 1");
             end
             switch coordtype
                 case 'enu'
                     if isempty(obj.enu)
                         error('enu must be set to a value');
                     end
-                    obj.setErr(obj.enu + offset, 'enu');
+                    obj.setErr(obj.enu+offset, 'enu');
                 case 'xyz'
                     if isempty(obj.xyz)
                         error('xyz must be set to a value');
                     end
-                    obj.setErr(obj.xyz + offset, 'xyz');
+                    obj.setErr(obj.xyz+offset, 'xyz');
             end
         end
 

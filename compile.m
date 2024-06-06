@@ -149,6 +149,7 @@ eval(['mex readsolstat.c solstat2solstat.c -I./RTKLIB/src ./RTKLIB/src/rtkcmn.c 
 eval(['mex outsol.c sol2sol.c opt2opt.c -I./RTKLIB/src ./RTKLIB/src/rtkcmn.c ./RTKLIB/src/solution.c ./RTKLIB/src/geoid.c -outdir ../+rtklib' option]);% outsolex
 % outnmea_rmc
 % outnmea_gga
+% outnmea_gsv
 
 %% google earth kml/gpx converter
 % convkml

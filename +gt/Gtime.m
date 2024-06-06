@@ -1,60 +1,71 @@
 classdef Gtime < handle
     % Gtime: GPS time class
-    %
+    % ---------------------------------------------------------------------
     % Gtime Declaration:
-    % obj = Gtime(epoch, [utcflag])
-    %   epoch    : Nx6, calendar time vector
-    %                [year, month, day, hour, minutes, second]
-    %   [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
+    %   obj = Gtime(epoch, [utcflag])
+    %     epoch   : Mx6, calendar time vector
+    %                 [year, month, day, hour, minutes, second]
+    %    [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
-    % obj = Gtime(tow, week)
-    %   tow      : Nx1, time of week in GPST (s)
-    %   week     : Nx1 or 1x1, GPS week
+    %   obj = Gtime(tow, week)
+    %     tow     : Mx1, time of week in GPST (s)
+    %     week    : Mx1 or 1x1, GPS week
     %
-    % obj = Gtime(sod, ymd, [utcflag])
-    %   sod      : Nx1, Seconds of day (s)
-    %   ymd      : Nx3 or 1x3, [year, month, day]
-    %   [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
+    %   obj = Gtime(sod, ymd, [utcflag])
+    %     sod     : Mx1, Seconds of day (s)
+    %     ymd     : Mx3 or 1x3, [year, month, day]
+    %    [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
-    % obj = Gtime(t)
-    %   t        : Mx1, datetime vector in MATLAB
-    %
+    %   obj = Gtime(t)
+    %     t       : Mx1, MATLAB datetime
+    % ---------------------------------------------------------------------
     % Gtime Properties:
-    %   n        : 1x1, Number of epochs
-    %   ep       : (obj.n)x3, calendar time vector
-    %                [year, month, day, hour, minutes, second]
-    %   tow      : (obj.n)x1, Nx1, time of week in GPST (s)
-    %   week     : (obj.n)x3, GPS week
-    %   t        : (obj.n)x1, datetime vector in MATLAB
-    %
+    %   n         : 1x1, Number of epochs
+    %   ep        : (obj.n)x6, Calendar time vector
+    %                 [year, month, day, hour, minutes, second]
+    %   tow       : (obj.n)x1, Time of week in GPST (s)
+    %   week      : (obj.n)x3, GPS week
+    %   t         : (obj.n)x1, MATLAB Datetime vector
+    % ---------------------------------------------------------------------
     % Gtime Methods:
-    %   setEpoch(epoch, [utcflag]):
-    %   setGPST(tow, week):
-    %   setSod(sod, ymd, [utcflag]):
-    %   setDatetime(t):
-    %   append(gtime)
-    %   addOffset(offset)
-    %   round([ndec]):
-    %   gtime = select(idx):
-    %   gtime = selectTimeSpan(ts, te):
-    %   dt = estInterval([ndec])
-    %   doy = doy([idx]):
-    %   dow = dow([idx]):
-    %   sod = sod([idx]):
-    %   ymd = ymd([idx]):
-    %   hms = hms([idx]):
+    %   setEpoch(epoch, [utcflag]): Set calendar time vector
+    %   setGPST(tow, week): Set GPS time of week and GPS week
+    %   setSod(sod, ymd, [utcflag]): Set seconds of day
+    %   setDatetime(t): Set MATLAB datetime
+    %   append(gtime): Append gt.Gtime class
+    %   addOffset(offset): Add time offset
+    %   round([ndigit]): Round time to the nearest arbitrary digit
+    %   gtime = copy(): Copy object
+    %   gtime = select(idx): Select time from index
+    %   gtime = selectTimeSpan(ts, te): Select time from time span
+    %   dt = estInterval([ndigit]): Estimate time interval
+    %   doy = doy([idx]): Compute day of year
+    %   dow = dow([idx]): Compute day of week
+    %   sod = sod([idx]): Compute seconds of day
+    %   ymd = ymd([idx]): Compute year, month, day
+    %   hms = hms([idx]): Compute hour, minute, second
+    %   yy = yy([idx]): Compute two-digit year
+    %   year = year([idx]): Compute year
+    %   month = month([idx]): Compute month
+    %   day = day([idx]): Compute day
+    %   hour = hour([idx]): Compute hour
+    %   minute = minute([idx]): Compute minute
+    %   second = second([idx]): Compute second
     %   plot([idx]):
     %   plotDiff([idx]):
     %   help()
-    %
+    % ---------------------------------------------------------------------
     % Author: Taro Suzuki
 
     properties
-        n, ep, tow, week, t;
+        n    % Number of epochs
+        ep   % Calendar time vector [year, month, day, hour, minutes, second]
+        tow  % Time of week in GPST (s)
+        week % GPS week
+        t    % MATLAB Datetime vector
     end
-
     methods
-        %% constractor
+        %% constractors
         function obj = Gtime(varargin)
             if nargin==1
                 if isdatetime(varargin{1})
@@ -78,9 +89,20 @@ classdef Gtime < handle
                 error('Wrong input arguments');
             end
         end
-
-        %% set epoch
+        %% setEpoch
         function setEpoch(obj, epoch, utcflag)
+            % setEpoch: Set calendar time vector
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setEpoch(epoch, [utcflag])
+            %
+            % Input: ------------------------------------------------------
+            %   epoch   : Mx6, Calendar time vector
+            %               [year, month, day, hour, minutes, second]
+            %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
+            %               default: utcflag = 0
+            %
             arguments
                 obj gt.Gtime
                 epoch (:,6) double
@@ -95,43 +117,72 @@ classdef Gtime < handle
             obj.t = obj.ep2datetime(obj.ep);
             obj.n = size(obj.ep,1);
         end
-
-        %% set GPST
+        %% setGPST
         function setGPST(obj, tow, week)
+            % setGPST: Set GPS time of week and GPS week
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setEpoch(tow, week)
+            %
+            % Input: ------------------------------------------------------
+            %   tow : Mx1, Time of week in GPST (s)
+            %   week: Mx1 or 1x1, GPS week
+            %
             arguments
                 obj gt.Gtime
                 tow (:,1) double
                 week double {mustBeInteger, mustBeVector}
             end
-            if isscalar(week); week = repmat(week,size(tow)); end
+            if isscalar(week); week = repmat(week, size(tow)); end
             obj.tow = tow;
             obj.week = week;
             obj.ep = rtklib.tow2epoch(obj.tow, obj.week);
             obj.t = obj.ep2datetime(obj.ep);
-            obj.n = size(obj.ep, 1);
+            obj.n = size(obj.ep,1);
         end
-
-        %% set sod
+        %% setSod
         function setSod(obj, sod, ymd, utcflag)
+            % setSod: Set seconds of day
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setSod(sod, ymd, [utcflag])
+            %
+            % Input: ------------------------------------------------------
+            %   sod     : Mx1, Seconds of day (s)
+            %   ymd     : Mx3 or 1x3, [year, month, day]
+            %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
+            %               default: utcflag = 0
+            %
             arguments
                 obj gt.Gtime
                 sod (:,1) double
                 ymd (:,3) double
                 utcflag (1,1) {mustBeInteger} = 0
             end
-            if size(ymd, 1) == 1; ymd = repmat(ymd, [size(sod,1) 1]); end
+            if size(ymd,1) == 1; ymd = repmat(ymd, [size(sod,1), 1]); end
             if utcflag
-                obj.ep = rtklib.utc2gpst([ymd obj.sod2hms(sod)]);
+                obj.ep = rtklib.utc2gpst([ymd, obj.sod2hms(sod)]);
             else
-                obj.ep = [ymd obj.sod2hms(sod)];
+                obj.ep = [ymd, obj.sod2hms(sod)];
             end
             [obj.tow, obj.week] = rtklib.epoch2tow(obj.ep);
             obj.t = obj.ep2datetime(obj.ep);
             obj.n = size(obj.ep,1);
         end
-
-        %% set datatime
+        %% setDatetime
         function setDatetime(obj, t)
+            % setDatetime: Set MATLAB datetime
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setDatetime(tow, week)
+            %
+            % Input: ------------------------------------------------------
+            %   tow : Mx1, Time of week in GPST (s)
+            %   week: Mx1 or 1x1, GPS week
+            %
             arguments
                 obj gt.Gtime
                 t (:,1) datetime
@@ -141,51 +192,109 @@ classdef Gtime < handle
             [obj.tow, obj.week] = rtklib.epoch2tow(obj.ep);
             obj.n = size(obj.ep,1);
         end
-
         %% append
         function append(obj, gtime)
+            % append: Append gt.Gtime class
+            % -------------------------------------------------------------
+            % Add gtime class to obj.
+            % obj.n = obj.n + gtime.n
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.append(gtime)
+            %
+            % Input: ------------------------------------------------------
+            %   gtime : 1x1, gt.Gtime class
+            %
             arguments
                 obj gt.Gtime
                 gtime gt.Gtime
             end
             obj.setDatetime([obj.t; gtime.t]);
         end
-        
         %% addOffset
         function addOffset(obj, offset)
+            % addOffset: Add time offset
+            % -------------------------------------------------------------
+            % Add a time offset to obj. The offset must be a scalar
+            % or of the same size as obj.
+            % The offset must be of double or MATLAB duration.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.addOffset(offset)
+            %
+            % Input: ------------------------------------------------------
+            %   offset : Mx1 or 1x1, Time offset
+            %              double (s) or MATLAB duration
+            %
             arguments
                 obj gt.Gtime
-                offset (1,1)
+                offset (:,1)
+            end
+            if size(offset,1)~=obj.n || size(offset,1)~=1
+                error("Size of offset must be obj.n or 1");
             end
             switch class(offset)
                 case 'double'
                     obj.setDatetime(obj.t+seconds(offset));
                 case 'duration'
                     obj.setDatetime(obj.t+offset);
+                otherwise
+                    error("offset must be double or duration");
             end
         end
-
         %% round
-        function round(obj, ndec)
+        function round(obj, ndigit)
+            % round: Round time to the nearest arbitrary digit
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.round([ndigit])
+            %
+            % Input: ------------------------------------------------------
+            %  [ndigit] : 1x1, Arbitrary digit to round
+            %              default: ndigit = 2
+            %
             arguments
                 obj gt.Gtime
-                ndec (1,1) {mustBeInteger} = 2
+                ndigit (1,1) {mustBeInteger} = 2
             end
-            t_ = obj.roundDateTime(obj.t, ndec);
+            t_ = dateshift(dt,'start','minute') + seconds(round(second(obj.t), ndigit));
             obj.setDatetime(t_);
         end
-
         %% copy
         function gtime = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.copy()
+            %
+            % Output: ------------------------------------------------------
+            %   gtime : 1x1, Copied object
+            %
             arguments
                 obj gt.Gtime
             end
             gtime = obj.select(1:obj.n);
         end
-
         %% select
-        % select from index
         function gtime = select(obj, idx)
+            % select: Select time from index
+            % -------------------------------------------------------------
+            % Select time from the index and return a new object.
+            % The index may be a logical or numeric index.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.select(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx  : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   gtime: 1x1, Selected object
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector}
@@ -193,166 +302,353 @@ classdef Gtime < handle
             if ~any(idx)
                 error('Selected index is empty');
             end
-            gtime = gt.Gtime(obj.ep(idx, :));
+            gtime = gt.Gtime(obj.ep(idx,:));
         end
-        % select from time span
+        %% selectTimeSpan
         function [gtime, idx] = selectTimeSpan(obj, ts, te)
+            % selectTimeSpan: Select time from time span
+            % -------------------------------------------------------------
+            % Select time from the time span and return a new object.
+            % Time span is the start and end time of gt.Gtime type.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.selectTimeSpan(ts, te)
+            %
+            % Input: ------------------------------------------------------
+            %   ts  : 1x1, gt.Gtime, Start time
+            %   te  : 1x1, gt.Gtime, End time
+            %
+            % Output: ------------------------------------------------------
+            %   gtime: 1x1, Selected object
+            %
             arguments
                 obj gt.Gtime
-                ts (1,1) gt.Gtime
-                te (1,1) gt.Gtime
+                ts gt.Gtime
+                te gt.Gtime
             end
             idx = obj.t>=ts.t & obj.t<=te.t;
             gtime = obj.select(idx);
         end
-
-        %% estimate time interval
-        function dt = estInterval(obj, ndec)
+        %% estInterval
+        function dt = estInterval(obj, ndigit)
+            % estInterval: Estimate time interval
+            % -------------------------------------------------------------
+            % Estimate the time interval from the time vector.
+            % If the time interval is not constant, use the median to
+            % output a reasonable time interval.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.selectTimeSpan(ts, te)
+            %
+            % Input: ------------------------------------------------------
+            %  [ndigit] : 1x1, Arbitrary digit to estimated time interval
+            %              default: ndigit = 2
+            %
+            % Output: ------------------------------------------------------
+            %   dt: 1x1, double, Estimated time interval (s)
+            %
             arguments
                 obj gt.Gtime
-                ndec (1,1) {mustBeInteger} = 2
+                ndigit (1,1) {mustBeInteger} = 2
             end
-
             if obj.n > 1
-                dt = round(median(seconds(diff(obj.t))),ndec);
+                dt = round(median(seconds(diff(obj.t))), ndigit);
             else
                 dt = 0;
             end
         end
 
-        %% access
-        % day of year
+        %% doy
         function doy = doy(obj, idx)
+            % doy: Compute day of year
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   doy = obj.doy([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   doy: Mx1, Day of year (0-365)
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             doy = fix(rtklib.epoch2doy(obj.ep(idx,:)));
         end
-        % day of week
+        %% dow
         function dow = dow(obj, idx)
+            % dow: Compute day of week
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   dow = obj.dow([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   dow: Mx1, Day of week (0-6)
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             dow = weekday(obj.t.t(idx));
         end
-        % seconds of day
+        %% sod
         function sod = sod(obj, idx)
+            % sod: Compute seconds of day
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   sod = obj.sod([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   sod: Mx1, Seconds of day (0-86400)
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             sod = obj.hms2sod(obj.ep(idx, 4:6));
         end
-        % year,month,date
+        %% ymd
         function ymd = ymd(obj, idx)
+            % ymd: Compute year, month, day
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   ymd = obj.ymd([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   ymd: Mx3, Year, Month, Day [year, month, day]
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             ymd = obj.ep(idx, 1:3);
         end
-        % hour,minute,second
+        %% hms
         function hms = hms(obj, idx)
+            % hms: Compute hour, minute, second
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   hms = obj.hms([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   hms: Mx3, Hour, Minute, Second [hour, minute, second]
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             hms = obj.ep(idx, 4:6);
         end
-        % Two-digit year
+        %% yy
         function yy = yy(obj, idx)
+            % yy: Compute two-digit year
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   yy = obj.yy([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   yy: Mx1, Hour, Two-digit year (0-99)
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             yy = obj.ep(idx, 1)-2000;
         end
-        % year
+        %% year
         function year = year(obj, idx)
+            % year: Compute year
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   year = obj.year([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   year: Mx1, Year
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             year = obj.ep(idx, 1);
         end
-        % month
+        %% month
         function month = month(obj, idx)
+            % month: Compute month
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   month = obj.month([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   month: Mx1, Month
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             month = obj.ep(idx, 2);
         end
-        % day
+        %% day
         function day = day(obj, idx)
+            % day: Compute day
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   day = obj.day([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   day: Mx1, Day
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             day = obj.ep(idx, 3);
         end
-        % hour
+        %% hour
         function hour = hour(obj, idx)
+            % hour: Compute hour
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   hour = obj.hour([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   hour: Mx1, Hour
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             hour = obj.ep(idx, 4);
         end
-        % minute
+        %% minute
         function minute = minute(obj, idx)
+            % minute: Compute minute
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   minute = obj.minute([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   minute: Mx1, Minute
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             minute = obj.ep(idx, 5);
         end
-        % second
+        %% second
         function second = second(obj, idx)
+            % second: Compute second
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   second = obj.second([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   second: Mx1, Second
+            %
             arguments
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             second = obj.ep(idx, 6);
         end
-
         %% plot
-        function plot(obj)
+        function plot(obj, idx)
+            % plot: Plot time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gtime
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             figure;
-            plot(obj.t, '.-');
+            plot(obj.t(idx), '.-');
             ylabel('Time');
             grid on;
         end
-        function plotDiff(obj)
+        %% plotDiff
+        function plotDiff(obj, idx)
+            % plotDiff: Plot time difference
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotDiff([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gtime
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             if obj.n > 1
                 figure;
-                plot(seconds(diff(obj.t)), '.-');
+                plot(seconds(diff(obj.t(idx))), '.-');
                 ylabel('Time difference (s)');
                 grid on;
             end
         end
-
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gtime
         end
     end
-
-    %% private functions
+    %% Private functions
     methods (Access = private)
-        % round datetime
-        function dtr = roundDateTime(~, dt, dec)
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
-        end
-        % convert
+        %% Convert hms to seconds of day
         function sod = hms2sod(~, hms)
             arguments
                 ~
@@ -360,6 +656,7 @@ classdef Gtime < handle
             end
             sod = 3600*hms(:,1)+60*hms(:,2)+hms(:,3);
         end
+        %% Convert seconds of day to hms
         function hms = sod2hms(~,sod)
             arguments
                 ~
@@ -370,13 +667,14 @@ classdef Gtime < handle
             s = sod-3600*h-60*m;
             hms = [h m s];
         end
+        %% Convert epoch to datetime
         function t = ep2datetime(~, ep)
             arguments
                 ~
                 ep (:,6) double
             end
             t = datetime(ep(:,1),ep(:,2),ep(:,3),ep(:,4),ep(:,5),fix(ep(:,6)),...
-                round(1000*(ep(:,6)-fix(ep(:,6)))));
+                round(1000*(ep(:,6)-fix(ep(:,6))))); % ms
         end
     end
 end
