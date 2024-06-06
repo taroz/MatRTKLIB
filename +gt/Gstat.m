@@ -9,7 +9,7 @@ classdef Gstat < handle
     %
     % obj = Gnav(statstr)
     %   statstr   : MxN, ssat_t/stat_t struct array
-    %
+    % ---------------------------------------------------------------------
     % Gopt Properties:
     %   n         : 1x1, Number of epochs
     %   nsat      : 1x1, Number of satellites
@@ -38,7 +38,7 @@ classdef Gstat < handle
     %   L7        : 1x1, L7 observation struct
     %   L8        : 1x1, L8 observation struct
     %   L9        : 1x1, L9 observation struct
-    %
+    % ---------------------------------------------------------------------
     % Gstat Methods:
     %   setStatFile(file):
     %   setStatStruct(statstr):
@@ -47,7 +47,22 @@ classdef Gstat < handle
     %     Author: Taro Suzuki
 
     properties
-        n, nsat, sat, prn, sys, satstr, time, az, el, L1, L2, L5, L6, L7, L8, L9;
+        n % Number of epochs
+        nsat % Number of satellites
+        sat % Satellite number defined in RTKLIB
+        prn % Satellite prn/slot number
+        sys % Satellite system (SYS_GPS, SYS_GLO, ...)
+        satstr % Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
+        time % Time, gt.Gtime classGLONASS
+        az % Azimath angle (deg)
+        el % Elevation angle (deg)
+        L1 % L1 observation struct
+        L2 % L2 observation struct
+        L5 % L5 observation struct
+        L6 % L6 observation struct
+        L7 % L7 observation struct
+        L8 % L8 observation struct
+        L9 % L9 observation struct
     end
     properties(Access=private)
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9"];
@@ -66,6 +81,15 @@ classdef Gstat < handle
 
         %% set option data from config file
         function setStatFile(obj, file)
+            % setStatFile : set option data from config file
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   obj.setStatFile(file)
+            %
+            % Input: ------------------------------------------------------
+            %  file : 1x1, RTKLIB solution status file
+            %
             arguments
                 obj gt.Gstat
                 file (1,:) char = ''
@@ -75,6 +99,15 @@ classdef Gstat < handle
         end
         %% set status data from status struct array
         function setStatStruct(obj, statstr)
+            % setStatStruct : set status data from status struct array
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   obj.setStatStruct(statstr)
+            %
+            % Input: ------------------------------------------------------
+            %  statstr : MxN, ssat_t/stat_t struct array
+            %
             arguments
                 obj gt.Gstat
                 statstr struct
