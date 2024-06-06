@@ -90,8 +90,8 @@ classdef Gpos < handle
             %   obj.setPos(pos, postype)
             %
             % Input: ------------------------------------------------------
-            %   pos    : position data
-            %   postype: position type 'llh' or 'xyz' or 'enu'
+            %   pos    : Position data
+            %   postype: Position type 'llh' or 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gpos
@@ -128,8 +128,8 @@ classdef Gpos < handle
             %   obj.setOrg(pos, postype)
             %
             % Input: ------------------------------------------------------
-            %   org    : position data
-            %   orgtype: position type 'llh' or 'xyz' or 'enu'
+            %   org    : Position data
+            %   orgtype: Position type 'llh' or 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gpos
