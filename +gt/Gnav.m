@@ -195,7 +195,7 @@ classdef Gnav < handle
             %
             % Input: ------------------------------------------------------
             %   file : "Satellite antenna PCV file path" 
-            %   time : observation time
+            %   time : Observation time
             %
             arguments
                 obj gt.Gnav
