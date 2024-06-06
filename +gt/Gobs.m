@@ -143,7 +143,7 @@ classdef Gobs < handle
             %   obj.setObsStruct(obsstr)
             %
             % Input: ------------------------------------------------------
-            %   obsstr : obaservation struct 
+            %   obsstr : Observation struct 
             %
             arguments
                 obj gt.Gobs
@@ -201,7 +201,7 @@ classdef Gobs < handle
             %   obj.setObsStruct(nav)
             %
             % Input: ------------------------------------------------------
-            %   nav : navigation struct 
+            %   nav : Navigation struct 
             %
             arguments
                 obj gt.Gobs
@@ -267,7 +267,7 @@ classdef Gobs < handle
             %   obj.append(gobs)
             %
             % Input: ------------------------------------------------------
-            %   gobs : obj to be integrated with the gobs
+            %   gobs : Obj to be integrated with the gobs
             %
             arguments
                 obj gt.Gobs
@@ -754,7 +754,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Synchronized object
@@ -778,7 +778,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonSat(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Object synchronized by common satellite 
@@ -803,7 +803,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonTime(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Object synchronized by common time 
@@ -829,7 +829,7 @@ classdef Gobs < handle
             %   gobs = obj.sameObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Matched object 
@@ -851,7 +851,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.sameSat(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Object matched by satellite 
@@ -892,7 +892,7 @@ classdef Gobs < handle
             %   gobs = obj.sameTime(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Object matched by time 
@@ -999,7 +999,7 @@ classdef Gobs < handle
             %   gobs = obj.residuals(gsat)
             %
             % Input: ------------------------------------------------------
-            %   gsat : satellite data at observation time
+            %   gsat : Satellite data at observation time
             %
             % Output: ------------------------------------------------------
             %   gobs: Object with residuals defined
@@ -1088,7 +1088,7 @@ classdef Gobs < handle
             %   gobsDD = obj.doubleDifference(refidx)
             %
             % Input: ------------------------------------------------------
-            %   refidx : index of reference satellite
+            %   refidx : Index of reference satellite
             %
             % Output: ------------------------------------------------------
             %   gobsDD: Observation data object with double difference defined
@@ -1125,7 +1125,7 @@ classdef Gobs < handle
             %
             % Input: ------------------------------------------------------
             %   freq : Frequency band to plot (default: 'L1')
-            %   sidx : index of satellites to plot (default: all satellite)
+            %   sidx : Index of satellites to plot (default: all satellite)
             %
             arguments
                 obj gt.Gobs
