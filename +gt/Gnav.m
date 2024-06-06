@@ -1,6 +1,6 @@
 classdef Gnav < handle
     % Gnav: GNSS RINEX navigation data class
-    %
+    % ---------------------------------------------------------------------
     % Gnav Declaration:
     % obj = Gnav(file)
     %   file      : 1x1, RINEX navigation file
@@ -8,7 +8,7 @@ classdef Gnav < handle
     %
     % obj = Gnav(navstr)
     %   navstr    : 1x1, RTKLIB navigation struct
-    %
+    % ---------------------------------------------------------------------
     % Gnav Properties:
     %   eph       : Nx1, GPS/QZS/GAL/BDS/IRN ephemeris struct array:
     %   geph      : NGx1, GLONASS ephemeris struct array
@@ -21,7 +21,7 @@ classdef Gnav < handle
     %     .???    : 1x8 or 1x9 or 1x8, ??? = gps or glo or gal or qzs or cmp irn or sbs
     %   ion       : 1x8 or 1x4, ionosphere model parameter
     %     .???    : ??? = gps or gal or qzs or cmp or irn
-    %
+    % ---------------------------------------------------------------------
     % Gnav Methods:
     %   setNavFile(file):
     %   setNavStruct(navstr):
@@ -33,11 +33,19 @@ classdef Gnav < handle
     %   navstr = struct():
     %   getTGD(sat):
     %   help()
-    %
-    %     Author: Taro Suzuki
+    % ---------------------------------------------------------------------
+    %   Author: Taro Suzuki
 
     properties
-        eph, geph, peph, pclk, erp, pcv, dcb, utc, ion;
+        eph  % GPS/QZS/GAL/BDS/IRN ephemeris
+        geph % GLONASS ephemeris
+        peph % Precise ephemeris
+        pclk % Precise clock
+        erp  % Earth rotation parameter
+        pcv  % Satellite antenna PCV
+        dcb  % satellite DCB (0:P1-P2, 1:P1-C1, 2:P2-C2) (m)
+        utc  % UTC time parameters
+        ion  % Ionosphere model parameter
     end
     methods
         %% constractor
@@ -53,6 +61,15 @@ classdef Gnav < handle
 
         %% set navigation data from RINEX file
         function setNavFile(obj, file)
+            % setNavFile: Set Navigation from RINEX file 
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setNavFile(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "RINEX Navigation file path"
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -76,6 +93,15 @@ classdef Gnav < handle
         end
         %% set navigation data from navigation struct
         function setNavStruct(obj, navstr)
+            % setNavStruct: Set navigation from navigation struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setNavStruct(navstr)
+            %
+            % Input: ------------------------------------------------------
+            %   navstr : navigation struct 
+            %
             arguments
                 obj gt.Gnav
                 navstr (1,1) struct
@@ -103,6 +129,15 @@ classdef Gnav < handle
 
         %% read precise ephemeris
         function readSP3(obj, file)
+            % readSP3: Read precise ephemeris(.SP3)
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.readSP3(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "Precisse ephemeris(.SP3)  file path" 
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -113,6 +148,15 @@ classdef Gnav < handle
 
         %% read precise clock
         function readCLK(obj, file)
+            % readCLK: Read precise clock
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.readCLK(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "Precisse clock file path" 
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -123,6 +167,15 @@ classdef Gnav < handle
 
         %% read earth rotation parameter
         function readERP(obj, file)
+            % readERP: Read earth rotation parameter
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.readERP(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "earth rotation parameter file path" 
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -132,6 +185,18 @@ classdef Gnav < handle
 
         %% read satellite antenna PCV
         function readSatPCV(obj, file, time)
+            % readSatPCV: Read satellite antenna PCV 
+            %             and set PCV corrected navigation object
+            % -------------------------------------------------------------
+            % Read PCV file and calculate PCV correction value.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.readSatPCV(file, time)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "satellite antenna PCV file path" 
+            %   time : observation time
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -143,6 +208,17 @@ classdef Gnav < handle
 
         %% set satellite DCB
         function readDCB(obj, file)
+            % readDCB:  Read satellite antenna DCB 
+            %           and set DCB corrected navigation object
+            % -------------------------------------------------------------
+            % Read DCB file and calculate DCB correction value.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.readDCB(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "Read satellite antenna DCB file path" 
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -151,8 +227,17 @@ classdef Gnav < handle
             obj.setNavStruct(navstr);
         end
 
-        %% output observation file
+        %% output Navigation file
         function outNav(obj, file)
+            % outNav: Output RINEX Navigation file
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.outNav(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : "The output RINEX Navigation file path" 
+            %
             arguments
                 obj gt.Gnav
                 file (1,:) char
@@ -163,6 +248,15 @@ classdef Gnav < handle
 
         %% convert to struct
         function navstr = struct(obj)
+            % struct: Navigation convert to navigation struct 
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.struct()
+            %
+            % Output: ------------------------------------------------------
+            %   navstr: navigation struct
+            %
             arguments
                 obj gt.Gnav
             end
@@ -189,6 +283,19 @@ classdef Gnav < handle
 
         %% getTGD
         function [tgd, vtgd] = getTGD(obj, sat)
+            % getTGD: Calclate tgd value for specified satellite
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   [tgd, vtgd] = getTGD(sat)
+            %
+            % Input: ------------------------------------------------------
+            %   sat : satellite number vector
+            %
+            % Output: ------------------------------------------------------
+            %   tgd : Tgd value
+            %   vtgd: Tgd variance (constant)
+            %
             arguments
                 obj gt.Gnav
                 sat (1,:) {mustBeInteger, mustBeVector}
