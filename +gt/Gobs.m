@@ -144,7 +144,7 @@ classdef Gobs < handle
             %   obj.setObsStruct(obsstr)
             %
             % Input: ------------------------------------------------------
-            %   obsstr : obaservation struct 
+            %   obsstr : Observation struct 
             %
             arguments
                 obj gt.Gobs
@@ -202,7 +202,7 @@ classdef Gobs < handle
             %   obj.setObsStruct(nav)
             %
             % Input: ------------------------------------------------------
-            %   nav : navigation struct 
+            %   nav : Navigation struct 
             %
             arguments
                 obj gt.Gobs
@@ -260,7 +260,7 @@ classdef Gobs < handle
 
         %% append
         function append(obj, gobs)
-            % append: Integration of gobs into obj
+            % append: Integration of gt.Gobs classes
             % -------------------------------------------------------------
             % gobs is gt.Gobs type.
             %
@@ -268,7 +268,7 @@ classdef Gobs < handle
             %   obj.append(gobs)
             %
             % Input: ------------------------------------------------------
-            %   gobs : obj to be integrated with the gobs
+            %   gobs : gt.Gobs class
             %
             arguments
                 obj gt.Gobs
@@ -315,7 +315,7 @@ classdef Gobs < handle
             %   freq : String array of frequency types to be masked        
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object masked by pseudorange
+            %   gobs: New gt.Gobs class masked by pseudorange
             %
             arguments
                 obj gt.Gobs
@@ -365,7 +365,7 @@ classdef Gobs < handle
             %   freq : String array of frequency types to be masked           
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object masked by doppler frequency
+            %   gobs: New gt.Gobs class masked by doppler frequency
             %
             arguments
                 obj gt.Gobs
@@ -409,7 +409,7 @@ classdef Gobs < handle
             %   freq : String array of frequency types to be masked (optional)
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object masked by carrier phase
+            %   gobs: New gt.Gobs class masked by carrier phase
             %
             arguments
                 obj gt.Gobs
@@ -445,7 +445,7 @@ classdef Gobs < handle
 
         %% apply mask to observation 
         function gobs = mask(obj, mask, freq)
-            % mask: Apply mask to observation 
+            % mask: Apply mask to gt.Gobs class 
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
             % Freq is optional. Default is obj.FTYPE.
@@ -460,7 +460,7 @@ classdef Gobs < handle
             %   freq : String array of frequency types to be masked (optional)           
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object masked by
+            %   gobs: New gt.Gobs class masked by
             %         pseudorange, carrier phase, and doppler
             %
             arguments
@@ -486,7 +486,7 @@ classdef Gobs < handle
             %   gobs = obj.maskLLI()       
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object masked by LLI flag
+            %   gobs: New gt.Gobs class masked by LLI flag
             %
             arguments
                 obj gt.Gobs
@@ -510,7 +510,7 @@ classdef Gobs < handle
             %   gobs = obj.eliminateNaN()       
             %
             % Output: ------------------------------------------------------
-            %   gobs: A new object eliminate all NaN satellite
+            %   gobs: New gt.Gobs class eliminate all NaN satellite
             %
             arguments
                 obj gt.Gobs
@@ -533,7 +533,7 @@ classdef Gobs < handle
             %   gobs = obj.copy()       
             %
             % Output: ------------------------------------------------------
-            %   gobs: A copied object
+            %   gobs: Copied object
             %
             arguments
                 obj gt.Gobs
@@ -755,7 +755,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Synchronized object
@@ -779,7 +779,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonSat(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Object synchronized by common satellite 
@@ -804,7 +804,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.commonTime(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobsc  : Object synchronized by common time 
@@ -830,7 +830,7 @@ classdef Gobs < handle
             %   gobs = obj.sameObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Matched object 
@@ -852,7 +852,7 @@ classdef Gobs < handle
             %   [gobsc, gobrefc] = obj.sameSat(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Object matched by satellite 
@@ -893,7 +893,7 @@ classdef Gobs < handle
             %   gobs = obj.sameTime(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : reference object
+            %   gobsref : Reference object
             %
             % Output: ------------------------------------------------------
             %   gobs : Object matched by time 
@@ -974,7 +974,7 @@ classdef Gobs < handle
             %   gobs = obj.linearCombination()
             %
             % Output: ------------------------------------------------------
-            %   gobs : Object with linear combination defined
+            %   gobs : gt.Gobs class with linear combination defined
             %
             arguments
                 obj gt.Gobs
@@ -1006,10 +1006,10 @@ classdef Gobs < handle
             %   gobs = obj.residuals(gsat)
             %
             % Input: ------------------------------------------------------
-            %   gsat : satellite data at observation time
+            %   gsat : Satellite data at observation time
             %
             % Output: ------------------------------------------------------
-            %   gobs: Object with residuals defined
+            %   gobs: gt.Gobs class with residuals defined
             %       
             arguments
                 obj gt.Gobs
@@ -1064,7 +1064,7 @@ classdef Gobs < handle
             %   gobs : observation data object
             %
             % Output: ------------------------------------------------------
-            %   gobsSD: Observation data object with single difference defined
+            %   gobsSD: gt.Gobs class with single difference defined
             %
             arguments
                 obj gt.Gobs
@@ -1100,10 +1100,10 @@ classdef Gobs < handle
             %   gobsDD = obj.doubleDifference(refidx)
             %
             % Input: ------------------------------------------------------
-            %   refidx : index of reference satellite
+            %   refidx : Index of reference satellite
             %
             % Output: ------------------------------------------------------
-            %   gobsDD: Observation data object with double difference defined
+            %   gobsDD: gt.Gobs class with double difference defined
             %
             arguments
                 obj gt.Gobs
@@ -1137,7 +1137,7 @@ classdef Gobs < handle
             %
             % Input: ------------------------------------------------------
             %   freq : Frequency band to plot (default: 'L1')
-            %   sidx : index of satellites to plot (default: all satellite)
+            %   sidx : Index of satellites to plot (default: all satellite)
             %
             arguments
                 obj gt.Gobs
@@ -1166,6 +1166,7 @@ classdef Gobs < handle
                 c = colorbar(gca,'northoutside');
                 c.Label.String = [freq ' SNR (dB-Hz)'];
                 drawnow
+                end
             end
         end
         function plotNSat(obj, freq, snrth, sidx)

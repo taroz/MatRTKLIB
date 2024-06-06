@@ -100,7 +100,7 @@ classdef Gnav < handle
             %   obj.setNavStruct(navstr)
             %
             % Input: ------------------------------------------------------
-            %   navstr : navigation struct 
+            %   navstr : Navigation struct 
             %
             arguments
                 obj gt.Gnav
@@ -174,7 +174,7 @@ classdef Gnav < handle
             %   obj.readERP(file)
             %
             % Input: ------------------------------------------------------
-            %   file : "earth rotation parameter file path" 
+            %   file : "Earth rotation parameter file path" 
             %
             arguments
                 obj gt.Gnav
@@ -194,8 +194,8 @@ classdef Gnav < handle
             %   obj.readSatPCV(file, time)
             %
             % Input: ------------------------------------------------------
-            %   file : "satellite antenna PCV file path" 
-            %   time : observation time
+            %   file : "Satellite antenna PCV file path" 
+            %   time : Observation time
             %
             arguments
                 obj gt.Gnav
@@ -255,7 +255,7 @@ classdef Gnav < handle
             %   obj.struct()
             %
             % Output: ------------------------------------------------------
-            %   navstr: navigation struct
+            %   navstr: Navigation struct
             %
             arguments
                 obj gt.Gnav
