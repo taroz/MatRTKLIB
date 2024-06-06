@@ -22,42 +22,49 @@ classdef Gerr < handle
     %   d3      : (obj.n)x1, 3D error
     %
     % Gerr Methods:
-    %   setErr(err, type):
-    %   setOrg(pos, postype):
-    %   append(gerr):
-    %   addOffset(offset, [coordtype]):
-    %   gerr = select([idx]):
-    %   [mxyz, sdxyz] = meanXYZ([idx]):
-    %   [menu, sdenu] = meanENU([idx]):
-    %   [m2d, sd2d] = mean2D([idx]):
-    %   [m3d, sd3d] = mean3D([idx]):
-    %   rxyz = rmsXYZ([idx]):
-    %   renu = rmsENU([idx]):
-    %   r2d = rms2D([idx]):
-    %   r3d = rms3D([idx]):
-    %   p2d = ptile2D([p],[idx]):
-    %   p3d = ptile3D([p],[idx]):
-    %   cep = cep([idx]):
-    %   sep = sep([idx]):
-    %   x = x([idx]):
-    %   y = y([idx]):
-    %   z = z([idx]):
-    %   east = east([idx]):
-    %   north = north([idx]):
-    %   up = up([idx])
-    %   plot([idx]):
-    %   plotENU([idx]):
-    %   plotXYZ([idx]):
-    %   plot2D([idx]):
-    %   plot3D([idx]):
-    %   plotCDF2D([idx]):
-    %   plotCDF3D([idx]):
+    %   setErr(err, type):Set error
+    %   setOrg(pos, postype):Set coordinate orgin
+    %   append(gerr):Append another Gerr object to the current object
+    %   addOffset(offset, [coordtype]):Add an offset to the ENU or XYZ data
+    %   gerr = select([idx]): Select time from index
+    %   [mxyz, sdxyz] = meanXYZ([idx]): Calculate mean and standard deviation of XYZ data
+    %   [menu, sdenu] = meanENU([idx]):Calculate mean and standard deviation of ENU data
+    %   [m2d, sd2d] = mean2D([idx]):Calculate mean and standard deviation of 2D data
+    %   [m3d, sd3d] = mean3D([idx]):Calculate mean and standard deviation of 3D data
+    %   rxyz = rmsXYZ([idx]):Calculate root mean square of XYZ data
+    %   renu = rmsENU([idx]):Calculate root mean square of ENU data
+    %   r2d = rms2D([idx]):Calculate root mean square of 2D data
+    %   r3d = rms3D([idx]):Calculate root mean square of 3D data
+    %   p2d = ptile2D([p],[idx]):Calculates the specified percentiles of the 2D error data
+    %   p3d = ptile3D([p],[idx]):Calculates the specified percentiles of the 3D error data
+    %   cep = cep([idx]):Calculates the Circular Error Probable
+    %   sep = sep([idx]):Calculates the Spherical Error Probable
+    %   x = x([idx]):Accesses the x-component of the XYZ data
+    %   y = y([idx]):Accesses the y-component of the XYZ data
+    %   z = z([idx]):Accesses the z-component of the XYZ data
+    %   east = east([idx]):Accesses the east-component of the ENU data
+    %   north = north([idx]):Accesses the north-component of the ENU data
+    %   up = up([idx])Accesses the up-component of the ENU data
+    %   plot([idx]):plot the ENU error data
+    %   plotENU([idx]):plot the ENU error data
+    %   plotXYZ([idx]):plot the XYZ error data
+    %   plot2D([idx]):plot the 2D error data
+    %   plot3D([idx]):plot the 3D error data
+    %   plotCDF2D([idx]):Plot the Cumulative Distribution Function of 2D error data
+    %   plotCDF3D([idx]):Plot the Cumulative Distribution Function of 3D error data
     %   help()
     %
     % Author: Taro Suzuki
 
     properties
-        type, n, xyz, enu, orgllh, orgxyz, d2, d3;
+        type % 'position' or 'velocity' or 'acceleration'
+        n % Number of epochs
+        xyz % ECEF position/velocity/acceleration error
+        enu % Local ENU position/velocity/acceleration error
+        orgllh % Coordinate origin (deg, deg, m)
+        orgxyz % Coordinate origin in ECEF (m, m, m)
+        d2 % Horizontal (2D) error
+        d3 % 3D error
     end
     properties (Access = private)
         unit
@@ -87,6 +94,16 @@ classdef Gerr < handle
 
         %% set error
         function setErr(obj, err, coordtype)
+            % setErr: Set error
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setErr(err, coordtype)
+            %
+            % Input: ------------------------------------------------------
+            %   err : Nx3, position/velocity/acceleration error vector
+            %   coordtype : Coordinate type: 'xyz' or 'enu'
+            %
             arguments
                 obj gt.Gerr
                 err (:,3) double
@@ -111,6 +128,16 @@ classdef Gerr < handle
 
         %% set coordinate orgin
         function setOrg(obj, org, orgtype)
+            % setOrg: Set coordinate orgin
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrg(org, orgtype)
+            %
+            % Input: ------------------------------------------------------
+            %   org : Coordinate origin
+            %   orgtype : 1x1, Coordinate type: 'llh' or 'xyz'
+            %
             arguments
                 obj gt.Gerr
                 org (1,3) double
@@ -135,6 +162,15 @@ classdef Gerr < handle
 
         %% append
         function append(obj, gerr)
+            % append: Append another Gerr object to the current object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.append(gerr)
+            %
+            % Input: ------------------------------------------------------
+            %   gerr : Another Gerr object to append to the current object
+            %
             arguments
                 obj gt.Gerr
                 gerr gt.Gerr
@@ -152,30 +188,48 @@ classdef Gerr < handle
 
         %% addOffset
         function addOffset(obj, offset, coordtype)
+            % addOffset: Add an offset to the ENU or XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.addOffset(offset, coordtype)
+            %
+            % Input: ------------------------------------------------------
+            %   offset : Array representing the offset to be added
+            %   coordtype : Coordinate type: 'xyz' or 'enu'
+            %
             arguments
                 obj gt.Gerr
-                offset (:,3) double
+                offset (1,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
-            end
-            if size(offset,1)~=obj.n || size(offset,1)~=1
-                error("Size of offset must be obj.n or 1");
             end
             switch coordtype
                 case 'enu'
                     if isempty(obj.enu)
                         error('enu must be set to a value');
                     end
-                    obj.setErr(obj.enu+offset, 'enu');
+                    obj.setErr(obj.enu + offset, 'enu');
                 case 'xyz'
                     if isempty(obj.xyz)
                         error('xyz must be set to a value');
                     end
-                    obj.setErr(obj.xyz+offset, 'xyz');
+                    obj.setErr(obj.xyz + offset, 'xyz');
             end
         end
 
         %% copy
         function gerr = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gerr = obj.copy()
+            %
+            % Output: ------------------------------------------------------
+            %   gerr : 1x1, Copied object
+            %
             arguments
                 obj gt.Gerr
             end
@@ -184,6 +238,20 @@ classdef Gerr < handle
 
         %% select from index
         function gerr = select(obj, idx)
+            % select: Select time from index
+            % -------------------------------------------------------------
+            % Select time from the index and return a new object.
+            % The index may be a logical or numeric index.
+            %
+            % Usage: ------------------------------------------------------
+            %   gerr = obj.select([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx]  : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   gerr: 1x1, Selected object
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector}
@@ -201,6 +269,19 @@ classdef Gerr < handle
 
         %% mean calculation
         function [mxyz, sdxyz] = meanXYZ(obj, idx)
+            % meanXYZ: Calculate mean and standard deviation of XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   [mxyz, sdxyz] = obj.meanXYZ([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   mxyz :  Mean of XYZ position
+            %   sdxyz : Standard deviation of XYZ position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -212,6 +293,19 @@ classdef Gerr < handle
             sdxyz = std(obj.xyz(idx,:), 0, 1, 'omitnan');
         end
         function [menu, sdenu] = meanENU(obj, idx)
+            % meanENU: Calculate mean and standard deviation of ENU data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   [menu, sdenu] = obj.meanENU([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   menu :  Mean of ENU position
+            %   sdenu : Standard deviation of ENU position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -223,6 +317,19 @@ classdef Gerr < handle
             sdenu = std(obj.enu(idx,:), 0, 1, 'omitnan');
         end
         function [m2d, sd2d] = mean2D(obj, idx)
+            % mean2D: Calculate mean and standard deviation of 2D data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   [m2d, sd2d] = obj.mean2D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   m2d :  Mean of 2D position
+            %   sd2d : Standard deviation of 2D position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -234,6 +341,19 @@ classdef Gerr < handle
             sd2d = std(obj.d2(idx), 0, 1, 'omitnan');
         end
         function [m3d, sd3d] = mean3D(obj, idx)
+            % mean3D: Calculate mean and standard deviation of 3D data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   [m3d, sd3d] = obj.mean3D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   m3d :  Mean of 3D position
+            %   sd3d : Standard deviation of 3D position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -244,6 +364,18 @@ classdef Gerr < handle
         
         %% rms calculation
         function rxyz = rmsXYZ(obj, idx)
+            % rmsXYZ: Calculate root mean square of XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   rxyz = obj.rmsXYZ([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   rxyz :  rms of XYZ Coordinate
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -254,6 +386,18 @@ classdef Gerr < handle
             rxyz = rms(obj.xyz(idx,:), 1, 'omitnan');
         end
         function renu = rmsENU(obj, idx)
+            % rmsENU: Calculate root mean square of ENU data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   renu = obj.rmsENU([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   renu :  rms of ENU Coordinate
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -264,6 +408,18 @@ classdef Gerr < handle
             renu = rms(obj.enu(idx,:), 1, 'omitnan');
         end
         function r2d = rms2D(obj, idx)
+            % rms2D: Calculate root mean square of 2D data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   r2d = obj.rms2D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   r2d :  rms of 2D position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -274,6 +430,18 @@ classdef Gerr < handle
             r2d = rms(obj.d2(idx), 1, 'omitnan');
         end
         function r3d = rms3D(obj, idx)
+            % rms3D: Calculate root mean square of 3D data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   r3d = obj.rms3D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   r3d :   rms of 3D position
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -283,6 +451,19 @@ classdef Gerr < handle
 
         %% percentile error
         function p2d = ptile2D(obj, p, idx)
+            % ptile2D: Calculates the specified percentiles of the 2D error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   p2d = obj.ptile2D([p], [idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [p] : Array of percentiles to calculate
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   p2d : Calculated percentiles of the 2D error data
+            %
             arguments
                 obj gt.Gerr
                 p (1,:) double {mustBeVector} = 95
@@ -294,6 +475,19 @@ classdef Gerr < handle
             p2d = prctile(obj.d2(idx), p, 1);
         end
         function p3d = ptile3D(obj, p, idx)
+            % ptile3D: Calculates the specified percentiles of the 3D error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   p3d = obj.ptile3D([p], [idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [p] : Array of percentiles to calculate
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   p3d : Calculated percentiles of the 3D error data
+            %
             arguments
                 obj gt.Gerr
                 p (1,:) double {mustBeVector} = 95
@@ -302,6 +496,18 @@ classdef Gerr < handle
             p3d = prctile(obj.d3(idx), p, 1);
         end
         function cep = cep(obj, idx)
+            % cep: Calculates the Circular Error Probable
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   cep = obj.cep([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   cep : Circular Error Probable  
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -309,6 +515,18 @@ classdef Gerr < handle
             cep = obj.ptile2D(obj.d2(idx), 50);
         end
          function sep = sep(obj, idx)
+            % sep: Calculates the Spherical Error Probable
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   sep = obj.sep([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   sep :  Spherical Error Probable 
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -318,6 +536,18 @@ classdef Gerr < handle
         
         %% access
         function x = x(obj, idx)
+            % x: Accesses the x-component of the XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   x = obj.x([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   x :  x-component of the selected data points 
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -328,6 +558,18 @@ classdef Gerr < handle
             x = obj.xyz(idx,1);
         end
         function y = y(obj, idx)
+            % y: Accesses the y-component of the XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   y = obj.y([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   y : y-component of the selected data points   
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -338,6 +580,18 @@ classdef Gerr < handle
             y = obj.xyz(idx,2);
         end
         function z = z(obj, idx)
+            % z: Accesses the z-component of the XYZ data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   z = obj.z([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   z :  z-component of the selected data points  
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -348,6 +602,18 @@ classdef Gerr < handle
             z = obj.xyz(idx,3);
         end
         function east = east(obj, idx)
+            % east: Accesses the east-component of the ENU data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   east = obj.east([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   east : east-component of the selected data points  
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -358,6 +624,18 @@ classdef Gerr < handle
             east = obj.enu(idx,1);
         end
         function north = north(obj, idx)
+            % north: Accesses the north-component of the ENU data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   north = obj.north([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   north :  north-component of the selected data points 
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -368,6 +646,18 @@ classdef Gerr < handle
             north = obj.enu(idx,2);
         end
         function up = up(obj, idx)
+            % up: Accesses the up-component of the ENU data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   up = obj.up([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   up :   up-component of the selected data points 
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -380,6 +670,15 @@ classdef Gerr < handle
 
         %% plot
         function plot(obj, idx)
+            % plot: plot the ENU error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -401,6 +700,15 @@ classdef Gerr < handle
             drawnow
         end
         function plotENU(obj, idx)
+            % plotENU: Plot the ENU error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotENU([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -419,6 +727,15 @@ classdef Gerr < handle
             drawnow
         end
         function plotXYZ(obj, idx)
+            % plotXYZ: Plot the XYZ error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotXYZ([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -437,6 +754,15 @@ classdef Gerr < handle
             drawnow
         end
         function plot2D(obj, idx)
+            % plot2D: Plot the 2D error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot2D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -451,6 +777,15 @@ classdef Gerr < handle
             drawnow
         end
         function plot3D(obj, idx)
+            % plot3D: Plot the 3D error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot3D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -462,6 +797,16 @@ classdef Gerr < handle
             drawnow
         end
         function plotCDF2D(obj, idx)
+            % plotCDF2D: Plot the Cumulative Distribution Function of 2D
+            %            error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotCDF2D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gsol
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -482,6 +827,16 @@ classdef Gerr < handle
         end
 
         function plotCDF3D(obj, idx)
+            % plotCDF3D: Plot the Cumulative Distribution Function of 3D
+            %            error data
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotCDF3D([idx])
+            %
+            % Input: ------------------------------------------------------
+            %   [idx] : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gsol
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
