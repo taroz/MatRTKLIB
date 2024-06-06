@@ -1,9 +1,9 @@
 classdef Gsat < handle
     % Gsat: satellite position/velocity/clock data
-    %
+    % ---------------------------------------------------------------------
     % Gsat Declaration:
     % obj = Gsat()
-    %
+    % ---------------------------------------------------------------------
     % Gsat Properties:
     %   n         : 1x1, Number of epochs
     %   nsat      : 1x1, Number of satellites
@@ -29,23 +29,65 @@ classdef Gsat < handle
     %   ez        : (obj.n)x(obj.nsat), line-of-sight vector in ECEF Z (m)
     %   az        : (obj.n)x(obj.nsat), satellite azimuth angle (deg)
     %   el        : (obj.n)x(obj.nsat), satellite elevation angle (deg)
-    %   trp       :
-    %   ionL1     :
-    %   ionL2     :
-    %   ionL5     :
-    %
+    %   trp       : (obj.n)x(obj.nsat), tropospheric path delay
+    %   ionL1     : (obj.n)x(obj.nsat), Ionospheric delay at L1 frequency
+    %   ionL2     : (obj.n)x(obj.nsat), Ionospheric delay at L2 frequency
+    %   ionL5     : (obj.n)x(obj.nsat), Ionospheric delay at L5 frequency
+    % ---------------------------------------------------------------------
     % Gsat Methods:
-    %   setSatObs(gobs, gnav, ephopt):
-    %   setSat(gtime, sat, gnav, ephopt):
-    %   setRcvPos(gpos):
-    %   setRcvVel(gvel):
+    %   setSatObs(gobs, gnav, ephopt): set satellite data at observation time
+    %   setSat(gtime, sat, gnav, ephopt): set satellite data at input time
+    %   setRcvPos(gpos): set satellite data based on receiver position
+    %   setRcvVel(gvel): set satellite data based on receiver velocity
+    %   setRcvPosVel(obj, gpos, gvel): set satellite data based on receiver position/velocity
+    %   gsat = copy(obj): Copy object
+    %   gsat = select(obj, tidx, sidx): select from time/satellite index
+    %   gsat = selectSat(obj, sidx): select from satellite index
+    %   gsat = selectTime(obj, tidx): select from time index
+    %   gsat = selectTimeSpan(obj, ts, te): select from time
+    %   [refidx,Dinv] = referenceSat(obj, tidx): compute reference satellite
+    %   plotSky(obj, tidx, sidx): plot satellite azimuth and elevation angles
+    %   update_azel(obj, sld, txt, ps, uniquesys): Update azimuth and elevation
+    %   dtr = roundDateTime(~, dt, dec) : round datetime  
     %   help()
-    %
+    % ---------------------------------------------------------------------
     %     Author: Taro Suzuki
 
     properties
-        n, nsat, sat, prn, sys, satstr, time, x, y, z, vx, vy, vz, dts, ddts, var, svh, pos, vel, rng, rate, ex, ey, ez, az, el;
-        trp; ionL1; ionL2; ionL5; ionL6; ionL7; ionL8; ionL9;
+        n % Number of epochs
+        nsat % Number of satellites
+        sat % Satellite number defined in RTKLIB
+        prn % Satellite prn/slot number
+        sys % Satellite system (SYS_GPS, SYS_GLO, ...)
+        satstr % Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
+        time % Time, gt.Gtime class
+        x % satellite position in ECEF X (m)
+        y % satellite position in ECEF Y (m)
+        z % satellite position in ECEF Z (m)
+        vx % satellite position in ECEF X (m/s)
+        vy % satellite position in ECEF Y (m/s)
+        vz % satellite position in ECEF Z (m/s)
+        dts % satellite clock bias (m)
+        ddts % satellite clock drift (m/s)
+        var % satellite position and clock error variance (m^2)
+        svh % satellite health flag
+        pos % Receiver position, gt.Gpos class
+        vel % satellite velocity
+        rng % geometric distance (m)
+        rate %  range rate
+        ex % line-of-sight vector in ECEF X (m)
+        ey % line-of-sight vector in ECEF Y (m)
+        ez % line-of-sight vector in ECEF Z (m)
+        az % satellite azimuth angle (deg)
+        el; % satellite elevation angle (deg)
+        trp; % tropospheric path delay
+        ionL1; % Ionospheric delay at L1 frequency
+        ionL2; % Ionospheric delay at L2 frequency
+        ionL5; % Ionospheric delay at L5 frequency
+        ionL6; % Ionospheric delay at L6 frequency
+        ionL7; % Ionospheric delay at L7 frequency
+        ionL8; % Ionospheric delay at L8 frequency
+        ionL9; % Ionospheric delay at L9 frequency
     end
     properties(Access=private)
         obs,nav;
@@ -53,7 +95,7 @@ classdef Gsat < handle
     end
     methods
         %% constractor
-        function obj = Gsat(varargin)
+        function obj = Gsat(varargin) 
             if nargin==0
                 % generate empty class instance
                 obj.n = 0;
@@ -73,6 +115,17 @@ classdef Gsat < handle
 
         %% compute satellite data at observation time
         function setSatObs(obj, gobs, gnav, ephopt)
+            % setSatObs: set satellite data at observation time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            % obj.setSatObs(gobs, gnav, ephopt)
+            %
+            % Input: ------------------------------------------------------
+            % gobs : GNSS RINEX ovservation data class
+            % gnav : GNSS RINEX navigation data class
+            % ephopt : 1×1 : broadcast ephemeris
+            % 
             arguments
                 obj gt.Gsat
                 gobs gt.Gobs
@@ -97,6 +150,18 @@ classdef Gsat < handle
 
         %% compute satellite data at input time
         function setSat(obj, gtime, sat, gnav, ephopt)
+            % setSat: set satellite data at input time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setSat(gtime, sat, gnav, ephopt)
+            %
+            % Input: ------------------------------------------------------
+            %   gtime : 1x1, gt.Gtime class
+            %   sat : 1x(obj.nsat), Satellite number defined in RTKLIB
+            %   gnav : GNSS RINEX navigation data class
+            %   ephopt : Ephemeris Option Broadcast Ephemeris
+            % 
             arguments
                 obj gt.Gsat
                 gtime gt.Gtime
@@ -122,6 +187,15 @@ classdef Gsat < handle
 
         %% compute satellite data based on receiver position
         function setRcvPos(obj, gpos)
+            % setRcvPos: set satellite data based on receiver position
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            % obj.setRcvPos(gpos)
+            % 
+            % Input: ------------------------------------------------------
+            % gpos : Receiver position
+            % 
             arguments
                 obj gt.Gsat
                 gpos gt.Gpos
@@ -150,6 +224,15 @@ classdef Gsat < handle
 
         %% compute satellite data based on receiver velocity
         function setRcvVel(obj, gvel)
+            % setRcvVel: set satellite data based on receiver velocity
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            % obj.setRcvPos(gvel)
+            % 
+            % Input: ------------------------------------------------------
+            % gvel : receiver velocity
+            % 
             arguments
                 obj gt.Gsat
                 gvel gt.Gvel
@@ -174,6 +257,16 @@ classdef Gsat < handle
 
         %% compute satellite data based on receiver position/velocity
         function setRcvPosVel(obj, gpos, gvel)
+            % setRcvPosVel: set satellite data based on receiver position/velocity
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setRcvPosVel(gpos, gvel)
+            % 
+            % Input: ------------------------------------------------------
+            %   gpos: Receiver position
+            %   gvel: Receiver velocity
+            % 
             arguments
                 obj gt.Gsat
                 gpos gt.Gpos
@@ -185,6 +278,17 @@ classdef Gsat < handle
 
         %% copy
         function gsat = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.copy()
+            %
+            % Output: ------------------------------------------------------
+            %   gsat : satellite position/velocity/clock data
+            %
             arguments
                 obj gt.Gsat
             end
@@ -193,6 +297,19 @@ classdef Gsat < handle
 
         %% select from time/satellite index
         function gsat = select(obj, tidx, sidx)
+            % select: select from time/satellite index
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.select(tidx, sidx)
+            % 
+            % Input: ------------------------------------------------------
+            %   indx : time index
+            %   sidx : satellite index
+            % 
+            % Output: ------------------------------------------------------
+            %   gsat : satellite position/velocity/clock data
+            % 
             arguments
                 obj gt.Gsat
                 tidx {mustBeInteger, mustBeVector}
@@ -248,6 +365,17 @@ classdef Gsat < handle
 
         %% select from satellite index
         function gsat = selectSat(obj, sidx)
+            % selectSat: select from satellite index
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.selectSat(sidx)
+            % 
+            % Input: ------------------------------------------------------
+            %   sidx : satellite index
+            % 
+            % Output: ------------------------------------------------------
+            %   gsat : satellite position/velocity/clock data
             arguments
                 obj gt.Gsat
                 sidx {mustBeInteger, mustBeVector}
@@ -257,6 +385,17 @@ classdef Gsat < handle
 
         %% select from time index
         function gsat = selectTime(obj, tidx)
+            % selectTime: select from time index
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %    obj.selectTime(tidx)
+            % 
+            % Input: ------------------------------------------------------
+            %   tidx : time index
+            % 
+            % Output: ------------------------------------------------------
+            %   gsat : satellite position/velocity/clock data
             arguments
                 obj gt.Gsat
                 tidx {mustBeInteger, mustBeVector}
@@ -266,6 +405,18 @@ classdef Gsat < handle
 
         %% select from time
         function gsat = selectTimeSpan(obj, ts, te)
+            % selectTimeSpan: select from time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %    obj.selectTimeSpan(ts, te)
+            % 
+            % Input: ------------------------------------------------------
+            %   ts : 1x1, gt.Gtime, Start time
+            %   te : 1x1, gt.Gtime, End time
+            % 
+            % Output: ------------------------------------------------------
+            %   gsat : satellite position/velocity/clock data
             arguments
                 obj gt.Gsat
                 ts gt.Gtime
@@ -281,6 +432,17 @@ classdef Gsat < handle
 
         %% compute reference satellite
         function [refidx,Dinv] = referenceSat(obj, tidx)
+            % referenceSat: compute reference satellite
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.referenceSat(tidx)
+            % Input: ------------------------------------------------------
+            %   tidx : Logical or numeric index to select
+            % 
+            % Output: ------------------------------------------------------
+            %   refidx : Reference satellite index
+            %   Dinv : Matrix based on each reference satellite
             arguments
                 obj gt.Gsat
                 tidx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -339,6 +501,15 @@ classdef Gsat < handle
 
         %% skyplot
         function plotSky(obj, tidx, sidx)
+            % plotSky: plot satellite azimuth and elevation angles
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotSky(tidx, sidx)
+            %
+            % Input: ------------------------------------------------------
+            %   tidx : Logical or numeric index to select
+            %   sidx : Logical or numeric index to select
             arguments
                 obj gt.Gsat
                 tidx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -420,6 +591,17 @@ classdef Gsat < handle
         %     txt.String = string(obj.time.t(idx),'yyyy-MM-dd HH:mm:ss.S');
         % end
         function update_azel(obj, sld, txt, ps, uniquesys)
+            % update_azel: Update azimuth and elevation
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.update_azel(tidx, sld, txt, ps, uniquesys)
+            %
+            % Input: ------------------------------------------------------
+            %   sld : An object for specifying the time index
+            %   txt : A text object for displaying the time
+            %   ps : Azimuth and elevation alignment
+            %   uniquesys :  List of satellites observed
             idx = uint32(sld.Value);
             txt.String = string(obj.time.t(idx),'yyyy-MM-dd HH:mm:ss.S');
             for i=1:length(ps)
@@ -433,6 +615,19 @@ classdef Gsat < handle
 
         % round datetime
         function dtr = roundDateTime(~, dt, dec)
+            % roundDateTime: round datetime
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.roundDateTime(dt, dec)
+            % 
+            % Input: ------------------------------------------------------
+            %   dt : Target time data
+            %   dec : Roud precision
+            % 
+            % Output: ------------------------------------------------------
+            %   dtr: Rounded time
+            %
             dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
         end
     end
