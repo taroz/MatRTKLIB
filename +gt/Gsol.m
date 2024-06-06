@@ -24,37 +24,51 @@ classdef Gsol < handle
     %   stat   : (obj.n)x1, solution status (SOLQ_???)
     %   age    : (obj.n)x1, Age of differential (s)
     %   ratio  : (obj.n)x1, AR ratio factor for valiation
-    %   dt     : 1x1, Solution time interval (s)
+    %   dt     : 1x1, solution time interval (s)
     %   perr   : 1x1, Position error, gt.Gerr class
     %   verr   : 1x1, Velocity error, gt.Gerr class
     %
     % Gsol Methods:
-    %   setSolFile(file):
-    %   setSolStruct(solstr):
-    %   setSolTimePos(time, pos):
-    %   setOrg(pos, type):
-    %   outSol(file, [gopt]):
-    %   append(gsol):
-    %   difference(gobj)
-    %   gsol = select(idx):
-    %   gsol = selectTimeSpan(ts, te, [dt]):
-    %   sol = struct([idx])
-    %   gsol = fixedInterval(dt):
-    %   [gsol,gsolref] = common(gsolref):
-    %   [gpos, gcov] = mean([stat],[idx]):
-    %   [mllh, sdenu] = meanLLH([stat],[idx]):
-    %   [mxyz, sdxyz] = meanXYZ([stat],[idx]):
-    %   [menu, sdenu] = meanENU([stat],[idx]):
-    %   nstat = solStatCount([stat]):
-    %   rstat = solStatRate([stat])
-    %   plot([stat],[idx]):
-    %   plotAll([stat],[idx]):
+    %   setSolFile(file) : Set soltion from file
+    %   setSolStruct(solstr) : Set soltion from solution struct
+    %   setSolTimePos(time, pos) : Set soltion from Gtime and Gpos
+    %   setOrg(pos, type) : Set coordinate orgin
+    %   outSol(file, [gopt]) : Output solution file
+    %   append(gsol) : Append solution object
+    %   difference(gobj) : Solution object difference
+    %   gsol = select(idx) : Select from index
+    %   gsol = selectTimeSpan(ts, te, [dt]) : Select from time
+    %   sol = struct([idx]) : Convert to struct
+    %   gsol = fixedInterval(dt) : Fixed interval
+    %   [gsol,gsolref] = common(gsolref) : Compute Common time
+    %   [gpos, gcov] = mean([stat],[idx]) : Compute the position and covariance
+    %   [mllh, sdenu] = meanLLH([stat],[idx]) : Compute the mean and standard deviation of LLH position 
+    %   [mxyz, sdxyz] = meanXYZ([stat],[idx]) : Compute the mean and standard deviation of XYZ position 
+    %   [menu, sdenu] = meanENU([stat],[idx]) : Compute the mean and standard deviation of ENU position 
+    %   nstat = solStatCount([stat]) : Solution status count
+    %   rstat = solStatRate([stat]) : Solution status rate
+    %   plot([stat],[idx]) : Plot ENU position
+    %   plotAll([stat],[idx]) : Plot All
     %   help()
     %
     % Author: Taro Suzuki
 
     properties
-        n, time, pos, vel, pcov, vcov, dtr, ns, stat, age, ratio, thres, dt, perr, verr;
+        n % Number of epochs
+        time % Time, gt.Gtime class
+        pos % Position, gt.Gpos class
+        vel % Velocity, gt.Gvel class
+        pcov % Position covariance, gt.Gcov class
+        vcov % Velocity covariance, gt.Gcov class
+        dtr % Receiver clock bias to time systems (s)
+        ns % Number of valid satellites
+        stat % solution status (SOLQ_???)
+        age % ge of differential (s)
+        ratio % AR ratio factor for valiation
+        thres % threshold
+        dt % solution time interval (s)
+        perr % Position error, gt.Gerr class
+        verr % Velocity error, gt.Gerr class
     end
     methods
         %% constractor
@@ -72,6 +86,15 @@ classdef Gsol < handle
 
         %% set soltion from file
         function setSolFile(obj, file)
+            % setSolFile: Set soltion from file
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setSolFile(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file  : RTKLIB solution file
+            %
             arguments
                 obj gt.Gsol
                 file (1,:) char
@@ -87,6 +110,15 @@ classdef Gsol < handle
 
         %% set soltion from solution struct
         function setSolStruct(obj, solstr)
+            % setSolStruct: Set soltion from solution struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setSolStruct(solstr)
+            %
+            % Input: ------------------------------------------------------
+            %   solstr  : RTKLIB solution struct
+            %
             arguments
                 obj gt.Gsol
                 solstr struct
@@ -96,6 +128,7 @@ classdef Gsol < handle
             end
             obj.n = solstr.n;
             obj.time = gt.Gtime(solstr.ep);
+            obj.time.round(3);
             obj.dt = obj.time.estInterval();
             obj.dtr = solstr.dtr;
             obj.ns = solstr.ns;
@@ -135,6 +168,16 @@ classdef Gsol < handle
 
         %% set soltion from Gtime and Gpos
         function setSolTimePos(obj, time, pos)
+            % setSolTimePos: Set soltion from Gtime and Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setSolTimePos(time, pos)
+            %
+            % Input: ------------------------------------------------------
+            %   time : Time, gt.Gtime class
+            %   pos  :  Position, gt.Gpos class
+            %
             arguments
                 obj gt.Gsol
                 time gt.Gtime
@@ -165,6 +208,16 @@ classdef Gsol < handle
 
         %% set coordinate orgin
         function setOrg(obj, org, orgtype)
+            % setOrg: Set coordinate orgin
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrg(org, orgtype)
+            %
+            % Input: ------------------------------------------------------
+            %   org : Coordinate origin
+            %   orgtype : Coordinate type: 'llh' or 'xyz'
+            %
             arguments
                 obj gt.Gsol
                 org (1,3) double
@@ -180,6 +233,16 @@ classdef Gsol < handle
 
         %% output solution file
         function outSol(obj, file, gopt)
+            % outSol: Output solution file
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.outSol(file, gopt)
+            %
+            % Input: ------------------------------------------------------
+            %   file : RTKLIB solution file
+            %   gopt : optional, Output option
+            %
             arguments
                 obj gt.Gsol
                 file (1,:) char
@@ -201,6 +264,15 @@ classdef Gsol < handle
 
         %% append
         function append(obj, gsol)
+            % append: Append solution object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.append(gsol)
+            %
+            % Input: ------------------------------------------------------
+            %   gsol  : GNSS solution object
+            %
             arguments
                 obj gt.Gsol
                 gsol gt.Gsol
@@ -226,6 +298,15 @@ classdef Gsol < handle
 
         %% difference
         function difference(obj, gobj)
+            % difference: Solution object difference
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.difference(gsol)
+            %
+            % Input: ------------------------------------------------------
+            %   gsol : GNSS solution object
+            %
             arguments
                 obj gt.Gsol
                 gobj
@@ -249,6 +330,17 @@ classdef Gsol < handle
 
         %% copy
         function gsol = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gsol = obj.copy()
+            %
+            % Output: ------------------------------------------------------
+            %   gsol : 1x1, Copied object
+            %
             arguments
                 obj gt.Gsol
             end
@@ -257,6 +349,18 @@ classdef Gsol < handle
 
         %% select from index
         function gsol = select(obj, idx)
+            % select: Select from index
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.select(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx  : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   gsol : GNSS solution object
+            %
             arguments
                 obj gt.Gsol
                 idx {mustBeInteger, mustBeVector}
@@ -277,14 +381,27 @@ classdef Gsol < handle
 
         %% select from time
         function gsol = selectTimeSpan(obj, ts, te)
+            % selectTimeSpan: Select from time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.selectTimeSpan(ts, te)
+            %
+            % Input: ------------------------------------------------------
+            %   ts  : Start time (datenum or gt.Gtime)
+            %   te  : End time (datenum or gt.Gtime)
+            %
+            % Output: ------------------------------------------------------
+            %   gsol : GNSS solution object
+            %
             arguments
                 obj gt.Gsol
                 ts gt.Gtime
                 te gt.Gtime
             end
-            tr = obj.roundDateTime(obj.time.t, obj.dt);
-            tsr = obj.roundDateTime(ts.t, obj.dt);
-            ter = obj.roundDateTime(te.t, obj.dt);
+            tr = obj.roundDateTime(obj.time.t,2);
+            tsr = obj.roundDateTime(ts.t,2);
+            ter = obj.roundDateTime(te.t,2);
 
             idx = tr>=tsr & tr<=ter;
             gsol = obj.select(idx);
@@ -292,6 +409,18 @@ classdef Gsol < handle
 
         %% convert to struct
         function solstr = struct(obj, idx)
+            % solstr: Convert to struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.solstr(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   solstr :  RTKLIB solution struct
+            %
             arguments
                 obj gt.Gsol
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -335,6 +464,18 @@ classdef Gsol < handle
 
         %% fixed interval
         function gsol = fixedInterval(obj, dt)
+            % fixedInterval: Fixed interval
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.fixedInterval(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   dt : solution time interval
+            %
+            % Output: ------------------------------------------------------
+            %   gsol : GNSS solution object
+            %
             arguments
                 obj gt.Gsol
                 dt (1,1) double = 0
@@ -346,8 +487,8 @@ classdef Gsol < handle
                 type = 0; % 0:xyz-ecef,1:enu-baseline
             end
 
-            tr = obj.roundDateTime(obj.time.t, obj.dt);
-            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))', obj.dt);
+            tr = obj.roundDateTime(obj.time.t,2);
+            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',2);
             nfix = length(tfixr);
             tfix = NaT(nfix,1);
             [~, idx1,idx2] = intersect(tfixr,tr);
@@ -388,12 +529,25 @@ classdef Gsol < handle
 
         %% common time
         function [gsol,gsolref] = common(obj,gsolref)
+            % common: Compute Common time
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.common(gsolref)
+            %
+            % Input: ------------------------------------------------------
+            %   gsolref : GNSS solution reference object
+            %
+            % Output: ------------------------------------------------------
+            %   gsol : GNSS solution object
+            %   gsolref : GNSS solution reference object 
+            %
             arguments
                 obj gt.Gsol
                 gsolref gt.Gsol
             end
-            t = obj.roundDateTime(obj.time.t, obj.dt);
-            tref = obj.roundDateTime(gsolref.time.t, gsolref.dt);
+            t = obj.roundDateTime(obj.time.t,2);
+            tref = obj.roundDateTime(gsolref.time.t,2);
             [~,tind,tindref] = intersect(t,tref);
             gsol = obj.select(tind);
             gsolref = gsolref.select(tindref);
@@ -401,6 +555,20 @@ classdef Gsol < handle
 
         %% mean calculation
         function [gpos, gcov] = mean(obj, stat, idx)
+            % mean: Compute the position and covariance
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.mean(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status
+            %   idx : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   gpos : GNSS position
+            %   gcov : GNSS position covariance 
+            %
             arguments
                 obj gt.Gsol
                 stat (1,1) {mustBeInteger} = 0
@@ -418,6 +586,20 @@ classdef Gsol < handle
             [gpos, gcov] = gsol.pos.mean(idxstat);
         end
         function [mllh, sdenu] = meanLLH(obj, stat, idx)
+            % meanLLH: Compute the mean and standard deviation of LLH position 
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.meanLLH(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status
+            %   idx : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   mllh : Mean of LLH positio
+            %   sdenu : Standard deviation of LLH positon
+            %
             arguments
                 obj gt.Gsol
                 stat (1,1) {mustBeInteger} = 0
@@ -435,6 +617,20 @@ classdef Gsol < handle
             [mllh, sdenu] = gsol.pos.meanLLH(idxstat);
         end
         function [mxyz, sdxyz] = meanXYZ(obj, stat, idx)
+            % meanXYZ: Compute the mean and standard deviation of XYZ position
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.meanXYZ(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status 
+            %   idx : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   mxyz : Mean of XYZ positio
+            %   sdxyz : Standard deviation of XYZ positon
+            %
             arguments
                 obj gt.Gsol
                 stat (1,1) {mustBeInteger} = 0
@@ -452,6 +648,20 @@ classdef Gsol < handle
             [mxyz, sdxyz] = gsol.pos.meanXYZ(idxstat);
         end
         function [menu, sdenu] = meanENU(obj, stat, idx)
+            % meanENU: Compute the mean and standard deviation of ENU position
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.meanENU(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status 
+            %   idx : Logical or numeric index to select
+            %
+            % Output: ------------------------------------------------------
+            %   menu : Mean of ENU position
+            %   sdenu : Standard deviation of ENU positon
+            %
             arguments
                 obj gt.Gsol
                 stat (1,1) {mustBeInteger} = 0
@@ -471,6 +681,18 @@ classdef Gsol < handle
         
         %% solution status count
         function nstat = solStatCount(obj, stat)
+            % solStatCount: Solution status count
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.solStatCount(stat)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status 
+            %
+            % Output: ------------------------------------------------------
+            %   nstat : solution status count
+            %
             arguments
                 obj gt.Gsol
                 stat (1,:) = 1:7
@@ -482,6 +704,18 @@ classdef Gsol < handle
 
         %% solution status rate
         function rstat = solStatRate(obj, stat)
+            % solStatRate: Solution status rate
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.solStatRate(stat)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status 
+            %
+            % Output: ------------------------------------------------------
+            %   rstat : 
+            %
             arguments
                 obj gt.Gsol
                 stat (1,:) = 1:7
@@ -492,6 +726,16 @@ classdef Gsol < handle
 
         %% plot
         function plot(obj, stat, idx)
+            % plot: Plot ENU position
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plot(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %   stat : solution status
+            %   idx : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gsol
                 stat (1,1) {mustBeInteger} = 0
@@ -524,6 +768,15 @@ classdef Gsol < handle
             drawnow
         end
         function plotAll(obj, idx)
+            % plotAll: Plot All
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotAll(idx)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : Logical or numeric index to select
+            %
             arguments
                 obj gt.Gsol
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
@@ -580,13 +833,36 @@ classdef Gsol < handle
     %% private functions
     methods (Access = private)
         % round datetime
-        function tr = roundDateTime(~, t, dt)
-            pt = posixtime(t);
-            pt = round(pt/dt)*dt;
-            tr = datetime(pt, "ConvertFrom", "posixtime");
-        end
+        function dtr = roundDateTime(~, dt, dec)
 
+            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        end
+            % roundDateTime: Round datetime to the nearest specified decimal place
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   dtr = obj.roundDateTime(dt, dec)
+            %
+            % Input: ------------------------------------------------------
+            %   dt  : Solution time interval
+            %   dec : Decimal place to round to
+            %
+            % Output: -----------------------------------------------------
+            %   dtr : Rounded datetime object
+            %
         function plotSolStat(~, x, y, stat, lflag)
+            % plotSolStat: Round datetime to the nearest specified decimal place
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   dtr = obj.plotSolStat(dt, dec)
+            %
+            % Input: ------------------------------------------------------
+            %  x     : x-component of the selected data points 
+            %  y     : y-component of the selected data points 
+            %  stat  : Solution status data
+            %  lflag : Logical flag to indicate whether to display legend
+            %
             plot(x, y, '-', 'Color', gt.C.C_LINE);
             grid on; hold on;
             p = [];
