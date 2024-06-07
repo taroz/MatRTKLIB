@@ -40,8 +40,8 @@ classdef Gstat < handle
     %   L9        : 1x1, L9 observation struct
     % ---------------------------------------------------------------------
     % Gstat Methods:
-    %   setStatFile(file):
-    %   setStatStruct(statstr):
+    %   setStatFile(file): set option data from config file
+    %   setStatStruct(statstr): set status data from status struct array
     %   help()
     %
     %     Author: Taro Suzuki
