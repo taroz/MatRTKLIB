@@ -258,7 +258,7 @@ classdef Gtime < handle
                 obj gt.Gtime
                 ndigit (1,1) {mustBeInteger} = 2
             end
-            t_ = dateshift(dt,'start','minute') + seconds(round(second(obj.t), ndigit));
+            t_ = dateshift(obj.t,'start','minute') + seconds(round(second(obj.t), ndigit));
             obj.setDatetime(t_);
         end
         %% copy
