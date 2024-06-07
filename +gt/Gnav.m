@@ -23,15 +23,15 @@ classdef Gnav < handle
     %     .???    : ??? = gps or gal or qzs or cmp or irn
     % ---------------------------------------------------------------------
     % Gnav Methods:
-    %   setNavFile(file):
-    %   setNavStruct(navstr):
-    %   readSP3(file):
-    %   readCLK(file):
-    %   readERP(file):
-    %   readSatPCV(file, time):
-    %   readDCB(file):
-    %   navstr = struct():
-    %   getTGD(sat):
+    %   setNavFile(file): Set Navigation from RINEX file 
+    %   setNavStruct(navstr): Set navigation from navigation struct
+    %   readSP3(file): Read precise ephemeris(.SP3)
+    %   readCLK(file): Read precise clock
+    %   readERP(file): Read earth rotation parameter
+    %   readSatPCV(file, time): Read satellite antenna PCV and set PCV corrected navigation object
+    %   readDCB(file): Read satellite antenna DCB and set DCB corrected navigation object
+    %   navstr = struct(): Navigation convert to navigation struct
+    %   getTGD(sat): Calclate tgd value for specified satellite
     %   help()
     % ---------------------------------------------------------------------
     %   Author: Taro Suzuki
@@ -68,7 +68,7 @@ classdef Gnav < handle
             %   obj.setNavFile(file)
             %
             % Input: ------------------------------------------------------
-            %   file : "RINEX Navigation file path"
+            %   file : "RINEX navigation file path"
             %
             arguments
                 obj gt.Gnav

@@ -1,6 +1,6 @@
 classdef Grtk < handle
     % Grtk: RTKLIB rtk control struct class
-    %
+    % ---------------------------------------------------------------------
     % Grtk Declaration:
     % obj = Grtk(file)
     %   file   : 1x1, RTKLIB configration file (???.conf)
@@ -10,7 +10,7 @@ classdef Grtk < handle
     %
     % obj = Grtk(rtkstr)
     %   optstr : 1x1, RTKLIB rtk control struct
-    %
+    % ---------------------------------------------------------------------
     % Grtk Properties:
     %   n      : 1x1, Number of epochs
     %   time   : 1x1, Time, gt.Gtime class
@@ -24,17 +24,29 @@ classdef Grtk < handle
     %   tt     : (obj.n)x1, time difference between current and previous (s)
     %   rb     : (obj.n)x6, base position/velocity (ecef) (m|m/s)
     %   errmsg : (obj.n)x1, error message
-    %
+    % ---------------------------------------------------------------------
     % Grtk Methods:
-    %   setRtkFile(file):
-    %   setRtkStruct(rtkstr):
-    %   rtkstr = struct():
+    %   setRtkFile(file): Set option data from config file
+    %   setRtkStruct(rtkstr): Set option data from option struct
+    %   rtkstr = struct(): Convert to struct
     %   help()
-    %
-    %     Author: Taro Suzuki
+    % ---------------------------------------------------------------------
+    % Author: Taro Suzuki
 
     properties
-        n, time, nx, na, x, P, xa, Pa, nfix, tt, rb, errmsg;
+        % n, time, nx, na, x, P, xa, Pa, nfix, tt, rb, errmsg;
+        n      % Number of epochs
+        time   % Time, gt.Gtime class
+        nx     % Number of float states
+        na     % Number of fixed states
+        x      % Float states
+        P      % Float covariance
+        xa     % Fixed states
+        Pa     % Fixed covariance
+        nfix   % Number of continuous fixes of ambiguity
+        tt     % Time difference between current and previous (s)
+        rb     % Base position/velocity (ecef) (m|m/s)
+        errmsg % Error message
     end
     methods
         %% constractor
@@ -50,6 +62,15 @@ classdef Grtk < handle
 
         %% set option data from config file
         function setRtkFile(obj, file)
+            % setRtkFile: Set option data from config file
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setRtkFile(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file: "RINEX config file path"
+            %
             arguments
                 obj gt.Grtk
                 file (1,:) char
@@ -60,6 +81,15 @@ classdef Grtk < handle
         end
         %% set option data from option struct
         function setRtkStruct(obj, rtkstr)
+            % setRtkStruct: Set option data from option struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setRtkStruct(file)
+            %
+            % Input: ------------------------------------------------------
+            %   rtkstr: Option data
+            %
             arguments
                 obj gt.Grtk
                 rtkstr (:,1) struct
@@ -81,6 +111,15 @@ classdef Grtk < handle
 
         %% convert to struct
         function rtkstr = struct(obj)
+            % setRtkStruct: Convert to struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   rtkstr = obj.struct()
+            %
+            % Output: ------------------------------------------------------
+            %   rtkstr: Option struct
+            %
             arguments
                 obj gt.Grtk
             end
