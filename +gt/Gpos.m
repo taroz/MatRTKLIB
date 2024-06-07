@@ -20,36 +20,36 @@ classdef Gpos < handle
     %   orgxyz  : 1x3, Coordinate origin in ECEF (m, m, m)
     % ---------------------------------------------------------------------
     % Gpos Methods:
-    %   setPos(pos, type):
-    %   setOrg(pos, type):
-    %   append(gpos):
-    %   addOffset(offset, [coordtype]):
-    %   gerr = difference(gpos):
-    %   gvel = gradient(dt, [idx]):
-    %   gpos = select(idx):
-    %   outpos(file, type, idx):
-    %   [gpos, gcov] = mean([idx]);
-    %   [mllh, sdenu] = meanLLH([idx]):
-    %   [mxyz, sdxyz] = meanXYZ([idx]):
-    %   [menu, sdenu] = meanENU([idx]):
-    %   llhrad = llhRad([idx]):
-    %   latrad = latRad([idx]):
-    %   lonrad = lonRad([idx]):
-    %   llhdms = llhDMS([idx]):
-    %   latdms = latDMS([idx]):
-    %   londms = lonDMS([idx]):
-    %   gh = geoid([idx]):
-    %   oh = orthometric([idx]):
-    %   lat = lat([idx]):
-    %   lon = lon([idx]):
-    %   h = h([idx]):
-    %   x = x([idx]):
-    %   y = y([idx]):
-    %   z = z([idx]):
-    %   east = east([idx]):
-    %   north = north([idx]):
-    %   up = up([idx]):
-    %   plot([idx]):
+    %   setPos(pos, type): Set position 
+    %   setOrg(pos, type): Set coordinate origin
+    %   append(gpos): Append gt.Gpos class
+    %   addOffset(offset, [coordtype]):  Add position offset
+    %   gerr = difference(gpos): Calculate position difference
+    %   gvel = gradient(dt, [idx]): Calculate velocity based on position differences
+    %   gpos = select(idx): Select object from index
+    %   outpos(file, type, idx): Output position
+    %   [gpos, gcov] = mean([idx]): Calculate mean position and covariance
+    %   [mllh, sdenu] = meanLLH([idx]): Calculate mean llh position and standard deviation
+    %   [mxyz, sdxyz] = meanXYZ([idx]): Calculate mean xyz position and standard deviation
+    %   [menu, sdenu] = meanENU([idx]): Calculate mean enu position and standard deviation
+    %   llhrad = llhRad([idx]): Convert latitude and longitude units to radian
+    %   latrad = latRad([idx]): Convert latitude units to radian
+    %   lonrad = lonRad([idx]): Convert longitude units to radian
+    %   llhdms = llhDMS([idx]): Convert latitude and longitude to DMS format
+    %   latdms = latDMS([idx]): Convert latitude to DMS format
+    %   londms = lonDMS([idx]): Convert longitude to DMS format
+    %   gh = geoid([idx]): Calculate geoid height
+    %   oh = orthometric([idx]): Calculate orthometric
+    %   lat = lat([idx]): Access latitude
+    %   lon = lon([idx]): Access logitude
+    %   h = h([idx]): Access height
+    %   x = x([idx]): Access ECEF x position
+    %   y = y([idx]): Access ECEF y position
+    %   z = z([idx]): Access ECEF z position
+    %   east = east([idx]): Access Local east position
+    %   north = north([idx]): Access Local north position
+    %   up = up([idx]): Access Local up position
+    %   plot([idx]): Plot local enu position
     %   help()
     % ---------------------------------------------------------------------
     % Gpos Overloads:
@@ -205,7 +205,7 @@ classdef Gpos < handle
 
         %% addOffset
         function addOffset(obj, offset, coordtype)
-            % addOffset: Add time offset
+            % addOffset: Add position offset
             % -------------------------------------------------------------
             % Add a position offset to obj. The offset must be a scalar
             % or of the same size as obj.
@@ -282,7 +282,7 @@ classdef Gpos < handle
 
         %% gradient
         function gvel = gradient(obj, dt, idx)
-            % gradient: Calculate position difference
+            % gradient: Calculate velocity based on position differences
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -364,7 +364,7 @@ classdef Gpos < handle
 
         %% output position
         function outpos(obj, file, type, idx)
-            % outpos: 
+            % outpos: Output position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

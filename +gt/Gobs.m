@@ -36,26 +36,26 @@ classdef Gobs < handle
     %   L9        : 1x1, L9 observation struct
     % ---------------------------------------------------------------------
     % Gobs Methods:
-    %   setObsFile(file):
-    %   setObsStruct(obsstr):
-    %   setFrequency():
-    %   setFrequencyFromNav(nav):
-    %   outObs(file):
-    %   append(gobs):
-    %   difference(gobj)
-    %   gobs = select(tidx, sidx):
-    %   gobs = selectSat(sidx):
-    %   gobs = selectTime(tidx):
-    %   gobs = selectTimeSpan(ts, te, [dt])
-    %   obsstr = struct([tidx], [sidx])
-    %   gobs = fixedInterval([dt]):
-    %   [gobs, gobsref] = common(gobsref):
-    %   [gobs, gobsref] = commonSat(gobsref):
-    %   [gobs, gobsref] = commonTime(gobsref):
-    %   gobsSD = singleDifference(gobs):
-    %   plot([freq], [sidx]):
-    %   plotNSat([freq], [snrth], [sidx]):
-    %   plotSky(nav, [sidx]):
+    %   setObsFile(file): Set observation from RINEX file
+    %   setObsStruct(obsstr): Set observation from observation struct
+    %   setFrequency(): Set carrier frequency and lamda
+    %   setFrequencyFromNav(nav): Set carrier frequency from navigation
+    %   outObs(file): Output RINEX observation file
+    %   append(gobs): Append of gt.Gobs classes
+    %   difference(gobj):
+    %   gobs = select(tidx, sidx): Select from time/satellite index
+    %   gobs = selectSat(sidx): Select from satellite index
+    %   gobs = selectTime(tidx): Select from time index
+    %   gobs = selectTimeSpan(ts, te, [dt]): Select from time span
+    %   obsstr = struct([tidx], [sidx]): Create a observation struct from specified indices
+    %   gobs = fixedInterval([dt]): Resampling object at fixed interval
+    %   [gobs, gobsref] = common(gobsref): Synchronize object with reference object by common satellite and time
+    %   [gobs, gobsref] = commonSat(gobsref): Synchronize object with reference object by common satellite
+    %   [gobs, gobsref] = commonTime(gobsref):Synchronize object with reference object by common time
+    %   gobsSD = singleDifference(gobs): Calculate single difference
+    %   plot([freq], [sidx]): Plot the SNR for selected satellites and frequency
+    %   plotNSat([freq], [snrth], [sidx]): Plot number of satellite
+    %   plotSky(nav, [sidx]): Plot sky plot
     %   help()
     %---------------------------------------------------------------------
     % Author: Taro Suzuki
@@ -80,11 +80,10 @@ classdef Gobs < handle
         L9     % L9 observation struct
         Lwl    % Wide-lane linear combination struct
         Lml    % Middle-lane linear combination struct
-        Lif12  % Iono-free linear combination struct
-        Lif15  % Iono-free linear combination struct
+        Lif    % Iono-free linear combination struct
     end
     properties(Access=private)
-        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif12","Lif15"];
+        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"];
     end
     methods
         %% constractor
@@ -260,7 +259,7 @@ classdef Gobs < handle
 
         %% append
         function append(obj, gobs)
-            % append: Integration of gt.Gobs classes
+            % append: Append of gt.Gobs classes
             % -------------------------------------------------------------
             % gobs is gt.Gobs type.
             %
@@ -985,13 +984,7 @@ classdef Gobs < handle
             if ~isempty(obj.L1) && ~isempty(obj.L5)
                 gobs.Lml.freq = obj.L1.freq-obj.L5.freq;
                 gobs.Lml.lam = gt.C.CLIGHT./gobs.Lml.freq;
-                gobs.Lml.L = obj.L1.L-obj.L5.L; % (cycle)
-            end
-            % wide-lane (L1-L2)
-            if ~isempty(obj.L1) && ~isempty(obj.L2)
-                gobs.Lwl.freq = obj.L1.freq-obj.L2.freq;
-                gobs.Lwl.lam = gt.C.CLIGHT./gobs.Lwl.freq;
-                gobs.Lwl.L = obj.L1.L-obj.L2.L; % (cycle)
+                gobs.Lml.L = obj.L1.L-obj.L5.L;
             end
         end
         %% residuals
@@ -1021,29 +1014,24 @@ classdef Gobs < handle
             if obj.n ~= gsat.n
                 error('obj.n and gsat.n must be the same')
             end
-            if isempty(gsat.pos) & isempty(gsat.vel)
-                error('Call gsat.setRcvPos(gpos) or gsat.setRcvVel(gvel) first to set the receiver position/velocity');
+            if isempty(gsat.pos)
+                error('Call gsat.setRcvPos(gpos) first to set the receiver position');
+            end
+            if isempty(gsat.vel)
+                error('Call gsat.setRcvVel(gvel) first to set the receiver velocity');
             end
             gobs = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if ~isempty(gsat.pos)
-                        if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-gsat.rng+gsat.dts; end % pseudorange residuals (m)
-                        if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L-(gsat.rng+gsat.dts)./gobs.(f).lam; end % carrier phase residuals (cycle)
-                    end
-                    if ~isempty(gsat.vel)
-                        if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-gsat.rate+gsat.ddts; end % doppler residuals (m/s)
-                    end
-
+                    if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-gsat.rng+gsat.dts; end % pseudorange residuals
+                    if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L.*gobs.(f).lam-gsat.rng+gsat.dts; end % carrier phase residuals
+                    if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-gsat.rate+gsat.ddts; end % doppler residuals
+                    
                     if isprop(gsat,"ion"+f)
                         if ~isempty(gsat.("ion"+f))
-                            if ~isempty(gsat.pos)
-                                if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals (m)
-                                if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp)./gobs.(f).lam; end % carrier phase residuals (cycle)
-                            end
-                            if ~isempty(gsat.vel)
-                                if isfield(gobs.(f),"D"); gobs.(f).resDc = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals (m/s)
-                            end
+                            if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals
+                            if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L.*gobs.(f).lam-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp); end % carrier phase residuals
+                            if isfield(gobs.(f),"D"); gobs.(f).resDc = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals
                         end
                     end
                 end
@@ -1155,7 +1143,6 @@ classdef Gobs < handle
                 for i=1:gobs.nsat
                     scatter(gobs.time.t,y(i)*ones(gobs.n,1),[],gobs.(freq).S(:,i),'filled');
                     hold on;
-                end
 
                 grid on;
                 xlim([gobs.time.t(1) gobs.time.t(end)]);
@@ -1166,6 +1153,7 @@ classdef Gobs < handle
                 c = colorbar(gca,'northoutside');
                 c.Label.String = [freq ' SNR (dB-Hz)'];
                 drawnow
+                end
             end
         end
         function plotNSat(obj, freq, snrth, sidx)

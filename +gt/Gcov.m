@@ -22,20 +22,20 @@ classdef Gcov < handle
     %   orgxyz  : 1x3, Coordinate origin in ECEF (m, m, m)
     % ---------------------------------------------------------------------
     % Methods:
-    %   setGpos(gpos):
-    %   setCovVec(cov, type):
-    %   setCov(cov, type):
-    %   setOrg(pos, type):
-    %   append(gcov):
-    %   gcov = select(idx):
-    %   cov = covXYZ([idx]):
-    %   cov = covENU([idx]):
-    %   var = varXYZ([idx]):
-    %   var = varENU([idx]):
-    %   sd = sdXYZ([idx]):
-    %   sd = sdENU([idx]):
-    %   plot([idx]):
-    %   plotXYZ([idx]):
+    %   setGpos(gpos): Set gt.Gpos class and calculate variance
+    %   setCovVec(cov, type): Set coveriance vector
+    %   setCov(cov, type): Set coveriance matrix
+    %   setOrg(pos, type): Set coordinate origin and update coveriance matrix
+    %   append(gcov): Append gt.Gcov class
+    %   gcov = select(idx): select: Select object from index
+    %   cov = covXYZ([idx]): Convert xyz vector to 3X3 covariance matrix
+    %   cov = covENU([idx]): Convert enu vector to 3X3 covariance matrix
+    %   var = varXYZ([idx]): Calculate variance from xyz coordinates
+    %   var = varENU([idx]): Calculate variance from enu coordinates
+    %   sd = sdXYZ([idx]): Calculate standard deviation from xyz coordinateas 
+    %   sd = sdENU([idx]): Calculate standard deviation from enu coordinates
+    %   plot([idx]): Plot standard deviation in enu coorinates
+    %   plotXYZ([idx]): Plot standard deviation in xyz coorinates
     %   help()
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
