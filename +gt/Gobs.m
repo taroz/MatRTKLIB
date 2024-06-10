@@ -1,5 +1,5 @@
 classdef Gobs < handle
-    % Gobs: GNSS RINEX ovservation data class
+    % Gobs: GNSS RINEX observation data class
     % ---------------------------------------------------------------------
     % Gobs Declaration:
     % gobs = Gobs();  Create empty gt.Gobs object
@@ -104,7 +104,7 @@ classdef Gobs < handle
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"];
     end
     methods
-        %% constractor
+        %% constructor
         function obj = Gobs(varargin)
             if nargin==0
                 % generate empty object

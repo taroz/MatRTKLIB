@@ -64,7 +64,7 @@ classdef Gvel < handle
         v3     % 3D velocity (m/s)
     end
     methods
-        %% constractor
+        %% constructor
         function obj = Gvel(vel, veltype, org, orgtype)
             arguments
                 vel (:,3) double

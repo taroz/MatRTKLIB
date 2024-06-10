@@ -74,7 +74,7 @@ classdef Gerr < handle
         unit   % unit of error
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gerr(errtype, err, coordtype, org, orgtype)
             arguments
                 errtype (1,:) char {mustBeMember(errtype,{'position', 'velocity', 'acceleration'})}
@@ -130,7 +130,7 @@ classdef Gerr < handle
         end
         %% setOrg
         function setOrg(obj, org, orgtype)
-            % setOrg: Set coordinate orgin
+            % setOrg: Set coordinate origin
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -759,7 +759,7 @@ classdef Gerr < handle
         end
         %% plot
         function plot(obj, idx)
-            % plot: Plot horizontal and virtical error
+            % plot: Plot horizontal and vertical error
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

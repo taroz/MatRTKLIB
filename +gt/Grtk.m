@@ -46,7 +46,7 @@ classdef Grtk < handle
         errmsg % Error message
     end
     methods
-        %% constractor
+        %% constructor
         function obj = Grtk(varargin)
             if nargin==1 && ischar(varargin{1})
                 obj.setRtkFile(varargin{1}); % file

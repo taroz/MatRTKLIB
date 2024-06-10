@@ -113,7 +113,7 @@ classdef Gsat < handle
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9"];
     end
     methods
-        %% constractor
+        %% constructor
         function obj = Gsat(varargin)
             if nargin==0
                 % generate empty object
@@ -217,7 +217,7 @@ classdef Gsat < handle
             % setRcvPos: Set receiver position and compute satellite data
             % -------------------------------------------------------------
             % Compute line-of-sight vector, geometric distance, ionospheric
-            % and tropospheric delays, satellite elevation and azimth angles.
+            % and tropospheric delays, satellite elevation and azimuth angles.
             %
             % Usage: ------------------------------------------------------
             %   obj.setRcvPos(gpos)

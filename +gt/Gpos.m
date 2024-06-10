@@ -4,7 +4,7 @@ classdef Gpos < handle
     % Gpos Declaration:
     % gpos = Gpos(pos, 'type', [orgpos], ['orgtype']);
     %                            Create gt.Gpos object from position vector
-    %   pos      : Mx3, Postion vector
+    %   pos      : Mx3, Position vector
     %                [latitude(deg), longitude(deg), ellipsoidal height(m)] or
     %                [ECEF x(m), ECEF y(m), ECEF z(m)] or
     %                [east(m), north(m), up(m)]
@@ -69,7 +69,7 @@ classdef Gpos < handle
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gpos(pos, postype, org, orgtype)
             arguments
                 pos (:,3) double

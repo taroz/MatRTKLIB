@@ -50,7 +50,7 @@ classdef Gnav < handle
         ion  % Ionosphere model parameter
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gnav(varargin)
             if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setNavFile(char(varargin{1})); % file

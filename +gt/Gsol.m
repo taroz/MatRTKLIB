@@ -8,7 +8,7 @@ classdef Gsol < handle
     % gsol = Gsol(solstr);  Create gt.Gsol object from solution struct
     %   sol    : 1x1, RTKLIB solution struct
     %
-    % gsol = Gsol(time, pos);  Create gt.Gsol object from time annd position
+    % gsol = Gsol(time, pos);  Create gt.Gsol object from time and position
     %   time   : 1x1, Time, gt.Gtime object
     %   pos    : 1x1, Position, gt.Gpos object
     % ---------------------------------------------------------------------
@@ -77,7 +77,7 @@ classdef Gsol < handle
         verr  % Velocity error, gt.Gerr object
     end
     methods
-        %% constractor
+        %% constructor
         function obj = Gsol(varargin)
             if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setSolFile(char(varargin{1})); % file
@@ -695,7 +695,7 @@ classdef Gsol < handle
             %
             % Output: -----------------------------------------------------
             %   mllh  : 1x3, Mean geodetic position
-            %   sdenu : 1x3, Standard deviation of enu position
+            %   sdenu : 1x3, Standard deviation of ENU position
             %
             arguments
                 obj gt.Gsol

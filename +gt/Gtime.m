@@ -69,7 +69,7 @@ classdef Gtime < handle
         t    % MATLAB Datetime vector
     end
     methods
-        %% constractors
+        %% constructor
         function obj = Gtime(varargin)
             if nargin==1
                 if isdatetime(varargin{1})

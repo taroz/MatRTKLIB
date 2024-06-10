@@ -18,15 +18,15 @@ classdef Gopt < handle
     %     .elmask    : 1x1, Elevation mask (deg)
     %     .snrmask_r : 1x1, SNR mask for rover (ON/OFF)
     %     .snrmask_b : 1x1, SNR mask for base (ON/OFF)
-    %     .snrmask_L1: 1x9, Elevation vs mask L1 SNR (db-Hz)
-    %     .snrmask_L2: 1x1, Elevation vs mask L2 SNR (db-Hz)
-    %     .snrmask_L5: 1x1, Elevation vs mask L5 SNR (db-Hz)
+    %     .snrmask_L1: 1x9, Elevation vs mask L1 SNR (dB-Hz)
+    %     .snrmask_L2: 1x1, Elevation vs mask L2 SNR (dB-Hz)
+    %     .snrmask_L5: 1x1, Elevation vs mask L5 SNR (dB-Hz)
     %     .tidecorr  : 1x1, Earth tide correction (0:off,1:solid,2:solid+otl+pole)
     %     .ionoopt   : 1x1, Ionosphere option (IONOOPT_???)
     %     .tropopt   : 1x1, Troposphere option (TROPOPT_???)
     %     .ephopt    : 1x1, Satellite ephemeris/clock (EPHOPT_???)
     %     .raim_fde  : 1x1, RAIM FDE (ON/OFF)
-    %     .exclsats  : cell array, Exccluded satellites e.g. {'G01','C02'}
+    %     .exclsats  : cell array, Excluded satellites e.g. {'G01','C02'}
     % pos2 : 1x1, Positioning setting 2 struct
     %     .armode    : 1x1, AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold,4:ppp-ar)
     %     .gloarmode : 1x1, GLONASS AR mode (0:off,1:on,2:auto cal,3:ext cal)
@@ -78,7 +78,7 @@ classdef Gopt < handle
         misc  % Misc setting struct
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gopt(varargin)
             if nargin == 0
                 obj.setOptFile()
@@ -92,7 +92,7 @@ classdef Gopt < handle
         end
         %% setOptFile
         function setOptFile(obj, file)
-            % setOptFile: Set process optinon from file
+            % setOptFile: Set process option from file
             % -------------------------------------------------------------
             % Read the config file of RTKLIB.
             %

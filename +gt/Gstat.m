@@ -66,7 +66,7 @@ classdef Gstat < handle
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9"];
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gstat(varargin)
             if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setStatFile(char(varargin{1})); % file

@@ -59,7 +59,7 @@ classdef Gcov < handle
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
     methods
-        %% contractor
+        %% constructor
         function obj = Gcov(varargin)
             if nargin == 1
                 if isa(varargin{1},'gt.Gpos')
@@ -159,7 +159,7 @@ classdef Gcov < handle
         end
         %% setCovVec
         function setCovVec(obj, cov, covtype)
-            % setCovVec: Set coveriance vector
+            % setCovVec: Set covariance vector
             % -------------------------------------------------------------
             % C
             % Usage: ------------------------------------------------------
@@ -398,7 +398,7 @@ classdef Gcov < handle
             %         Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   var : Mx3, Varinance in ECEF coorinate
+            %   var : Mx3, Variance in ECEF coorinate
             %
             arguments
                 obj gt.Gcov
@@ -446,7 +446,7 @@ classdef Gcov < handle
             %         Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   sd : Mx3, Standard deviation in ECEF coorinate
+            %   sd : Mx3, Standard deviation in ECEF coordinate
             %
             arguments
                 obj gt.Gcov
@@ -470,7 +470,7 @@ classdef Gcov < handle
             %         Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   sd : Mx3, Standard deviation in ENU coorinate
+            %   sd : Mx3, Standard deviation in ENU coordinate
             %
             arguments
                 obj gt.Gcov
@@ -483,7 +483,7 @@ classdef Gcov < handle
         end
         %% plot
         function plot(obj, idx)
-            % plot: Plot standard deviation in ENU coorinate
+            % plot: Plot standard deviation in ENU coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -512,7 +512,7 @@ classdef Gcov < handle
         end
         %% plotXYZ
         function plotXYZ(obj, idx)
-            % plotXYZ: Plot standard deviation in ECEF coorinate
+            % plotXYZ: Plot standard deviation in ECEF coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
