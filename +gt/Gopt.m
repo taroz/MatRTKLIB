@@ -1,35 +1,40 @@
 classdef Gopt < handle
     % Gopt: RTKLIB process option class
-    %
+    % ---------------------------------------------------------------------
     % Gopt Declaration:
     % obj = Gopt()
-    % 
+    %
     % obj = Gopt(file)
     %   file      : 1x1, RTKLIB configration file (???.conf)
     %
     % obj = Gnav(optstr)
     %   optstr    : 1x1, RTKLIB option struct
-    %
+    % ---------------------------------------------------------------------
     % Gopt Properties:
-    %   pos1      : 1x1, positioning setting 1 struct:
-    %   pos2      : 1x1, positioning setting 2 struct:
-    %   out       : 1x1, output setting struct:
-    %   stats     : 1x1, statistics setting struct:
-    %   ant       : 1x1, antenna setting struct:
-    %   misc      : 1x1, misc setting struct:
+    %   pos1      : 1x1, Positioning setting 1 struct
+    %   pos2      : 1x1, Positioning setting 2 struct
+    %   out       : 1x1, Output setting struct
+    %   stats     : 1x1, Statistics setting struct
+    %   ant       : 1x1, Antenna setting struct
+    %   misc      : 1x1, Misc setting struct
+    % ---------------------------------------------------------------------
+    % Gopt Methods;
+    %   setOptFile(file);     Set option data from config file
+    %   setOptStruct(optstr); Set option data from option struct
+    %   saveOpt(file);        Save option file
+    %   optstr = struct();    Convert from gt.Gopt to struct
+    %   show();               Show current options
+    %   help();               Show help
+    % ---------------------------------------------------------------------
+    % Author: Taro Suzuki
     %
-    % Gopt Methods:
-    %   setOptFile(file):
-    %   setOptStruct(optstr):
-    %   saveOpt(file):
-    %   optstr = struct():
-    %   show()
-    %   help()
-    %
-    %     Author: Taro Suzuki
-
     properties
-        pos1, pos2, out, stats, ant, misc;
+        pos1  % Positioning setting 1 struct
+        pos2  % Positioning setting 2 struct
+        out   % Output setting struct
+        stats % Statistics setting struct
+        ant   % Antenna setting struct
+        misc  % Misc setting struct
     end
     methods
         %% constractor
@@ -44,22 +49,41 @@ classdef Gopt < handle
                 error('Wrong input arguments');
             end
         end
-
-        %% set option data from config file
+        %% setOptFile
         function setOptFile(obj, file)
+            % setOptFile: Set process optinon from file
+            % -------------------------------------------------------------
+            % Read the config file of RTKLIB.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOptFile(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file  : RTKLIB config file (???.conf)
+            %
             arguments
                 obj gt.Gopt
                 file (1,:) char = ''
             end
             if isempty(file)
-               optstr = rtklib.loadopts();
+                optstr = rtklib.loadopts();
             else
-               optstr = rtklib.loadopts(file);
+                optstr = rtklib.loadopts(file);
             end
             obj.setOptStruct(optstr);
         end
-        %% set option data from option struct
+        %% setOptStruct
         function setOptStruct(obj, optstr)
+            % setOptStruct: Set process option from option struct
+            % -------------------------------------------------------------
+            % Set objects from RTKLIB's option structure.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOptStruct(optstr)
+            %
+            % Input: ------------------------------------------------------
+            %   optstr  : RTKLIB option struct
+            %
             arguments
                 obj gt.Gopt
                 optstr (1,1) struct
@@ -86,7 +110,7 @@ classdef Gopt < handle
             obj.out.solformat = gt.C.SOLF(optstr.out.solformat);
             obj.out.timeformat = gt.C.TIMEF(optstr.out.timeformat);
             obj.out.trace = gt.C.TRACE(optstr.out.trace);
-            
+
             % stats
             obj.stats = optstr.stats;
             % ant
@@ -97,9 +121,18 @@ classdef Gopt < handle
             obj.misc = optstr.misc;
             obj.misc.timeinterp = gt.C.SWITCH(optstr.misc.timeinterp);
         end
-
-        %% save option file
+        %% saveOpt
         function saveOpt(obj, file)
+            % saveOpt: Output option file
+            % -------------------------------------------------------------
+            % Output RTKLIB option file (???.conf).
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.saveOpt(file)
+            %
+            % Input: ------------------------------------------------------
+            %   file : Output option file name (???.conf)
+            %
             arguments
                 obj gt.Gopt
                 file (1,:) char
@@ -107,9 +140,17 @@ classdef Gopt < handle
             optstr = obj.struct();
             rtklib.saveopts(file, optstr);
         end
-
-        %% convert to struct
+        %% struct
         function optstr = struct(obj)
+            % struct: Convert from gt.Gopt object to struct
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.struct()
+            %
+            % Output: -----------------------------------------------------
+            %   solstr :  RTKLIB solution struct
+            %
             arguments
                 obj gt.Gopt
             end
@@ -134,9 +175,14 @@ classdef Gopt < handle
             % misc
             optstr.misc = structfun(@double,obj.misc,'UniformOutput',false);
         end
-
-        %% show current options
+        %% show
         function show(obj)
+            % show: Show current process options
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.show()
+            %
             disp(obj.pos1)
             disp(obj.pos2)
             disp(obj.out)
@@ -146,6 +192,7 @@ classdef Gopt < handle
         end
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gopt
         end
     end

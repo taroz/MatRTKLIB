@@ -3,57 +3,71 @@ classdef Gcov < handle
     % ---------------------------------------------------------------------
     % Gcov Declaration:
     % obj = Gcov(cov, 'type', [orgpos], ['orgtype'])
-    %   cov      : Nx6, vector of elements of covariance
+    %   cov      : Mx6, vector of elements of covariance
     %                  [c_xx, c_yy, c_zz, c_xy, c_yz, c_zx] or
     %                  [c_ee,c_nn,c_uu,c_en,c_nu,c_ue] or
-    %              3x3xN, covariance matrix
-    %   type     : 1x3, Coordinate type: 'xyz' or 'enu'
-    %   [orgpos] : 1x3, Coordinate origin [option] 1x3 or 3x1 position vector
-    %   [orgtype]: 1x1, Position type [option]: 'llh' or 'xyz'
-    % 
+    %              3x3xM, covariance matrix
+    %   type     : 1x1, Coordinate type: 'xyz' or 'enu'
+    %  [orgpos]  : 1x3, Coordinate origin [option] 1x3 or 3x1 position vector
+    %  [orgtype] : 1x1, Position type [option]: 'llh' or 'xyz'
+    %
     % obj = Gcov(gpos)
     %   gpos   : 1x1, gt.Gpos
-    % --------------------------------------------------------------------- 
+    %
+    % obj = Gcov(gvel)
+    %   gvel   : 1x1, gt.Gvel
+    %
+    % obj = Gcov(gerr)
+    %   gerr   : 1x1, gt.Gerr
+    % ---------------------------------------------------------------------
     % Gcov Properties:
     %   n       : 1x1, Number of epochs
-    %   xyz     : (obj.n)x6, vector of elements of covariance in ECEF
-    %   enu     : (obj.n)x6, vector of elements of covariance in ENU
+    %   xyz     :(obj.n)x6, Vector of elements of covariance in ECEF
+    %   enu     :(obj.n)x6, Vector of elements of covariance in ENU
     %   orgllh  : 1x3, Coordinate origin (deg, deg, m)
     %   orgxyz  : 1x3, Coordinate origin in ECEF (m, m, m)
     % ---------------------------------------------------------------------
     % Methods:
-    %   setGpos(gpos): Set gt.Gpos class and calculate variance
-    %   setCovVec(cov, type): Set coveriance vector
-    %   setCov(cov, type): Set coveriance matrix
-    %   setOrg(pos, type): Set coordinate origin and update coveriance matrix
-    %   append(gcov): Append gt.Gcov class
-    %   gcov = select(idx): select: Select object from index
-    %   cov = covXYZ([idx]): Convert xyz vector to 3X3 covariance matrix
-    %   cov = covENU([idx]): Convert enu vector to 3X3 covariance matrix
-    %   var = varXYZ([idx]): Calculate variance from xyz coordinates
-    %   var = varENU([idx]): Calculate variance from enu coordinates
-    %   sd = sdXYZ([idx]): Calculate standard deviation from xyz coordinateas 
-    %   sd = sdENU([idx]): Calculate standard deviation from enu coordinates
-    %   plot([idx]): Plot standard deviation in enu coorinates
-    %   plotXYZ([idx]): Plot standard deviation in xyz coorinates
-    %   help()
+    %   setGpos(gpos);        Set gt.Gpos object and calculate variance
+    %   setGvel(gvel);        Set gt.Gvel object and calculate variance
+    %   setGerr(gerr);        Set gt.Gerr object and calculate variance
+    %   setCovVec(cov, type); Set coveriance vector
+    %   setCov(cov, type);    Set coveriance matrix
+    %   setOrg(pos, type);    Set coordinate origin and update coveriance matrix
+    %   append(gcov);         Append gt.Gcov object
+    %   gcov = select(idx);   Select object from index
+    %   cov = covXYZ([idx]);  Convert to 3x3 covariance matrix in ECEF coordinate
+    %   cov = covENU([idx]);  Convert to 3x3 covariance matrix in ENU coordinate
+    %   var = varXYZ([idx]);  Compute variance in ECEF coordinate
+    %   var = varENU([idx]);  Compute variance in ENU coordinate
+    %   sd = sdXYZ([idx]);    Compute standard deviation in ECEF coordinatea
+    %   sd = sdENU([idx]);    Compute standard deviation in ENU coordinate
+    %   plot([idx]);          Plot standard deviation in ENU coorinate
+    %   plotXYZ([idx]);       Plot standard deviation in ECEF coorinate
+    %   help();               Show help
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
-
+    %
     properties
-        % n, xyz, enu, orgllh, orgxyz;
         n      % Number of epochs
-        xyz    % vector of elements of covariance in ECEF
-        enu    % vector of elements of covariance in ENU
+        xyz    % Vector of elements of covariance in ECEF (RTKLIB order)
+        enu    % Vector of elements of covariance in ENU (RTKLIB order)
         orgllh % Coordinate origin (deg, deg, m)
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
-
     methods
         %% constractor
         function obj = Gcov(varargin)
             if nargin == 1
-                obj.setGpos(varargin{1});
+                if isa(varargin{1},'gt.Gpos')
+                    obj.setGpos(varargin{1});
+                elseif isa(varargin{1},'gt.Gvel')
+                    obj.setGvel(varargin{1});
+                elseif isa(varargin{1},'gt.Gerr')
+                    obj.setGerr(varargin{1});
+                else
+                    error('Wrong input arguments');
+                end
             elseif nargin>=2 % cov, covtype, org, orgtype
                 if size(varargin{1}, 2) == 6
                     obj.setCovVec(varargin{1}, varargin{2});
@@ -65,22 +79,21 @@ classdef Gcov < handle
             end
             if nargin==4; obj.setOrg(org, orgtype); end
         end
-
-        %% set gt.Gpos
+        %% setGpos
         function setGpos(obj, gpos)
-            % setGpos: Set gt.Gpos class and calculate variance 
+            % setGpos: Set gt.Gpos object and calculate variance
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
             %   obj.setGpos(gpos)
             %
             % Input: ------------------------------------------------------
-            %   gpos: gt.Gpos class
+            %   gpos: 1x1, gt.Gpos object
             %
             arguments
                 obj gt.Gcov
                 gpos gt.Gpos
-            end            
+            end
             obj.n = 1;
             if ~isempty(gpos.enu)
                 obj.enu = [var(gpos.enu, 'omitnan') 0 0 0];
@@ -91,18 +104,67 @@ classdef Gcov < handle
                 obj.setOrg(gpos.orgllh, 'llh');
             end
         end
-
-        %% set covariance vector
+        %% setGvel
+        function setGvel(obj, gvel)
+            % setGvel: Set gt.gvel object and calculate variance
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setGvel(gvel)
+            %
+            % Input: ------------------------------------------------------
+            %   gvel: 1x1, gt.Gvel object
+            %
+            arguments
+                obj gt.Gcov
+                gvel gt.Gvel
+            end
+            obj.n = 1;
+            if ~isempty(gvel.enu)
+                obj.enu = [var(gvel.enu, 'omitnan') 0 0 0];
+            else
+                obj.xyz = [var(gvel.xyz, 'omitnan') 0 0 0];
+            end
+            if ~isempty(gvel.orgllh)
+                obj.setOrg(gvel.orgllh, 'llh');
+            end
+        end
+        %% setGerr
+        function setGerr(obj, gerr)
+            % setGerr: Set gt.Gerr object and calculate variance
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setGerr(gerr)
+            %
+            % Input: ------------------------------------------------------
+            %   gerr: 1x1, gt.Gerr object
+            %
+            arguments
+                obj gt.Gcov
+                gerr gt.Gerr
+            end
+            obj.n = 1;
+            if ~isempty(gerr.enu)
+                obj.enu = [var(gerr.enu, 'omitnan') 0 0 0];
+            else
+                obj.xyz = [var(gerr.xyz, 'omitnan') 0 0 0];
+            end
+            if ~isempty(gerr.orgllh)
+                obj.setOrg(gerr.orgllh, 'llh');
+            end
+        end
+        %% setCovVec
         function setCovVec(obj, cov, covtype)
             % setCovVec: Set coveriance vector
             % -------------------------------------------------------------
-            %
+            % C
             % Usage: ------------------------------------------------------
             %   obj.setCovVec(cov, covtype)
             %
             % Input: ------------------------------------------------------
-            %   cov    : vector of elements of covariance
-            %   covtype: Coordinate type 'xyz' or 'enu'
+            %   cov    : Mx6, vector of elements of covariance
+            %   covtype: 1x1, Coordinate type 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gcov
@@ -119,8 +181,7 @@ classdef Gcov < handle
                     if ~isempty(obj.orgllh); obj.xyz = rtklib.covecefsol(obj.enu, obj.orgllh); end
             end
         end
-
-        %% set covariance matrix
+        %% setCov
         function setCov(obj, cov, covtype)
             % setCov: Set coveriance matrix
             % -------------------------------------------------------------
@@ -129,8 +190,8 @@ classdef Gcov < handle
             %   obj.setCov(cov, covtype)
             %
             % Input: ------------------------------------------------------
-            %   cov    : vector of elements of covariance
-            %   covtype: Coordinate type 'xyz' or 'enu'
+            %   cov    : 3x3xM, vector of elements of covariance
+            %   covtype: 1x1, Coordinate type 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gcov
@@ -147,8 +208,7 @@ classdef Gcov < handle
                     if ~isempty(obj.orgllh); obj.xyz = rtklib.covecefsol(obj.enu, obj.orgllh); end
             end
         end
-
-        %% set coordinate orgin
+        %% setOrg
         function setOrg(obj, org, orgtype)
             % setOrg: Set coordinate origin and update coveriance matrix
             % -------------------------------------------------------------
@@ -157,8 +217,8 @@ classdef Gcov < handle
             %   obj.setOrg(org, orgtype)
             %
             % Input: ------------------------------------------------------
-            %   org    : coordinate origin 
-            %   orgtype: Position type 'xyz' or 'enu'
+            %   org    : 1x3, coordinate origin position
+            %   orgtype: 1x1, Position type 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gcov
@@ -179,17 +239,16 @@ classdef Gcov < handle
                 obj.xyz = rtklib.covecefsol(obj.enu, obj.orgllh);
             end
         end
-
         %% append
         function append(obj, gcov)
-            % append: Append gt.Gcov class
+            % append: Append gt.Gcov object
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
             %   obj.append(gcov)
             %
             % Input: ------------------------------------------------------
-            %   gcov: gt.Gcov class
+            %   gcov: 1x1, gt.Gcov object
             %
             arguments
                 obj gt.Gcov
@@ -201,25 +260,25 @@ classdef Gcov < handle
                 obj.setCovVec([obj.enu; gcov.enu], 'enu');
             end
         end
-
         %% copy
         function gcov = copy(obj)
             % copy: Copy object
             % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different object, you need to use the copy method.
             %
             % Usage: ------------------------------------------------------
-            %   gcov = obj.copy()       
+            %   gcov = obj.copy()
             %
-            % Output: ------------------------------------------------------
-            %   gcov: Copied object
+            % Output: -----------------------------------------------------
+            %   gcov: 1x1, Copied gt.Gcov object
             %
             arguments
                 obj gt.Gcov
             end
             gcov = obj.select(1:obj.n);
         end
-
-        %% select from index
+        %% select
         function gcov = select(obj, idx)
             % select: Select object from index
             % -------------------------------------------------------------
@@ -230,10 +289,10 @@ classdef Gcov < handle
             %   gpos = obj.select(idx)
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to select
+            %   idx: Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------
-            %   gcov: gt.Gcov class
+            % Output: -----------------------------------------------------
+            %   gcov: 1x1, gt.Gcov object
             %
             arguments
                 obj gt.Gcov
@@ -249,21 +308,20 @@ classdef Gcov < handle
             end
             if ~isempty(obj.orgllh); gcov.setOrg(obj.orgllh, 'llh'); end
         end
-
-        %% access
-        % 3X3 covariance matrix
+        %% covXYZ
         function cov = covXYZ(obj, idx)
-            % covXYZ: Convert xyz vector to 3X3 covariance matrix
+            % covXYZ: Convert to 3x3 covariance matrix in ECEF coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   cov = obj.covXYZ(idx)
+            %   cov = obj.covXYZ([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   cov : Covariance matrix in xyz coordinates
+            % Output: -----------------------------------------------------
+            %   cov : 3x3xM, Covariance matrix in ECEF coordinate
             %
             arguments
                 obj gt.Gcov
@@ -274,18 +332,20 @@ classdef Gcov < handle
             end
             cov = obj.vec2matrix(obj.xyz(idx,:));
         end
+        %% covENU
         function cov = covENU(obj, idx)
-            % covENU: Convert enu vector to 3X3 covariance matrix
+            % covENU: Convert to 3x3 covariance matrix in ENU coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   cov = obj.covENU(idx)
+            %   cov = obj.covENU([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   cov : Covariance matrix in enu coordinates
+            % Output: ----------------------------------------------------
+            %   cov : 3x3xM, Covariance matrix in ENU coordinate
             %
             arguments
                 obj gt.Gcov
@@ -296,18 +356,20 @@ classdef Gcov < handle
             end
             cov = obj.vec2matrix(obj.enu(idx,:));
         end
+        %% varXYZ
         function var = varXYZ(obj, idx)
-            % varXYZ: Calculate variance from xyz coordinates
+            % varXYZ: Compute variance in ECEF coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   var = obj.varXYZ(idx)
+            %   var = obj.varXYZ([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   var : Varinance in xyz coorinates
+            % Output: -----------------------------------------------------
+            %   var : Mx3, Varinance in ECEF coorinate
             %
             arguments
                 obj gt.Gcov
@@ -318,18 +380,20 @@ classdef Gcov < handle
             end
             var = obj.xyz(idx,1:3);
         end
+        %% varENU
         function var = varENU(obj, idx)
-            % varENU: Calculate variance from enu coordinates
+            % varENU: Compute variance in ENU coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   var = obj.varENU(idx)
+            %   var = obj.varENU([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   var : Varinance in enu coorinates
+            % Output: -----------------------------------------------------
+            %   var : Mx3, Varinance in ENU coorinate
             %
             arguments
                 obj gt.Gcov
@@ -340,18 +404,20 @@ classdef Gcov < handle
             end
             var = obj.enu(idx,1:3);
         end
+        %% sdXYZ
         function sd = sdXYZ(obj, idx)
-            % sdXYZ: Calculate standard deviation from xyz coordinates
+            % sdXYZ: Compute standard deviation in ECEF coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   sd = obj.sdXYZ(idx)
+            %   sd = obj.sdXYZ([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   sd : Standard deviation in xyz coorinates
+            % Output: -----------------------------------------------------
+            %   sd : Mx3, Standard deviation in ECEF coorinate
             %
             arguments
                 obj gt.Gcov
@@ -362,18 +428,20 @@ classdef Gcov < handle
             end
             sd = sqrt(obj.xyz(idx,1:3));
         end
+        %% sdENU
         function sd = sdENU(obj, idx)
-            % sdENU: Calculate standard deviation from enu coordinates
+            % sdENU: Compute standard deviation in ENU coordinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   sd = obj.sdENU(idx)
+            %   sd = obj.sdENU([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   sd : Standard deviation in enu coorinates
+            % Output: -----------------------------------------------------
+            %   sd : Mx3, Standard deviation in ENU coorinate
             %
             arguments
                 obj gt.Gcov
@@ -384,17 +452,17 @@ classdef Gcov < handle
             end
             sd = sqrt(obj.enu(idx,1:3));
         end
-
         %% plot
         function plot(obj, idx)
-            % plot: Plot standard deviation in enu coorinates
+            % plot: Plot standard deviation in ENU coorinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plot(idx)
+            %   obj.plot([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to plot (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
             arguments
                 obj gt.Gcov
@@ -413,15 +481,17 @@ classdef Gcov < handle
             legend('SD East', 'SD North', 'SD up')
             drawnow
         end
+        %% plotXYZ
         function plotXYZ(obj, idx)
-            % plotXYZ: Plot standard deviation in xyz coorinates
+            % plotXYZ: Plot standard deviation in ECEF coorinate
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotXYZ(idx)
+            %   obj.plotXYZ([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to plot (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
             arguments
                 obj gt.Gcov
@@ -440,16 +510,15 @@ classdef Gcov < handle
             legend('SD ECEF-X', 'SD ECEF-Y', 'SD ECEF-Z')
             drawnow
         end
-        
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gcov
         end
     end
-
     %% private functions
     methods (Access = private)
-        % convert
+        %% convert vector to matrix
         function mat = vec2matrix(~, vec)
             arguments
                 ~
@@ -460,6 +529,7 @@ classdef Gcov < handle
                 r3(vec(:,4)), r3(vec(:,2)), r3(vec(:,5));
                 r3(vec(:,6)), r3(vec(:,5)), r3(vec(:,3))];
         end
+        %% convert matrix to vector
         function vec = mat2vec(~,mat)
             arguments
                 ~

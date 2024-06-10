@@ -1,42 +1,38 @@
 classdef Grtk < handle
-    % Grtk: RTKLIB rtk control struct class
+    % Grtk: RTK control struct class
     % ---------------------------------------------------------------------
     % Grtk Declaration:
     % obj = Grtk(file)
     %   file   : 1x1, RTKLIB configration file (???.conf)
     %
-    % obj = Grtk(optstr)
-    %   optstr : 1x1, RTKLIB option struct
-    %
     % obj = Grtk(rtkstr)
-    %   optstr : 1x1, RTKLIB rtk control struct
+    %   optstr : 1x1, RTK control struct
     % ---------------------------------------------------------------------
     % Grtk Properties:
     %   n      : 1x1, Number of epochs
-    %   time   : 1x1, Time, gt.Gtime class
-    %   nx     : 1x1, number of float states
-    %   na     : 1x1, number of fixed states
-    %   x      : (obj.n)x(obj.nx), float states
-    %   P      : (obj.nx)x(obj.nx)x((obj.n)), float covariance
-    %   xa     : (obj.n)x(obj.na),  fixed states
-    %   Pa     : (obj.na)x(obj.na)x(obj.n), fixed covariance
-    %   nfix   : (obj.n)x1, number of continuous fixes of ambiguity
-    %   tt     : (obj.n)x1, time difference between current and previous (s)
-    %   rb     : (obj.n)x6, base position/velocity (ecef) (m|m/s)
-    %   errmsg : (obj.n)x1, error message
+    %   time   : 1x1, Time, gt.Gtime object
+    %   nx     : 1x1, Number of float states
+    %   na     : 1x1, Number of fixed states
+    %   x      : (obj.n)x(obj.nx), Float states
+    %   P      : (obj.nx)x(obj.nx)x((obj.n)), Float covariance
+    %   xa     : (obj.n)x(obj.na),  Fixed states
+    %   Pa     : (obj.na)x(obj.na)x(obj.n), Fixed covariance
+    %   nfix   : (obj.n)x1, Number of continuous fixes of ambiguity
+    %   tt     : (obj.n)x1, Yime difference between current and previous (s)
+    %   rb     : (obj.n)x6, Base position/velocity (ECEF) (m|m/s)
+    %   errmsg : (obj.n)x1, Error message
     % ---------------------------------------------------------------------
     % Grtk Methods:
-    %   setRtkFile(file): Set option data from config file
-    %   setRtkStruct(rtkstr): Set option data from option struct
-    %   rtkstr = struct(): Convert to struct
-    %   help()
+    %   setRtkFile(file);     Set RTK data from config file
+    %   setRtkStruct(rtkstr); Set RTK data from RTK control struct
+    %   rtkstr = struct();    Convert from gt.Grtk object to struct
+    %   help();               Show help
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
-
+    %
     properties
-        % n, time, nx, na, x, P, xa, Pa, nfix, tt, rb, errmsg;
         n      % Number of epochs
-        time   % Time, gt.Gtime class
+        time   % Time, gt.Gtime object
         nx     % Number of float states
         na     % Number of fixed states
         x      % Float states
@@ -45,7 +41,7 @@ classdef Grtk < handle
         Pa     % Fixed covariance
         nfix   % Number of continuous fixes of ambiguity
         tt     % Time difference between current and previous (s)
-        rb     % Base position/velocity (ecef) (m|m/s)
+        rb     % Base position/velocity (ECEF) (m|m/s)
         errmsg % Error message
     end
     methods
@@ -59,17 +55,16 @@ classdef Grtk < handle
                 error('Wrong input arguments');
             end
         end
-
-        %% set option data from config file
+        %% setRtkFile
         function setRtkFile(obj, file)
-            % setRtkFile: Set option data from config file
+            % setRtkFile: Set RTK data from config file
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
             %   obj.setRtkFile(file)
             %
             % Input: ------------------------------------------------------
-            %   file: "RINEX config file path"
+            %   file: 1x1, RTKLIB config file (???.conf)
             %
             arguments
                 obj gt.Grtk
@@ -79,16 +74,16 @@ classdef Grtk < handle
             rtkstr = rtklib.rtkinit(optstr);
             obj.setRtkStruct(rtkstr);
         end
-        %% set option data from option struct
+        %% setRtkStruct
         function setRtkStruct(obj, rtkstr)
-            % setRtkStruct: Set option data from option struct
+            % setRtkStruct: Set RTK data from RTK control struct
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.setRtkStruct(file)
+            %   obj.setRtkStruct(rtkstr)
             %
             % Input: ------------------------------------------------------
-            %   rtkstr: Option data
+            %   rtkstr: 1x1, RTK control struct
             %
             arguments
                 obj gt.Grtk
@@ -108,7 +103,6 @@ classdef Grtk < handle
             obj.rb = trtk.rb;
             obj.errmsg = trtk.errmsg;
         end
-
         %% convert to struct
         function rtkstr = struct(obj)
             % setRtkStruct: Convert to struct
@@ -117,7 +111,7 @@ classdef Grtk < handle
             % Usage: ------------------------------------------------------
             %   rtkstr = obj.struct()
             %
-            % Output: ------------------------------------------------------
+            % Output: -----------------------------------------------------
             %   rtkstr: Option struct
             %
             arguments
@@ -133,11 +127,11 @@ classdef Grtk < handle
             rtkstr.xa = obj.xa(obj.n,:);
             rtkstr.Pa = obj.Pa{obj.n};
             rtkstr.nfix = obj.nfix(obj.n);
-            rtkstr.errmsg = obj.errmsg{obj.n};            
+            rtkstr.errmsg = obj.errmsg{obj.n};
         end
-
         %% help
         function help(~)
+            % help: Show help
             doc gt.Grtk
         end
     end

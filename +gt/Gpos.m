@@ -3,60 +3,61 @@ classdef Gpos < handle
     % ---------------------------------------------------------------------
     % Gpos Declaration:
     % obj = Gpos(pos, 'type', [orgpos], ['orgtype'])
-    %   pos      : Nx3, postion vector
+    %   pos      : Mx3, postion vector
     %                [latitude(deg), longitude(deg), ellipsoidal height(m)] or
     %                [ECEF x(m), ECEF y(m), ECEF z(m)] or
     %                [east(m), north(m), up(m)]
     %   type     : 1x1, Coordinate type: 'llh' or 'xyz' or 'enu'
-    %   [orgpos] : 1x3, Coordinate origin 1x3 position vector
-    %   [orgtype]: 1x1, Coordinate type: 'llh' or 'xyz'
-    %
+    %  [orgpos]  : 1x3, Coordinate origin 1x3 position vector
+    %  [orgtype] : 1x1, Coordinate type: 'llh' or 'xyz'
+    % ---------------------------------------------------------------------
     % Gpos Properties:
     %   n       : 1x1, Number of epochs
-    %   llh     : (obj.n)x3, Geodetic position (deg, deg, m)
-    %   xyz     : (obj.n)x3, ECEF position (m, m, m)
-    %   enu     : (obj.n)x3, Local ENU position (m, m, m)
+    %   llh     :(obj.n)x3, Geodetic position (deg, deg, m)
+    %   xyz     :(obj.n)x3, ECEF position (m, m, m)
+    %   enu     :(obj.n)x3, Local ENU position (m, m, m)
     %   orgllh  : 1x3, Coordinate origin (deg, deg, m)
     %   orgxyz  : 1x3, Coordinate origin in ECEF (m, m, m)
     % ---------------------------------------------------------------------
     % Gpos Methods:
-    %   setPos(pos, type): Set position 
-    %   setOrg(pos, type): Set coordinate origin
-    %   append(gpos): Append gt.Gpos class
-    %   addOffset(offset, [coordtype]):  Add position offset
-    %   gerr = difference(gpos): Calculate position difference
-    %   gvel = gradient(dt, [idx]): Calculate velocity based on position differences
-    %   gpos = select(idx): Select object from index
-    %   outpos(file, type, idx): Output position
-    %   [gpos, gcov] = mean([idx]): Calculate mean position and covariance
-    %   [mllh, sdenu] = meanLLH([idx]): Calculate mean llh position and standard deviation
-    %   [mxyz, sdxyz] = meanXYZ([idx]): Calculate mean xyz position and standard deviation
-    %   [menu, sdenu] = meanENU([idx]): Calculate mean enu position and standard deviation
-    %   llhrad = llhRad([idx]): Convert latitude and longitude units to radian
-    %   latrad = latRad([idx]): Convert latitude units to radian
-    %   lonrad = lonRad([idx]): Convert longitude units to radian
-    %   llhdms = llhDMS([idx]): Convert latitude and longitude to DMS format
-    %   latdms = latDMS([idx]): Convert latitude to DMS format
-    %   londms = lonDMS([idx]): Convert longitude to DMS format
-    %   gh = geoid([idx]): Calculate geoid height
-    %   oh = orthometric([idx]): Calculate orthometric
-    %   lat = lat([idx]): Access latitude
-    %   lon = lon([idx]): Access logitude
-    %   h = h([idx]): Access height
-    %   x = x([idx]): Access ECEF x position
-    %   y = y([idx]): Access ECEF y position
-    %   z = z([idx]): Access ECEF z position
-    %   east = east([idx]): Access Local east position
-    %   north = north([idx]): Access Local north position
-    %   up = up([idx]): Access Local up position
-    %   plot([idx]): Plot local enu position
-    %   help()
+    %   setPos(pos, type);              Set position
+    %   setOrg(pos, type);              Set coordinate origin
+    %   insert(idx, gpos);              Insert gt.Gpos object
+    %   append(gpos);                   Append gt.Gpos object
+    %   addOffset(offset, [coordtype]); Add position offset
+    %   gerr = difference(gpos);        Compute difference between two gt.Gpos objects
+    %   gvel = gradient(dt, [idx]);     Compute velocity based on position differences
+    %   gpos = select(idx);             Select position from index
+    %   outpos(file, type, idx);        Output position
+    %   [gpos, gcov] = mean([idx]);     Compute mean position and covariance
+    %   [mllh, sdenu] = meanLLH([idx]); Compute mean geodetic position and standard deviation
+    %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF position and standard deviation
+    %   [menu, sdenu] = meanENU([idx]); Compute mean ENU position and standard deviation
+    %   llhrad = llhRad([idx]);         Convert latitude and longitude units to radian
+    %   latrad = latRad([idx]);         Convert latitude units to radian
+    %   lonrad = lonRad([idx]);         Convert longitude units to radian
+    %   llhdms = llhDMS([idx]);         Convert latitude and longitude to degree,minute,second format
+    %   latdms = latDMS([idx]);         Convert latitude to degree,minute,second format
+    %   londms = lonDMS([idx]);         Convert longitude to degree,minute,second format
+    %   gh = geoid([idx]);              Compute geoid height
+    %   oh = orthometric([idx]);        Compute orthometric height
+    %   lat = lat([idx]);               Get latitude
+    %   lon = lon([idx]);               Get logitude
+    %   h = h([idx]);                   Get ellipsoidal height
+    %   x = x([idx]);                   Get ECEF x position
+    %   y = y([idx]);                   Get ECEF y position
+    %   z = z([idx]);                   Get ECEF z position
+    %   east = east([idx]);             Get local east position
+    %   north = north([idx]);           Get local north position
+    %   up = up([idx]);                 Get local up position
+    %   plot([idx]);                    Plot position
+    %   help();                         Show help
     % ---------------------------------------------------------------------
     % Gpos Overloads:
-    %   gerr = obj - gpos
+    %   gerr = obj - gpos;              Compute difference between two gt.Gpos objects
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
-
+    %
     properties
         n      % Number of epochs
         llh    % Geodetic position (deg, deg, m)
@@ -65,10 +66,9 @@ classdef Gpos < handle
         orgllh % Coordinate origin (deg, deg, m)
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
-
     methods
         %% constractor
-        function obj = Gpos(pos, postype, org, orgtype)            
+        function obj = Gpos(pos, postype, org, orgtype)
             arguments
                 pos (:,3) double
                 postype (1,:) char {mustBeMember(postype,{'llh','xyz','enu'})}
@@ -78,20 +78,18 @@ classdef Gpos < handle
             if nargin>=2; obj.setPos(pos, postype); end
             if nargin==4; obj.setOrg(org, orgtype); end
         end
-
-        %% set position
+        %% setPos
         function setPos(obj, pos, postype)
-            % setPos: Set position 
+            % setPos: Set position
             % -------------------------------------------------------------
-            % Geodetic position, ECEF position or Local ENU position can be
-            % set.
+            % Geodetic, ECEF, or Local ENU position can be set.
             %
             % Usage: ------------------------------------------------------
             %   obj.setPos(pos, postype)
             %
             % Input: ------------------------------------------------------
-            %   pos    : Position data
-            %   postype: Position type 'llh' or 'xyz' or 'enu'
+            %   pos    : Mx3, Position data
+            %   postype: 1x1, Position type 'llh' or 'xyz' or 'enu'
             %
             arguments
                 obj gt.Gpos
@@ -116,20 +114,18 @@ classdef Gpos < handle
                     end
             end
         end
-
-        %% set coordinate orgin
+        %% setOrg
         function setOrg(obj, org, orgtype)
             % setOrg: Set coordinate origin
             % -------------------------------------------------------------
-            % Geodetic position, ECEF position or Local ENU position can be
-            % set.
+            % Geodetic and ECEF position can be set as the origin.
             %
             % Usage: ------------------------------------------------------
             %   obj.setOrg(pos, postype)
             %
             % Input: ------------------------------------------------------
-            %   org    : coordinate origin position
-            %   orgtype: Position type 'llh' or 'xyz' or 'enu'
+            %   org    : 1x3, Coordinate origin position
+            %   orgtype: 1x1, Position type 'llh' or 'xyz'
             %
             arguments
                 obj gt.Gpos
@@ -153,10 +149,9 @@ classdef Gpos < handle
                 obj.xyz = rtklib.enu2xyz(obj.enu, obj.orgllh);
             end
         end
-
         %% insert
         function insert(obj, idx, gpos)
-            % insert: Insert gt.Gpos class
+            % insert: Insert gt.Gpos object
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -164,7 +159,7 @@ classdef Gpos < handle
             %
             % Input: ------------------------------------------------------
             %   idx : 1x1, Integer index to insert
-            %   gpos: gt.Gpos class
+            %   gpos: 1x1, gt.Gpos class
             %
             arguments
                 obj gt.Gpos
@@ -180,17 +175,16 @@ classdef Gpos < handle
                 obj.setPos(obj.insertdata(obj.enu,idx,gpos.enu), 'enu');
             end
         end
-
         %% append
         function append(obj, gpos)
-            % append: Append gt.Gpos class
+            % append: Append gt.Gpos object
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
             %   obj.append(gpos)
             %
             % Input: ------------------------------------------------------
-            %   gpos: gt.Gpos class
+            %   gpos: 1x1, gt.Gpos class
             %
             arguments
                 obj gt.Gpos
@@ -202,7 +196,6 @@ classdef Gpos < handle
                 obj.setPos([obj.enu; gpos.enu], 'enu');
             end
         end
-
         %% addOffset
         function addOffset(obj, offset, coordtype)
             % addOffset: Add position offset
@@ -214,9 +207,9 @@ classdef Gpos < handle
             %   obj.addOffset(offset, coordtype)
             %
             % Input: ------------------------------------------------------
-            %   offset   : Mx1 or 1x1, Position offset 
-            %   coordtype: Offset position type 'enu' or 'xyz' (optional)
-            %              Default 'enu'
+            %   offset    : Mx3 or 1x3, Position offset
+            %  [coordtype]: 1x1, Coordinate type 'enu' or 'xyz' (optional)
+            %               Default 'enu'
             %
             arguments
                 obj gt.Gpos
@@ -243,10 +236,9 @@ classdef Gpos < handle
                     obj.setPos(obj.xyz+offset, 'xyz');
             end
         end
-
         %% difference
         function gerr = difference(obj, gpos)
-            % difference: Calculate position difference
+            % difference: Compute position difference
             % -------------------------------------------------------------
             % Size of the two gt.Gpos must be same.
             %
@@ -254,10 +246,10 @@ classdef Gpos < handle
             %   gerr = obj.difference(gpos)
             %
             % Input: ------------------------------------------------------
-            %   gpos: gt.Gpos class
+            %   gpos: 1x1, gt.Gpos object
             %
-            % Output: ------------------------------------------------------
-            %   gerr: gt.Gerr class with 3D position difference and distance
+            % Output: -----------------------------------------------------
+            %   gerr: 1x1, gt.Gerr object
             %
             arguments
                 obj gt.Gpos
@@ -279,21 +271,21 @@ classdef Gpos < handle
                 gerr.setOrg(obj.orgllh, 'llh')
             end
         end
-
         %% gradient
         function gvel = gradient(obj, dt, idx)
-            % gradient: Calculate velocity based on position differences
+            % gradient: Compute velocity based on position gradient
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   gvel = gradient(dt, idx)
+            %   gvel = gradient(dt, [idx])
             %
             % Input: ------------------------------------------------------
-            %   dt : 1x1, Time delta between epochs (s)
-            %   idx: Integer and vector index to calculate velocity
+            %   dt :  1x1, Time delta between epochs (s)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   gvel: gt.Gvel class containing the calculated velocity
+            % Output: -----------------------------------------------------
+            %   gvel: 1x1, gt.Gvel class containing calculated velocity
             %
             arguments
                 obj gt.Gpos
@@ -313,24 +305,24 @@ classdef Gpos < handle
             end
             if ~isempty(obj.orgllh); gvel.setOrg(obj.orgllh, 'llh'); end
         end
-        
         %% copy
         function gpos = copy(obj)
             % copy: Copy object
             % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different object, you need to use the copy method.
             %
             % Usage: ------------------------------------------------------
-            %   gpos = obj.copy()       
+            %   gpos = obj.copy()
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Copied object
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Copied gt.Gpos object
             %
             arguments
                 obj gt.Gpos
             end
             gpos = obj.select(1:obj.n);
         end
-        
         %% select
         function gpos = select(obj, idx)
             % select: Select object from index
@@ -342,10 +334,10 @@ classdef Gpos < handle
             %   gpos = obj.select(idx)
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to select
+            %   idx: Logical or numeric index to select
             %
-            % Output: ------------------------------------------------------
-            %   gpos: gt.Gpos class
+            % Output: -----------------------------------------------------
+            %   gpos: 1x1, gt.Gpos object
             %
             arguments
                 obj gt.Gpos
@@ -361,19 +353,19 @@ classdef Gpos < handle
             end
             if ~isempty(obj.orgllh); gpos.setOrg(obj.orgllh, 'llh'); end
         end
-
-        %% output position
+        %% outpos
         function outpos(obj, file, type, idx)
-            % outpos: Output position
+            % outpos: Output position to file
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.outpos(file, type, idx)
+            %   obj.outpos(file, type, [idx])
             %
             % Input: ------------------------------------------------------
-            %   file: "The output file path" 
-            %   type: Position type 'llh' or 'llhdms' or 'xyz' or 'enu'
-            %   idx : Integer and vector index to output (optional)
+            %   file: Output file name
+            %   type: 1x1, Position type 'llh' or 'llhdms' or 'xyz' or 'enu'
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
             arguments
                 obj gt.Gpos
@@ -400,52 +392,53 @@ classdef Gpos < handle
             end
             fclose(fid);
         end
-
-        %% mean calculation
+        %% mean
         function [gpos, gcov] = mean(obj, idx)
-            % mean: Calculate mean position and covariance
+            % mean: Compute mean position and covariance
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   [gpos, gcov] = obj.mean(idx)
+            %   [gpos, gcov] = obj.mean([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate mean (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   gpos: gt.Gpos class with mean position
-            %   gcov: gt.Gconv class
+            % Output: -----------------------------------------------------
+            %   gpos: 1x1, gt.Gpos object with mean position
+            %   gcov: 1x1, gt.Gcov object
             %
             arguments
                 obj gt.Gpos
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
-            if isempty(obj.llh)
-                menu = mean(obj.enu(idx,:), 1, 'omitnan');
+            if ~isempty(obj.enu)
+                menu = obj.meanENU(idx);
                 gpos = gt.Gpos(menu, 'enu');
             else
-                mllh = mean(obj.llh(idx,:), 1, 'omitnan');
-                if isempty(obj.orgllh)
-                    gpos = gt.Gpos(mllh, 'llh', mllh, 'llh');
-                else
-                    gpos = gt.Gpos(mllh, 'llh', obj.orgllh, 'llh');
-                end
+                mxyz = obj.meanXYZ(idx);
+                gpos = gt.Gpos(mxyz, 'xyz');
             end
-            gcov = gt.Gcov(obj);            
+            if ~isempty(obj.orgllh)
+                gpos.setOrg(obj.orgllh,'llh');
+            end
+            gcov = gt.Gcov(obj);
         end
+        %% meanLLH
         function [mllh, sdenu] = meanLLH(obj, idx)
-            % meanLLH: Calculate mean llh position and standard deviation
+            % meanLLH: Compute mean geodetic position and standard deviation
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   [mllh, sdenu] = obj.meanLLH(idx)
+            %   [mllh, sdenu] = obj.meanLLH([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate mean (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   mllh : Mean llh position
-            %   sdenu: Standard deviation of enu position
+            % Output: -----------------------------------------------------
+            %   mllh : 1x3, Mean geodetic position
+            %   sdenu: 1x3, Standard deviation of enu position
             %
             arguments
                 obj gt.Gpos
@@ -458,19 +451,21 @@ classdef Gpos < handle
             enu_ = rtklib.llh2enu(obj.llh, obj.llh(1,:));
             sdenu = std(enu_, 0, 1, 'omitnan');
         end
+        %% meanXYZ
         function [mxyz, sdxyz] = meanXYZ(obj, idx)
-            % meanXYZ: Calculate mean xyz position and standard deviation
+            % meanXYZ: Compute mean ECEF position and standard deviation
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   [mxyz, sdxyz] = obj.meanXYZ(idx)
+            %   [mxyz, sdxyz] = obj.meanXYZ([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate mean (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   mxyz : Mean xyz position
-            %   sdxyz: Standard deviation of xyz position
+            % Output: -----------------------------------------------------
+            %   mxyz : 1x3, Mean ECEF position
+            %   sdxyz: 1x3, Standard deviation of ECEF position
             %
             arguments
                 obj gt.Gpos
@@ -482,19 +477,21 @@ classdef Gpos < handle
             mxyz = mean(obj.xyz(idx,:), 1, 'omitnan');
             sdxyz = std(obj.xyz(idx,:), 0, 1, 'omitnan');
         end
+        %% meanENU
         function [menu, sdenu] = meanENU(obj, idx)
-            % meanENU: Calculate mean enu position and standard deviation
+            % meanENU: Compute mean ENU position and standard deviation
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   [menu, sdenu] = obj.meanENU(idx)
+            %   [menu, sdenu] = obj.meanENU([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate mean (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   menu : Mean enu position
-            %   sdenu: Standard deviation of enu position
+            % Output: -----------------------------------------------------
+            %   menu : 1x3, Mean ENU position
+            %   sdenu: 1x3, Standard deviation of ENU position
             %
             arguments
                 obj gt.Gpos
@@ -506,20 +503,20 @@ classdef Gpos < handle
             menu = mean(obj.enu(idx,:), 1, 'omitnan');
             sdenu = std(obj.enu(idx,:), 0, 1, 'omitnan');
         end
-
-        %% to radian
+        %% llhRad
         function llhrad = llhRad(obj, idx)
             % llhRad: Convert latitude and longitude units to radian
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   llhrad = obj.llhRad(idx)
+            %   llhrad = obj.llhRad([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   llhrad : llh position in radian
+            % Output: -----------------------------------------------------
+            %   llhrad : Mx3, llh position in radian
             %
             arguments
                 obj gt.Gpos
@@ -530,18 +527,20 @@ classdef Gpos < handle
             end
             llhrad = [obj.llh(idx,1)/180*pi, obj.llh(idx,2)/180*pi, obj.llh(idx,3)];
         end
+        %% latRad
         function latrad = latRad(obj, idx)
             % latRad: Convert latitude units to radian
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   latrad = obj.latRad(idx)
+            %   latrad = obj.latRad([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   latrad : latitude in radian
+            % Output: -----------------------------------------------------
+            %   latrad : Mx1, latitude in radian
             %
             arguments
                 obj gt.Gpos
@@ -552,18 +551,20 @@ classdef Gpos < handle
             end
             latrad = obj.llh(idx,1)/180*pi;
         end
+        %% lonRad
         function lonrad = lonRad(obj, idx)
             % lonRad: Convert longitude units to radian
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   lonrad = obj.lonRad(idx)
+            %   lonrad = obj.lonRad([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   lonrad : longitude in radian
+            % Output: -----------------------------------------------------
+            %   lonrad : Mx1, longitude in radian
             %
             arguments
                 obj gt.Gpos
@@ -574,20 +575,20 @@ classdef Gpos < handle
             end
             lonrad = obj.llh(idx,2)/180*pi;
         end
-
-        %% to dgree, minute, and second
+        %% llhDMS
         function llhdms = llhDMS(obj, idx)
             % llhDMS: Convert latitude and longitude to DMS format
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   llhdms = obj.llhDMS(idx)
+            %   llhdms = obj.llhDMS([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   llhdms : llh position in DMS format
+            % Output: -----------------------------------------------------
+            %   llhdms : Mx3, llh position in DMS format (cell)
             %
             arguments
                 obj gt.Gpos
@@ -600,18 +601,20 @@ classdef Gpos < handle
             londms = rtklib.deg2dms(obj.lon(idx));
             llhdms = {latdms, londms, obj.h(idx)};
         end
+        %% latDMS
         function latdms = latDMS(obj, idx)
-            % latDMS: Convert latitude to DMS format
+            % latDMS: Convert latitude to degree,minutu,second format
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   latdms = obj.latDMS(idx)
+            %   latdms = obj.latDMS([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   latdms : latitude in DMS format
+            % Output: -----------------------------------------------------
+            %   latdms : Mx3, latitude in degree,minutu,second format
             %
             arguments
                 obj gt.Gpos
@@ -622,18 +625,20 @@ classdef Gpos < handle
             end
             latdms = rtklib.deg2dms(obj.lat(idx));
         end
+        %% lonDMS
         function londms = lonDMS(obj, idx)
-            % lonDMS: Convert longitude to DMS format
+            % lonDMS: Convert longitude to degree,minutu,second format
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   londms = obj.lonDMS(idx)
+            %   londms = obj.lonDMS([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   londms : longitude in DMS format
+            % Output: -----------------------------------------------------
+            %   londms : Mx3, longitude in degree,minutu,second format
             %
             arguments
                 obj gt.Gpos
@@ -644,20 +649,20 @@ classdef Gpos < handle
             end
             londms = rtklib.deg2dms(obj.lon(idx));
         end
-
-        %% geoid function
+        %% geoid
         function gh = geoid(obj, idx)
-            % geoid: Calculate geoid height
+            % geoid: Compute geoid height
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   gh = obj.geoid(idx)
+            %   gh = obj.geoid([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   gh : geoid height
+            % Output: -----------------------------------------------------
+            %   gh : Mx1, Geoid height (m)
             %
             arguments
                 obj gt.Gpos
@@ -672,18 +677,20 @@ classdef Gpos < handle
             gh_ = rtklib.geoidh(gpos.llh(idx,1), gpos.llh(idx,2));
             gh(idx) = gh_;
         end
+        %% orthometric
         function oh = orthometric(obj, idx)
-            % orthometric: Calculate orthometric
+            % orthometric: Compute orthometric height
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   oh = obj.orthometric(idx)
+            %   oh = obj.orthometric([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to calculate (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   oh : Orthometric
+            % Output: -----------------------------------------------------
+            %   oh : Mx1, Orthometric height (m)
             %
             arguments
                 obj gt.Gpos
@@ -694,20 +701,20 @@ classdef Gpos < handle
             end
             oh = obj.llh(idx,3) - obj.geoid(idx);
         end
-
-        %% access
+        %% lat
         function lat = lat(obj, idx)
-            % lat: Access latitude
+            % lat: Get latitude
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   lat = obj.lat(idx)
+            %   lat = obj.lat([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   lat : Latitude
+            % Output: -----------------------------------------------------
+            %   lat : Mx1, Latitude (degree)
             %
             arguments
                 obj gt.Gpos
@@ -718,18 +725,20 @@ classdef Gpos < handle
             end
             lat = obj.llh(idx,1);
         end
+        %% lon
         function lon = lon(obj, idx)
-            % lon: Access logitude
+            % lon: Get logitude
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   lon = obj.lon(idx)
+            %   lon = obj.lon([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   lon : Longitude
+            % Output: -----------------------------------------------------
+            %   lon : Mx1, Longitude (degree)
             %
             arguments
                 obj gt.Gpos
@@ -740,18 +749,20 @@ classdef Gpos < handle
             end
             lon = obj.llh(idx,2);
         end
+        %% h
         function h = h(obj, idx)
-            % h: Access height
+            % h: Get height
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   h = obj.h(idx)
+            %   h = obj.h([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   h : height
+            % Output: -----------------------------------------------------
+            %   h : Mx1, Ellipsoidal height (m)
             %
             arguments
                 obj gt.Gpos
@@ -762,18 +773,20 @@ classdef Gpos < handle
             end
             h = obj.llh(idx,3);
         end
+        %% x
         function x = x(obj, idx)
-            % x: Access ECEF x position
+            % x: Get ECEF x position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   x = obj.x(idx)
+            %   x = obj.x([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   x : ECEF x position
+            % Output: -----------------------------------------------------
+            %   x : Mx1, ECEF x position (m)
             %
             arguments
                 obj gt.Gpos
@@ -784,18 +797,20 @@ classdef Gpos < handle
             end
             x = obj.xyz(idx,1);
         end
+        %% y
         function y = y(obj, idx)
-            % y: Access ECEF y position
+            % y: Get ECEF y position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   y = obj.y(idx)
+            %   y = obj.y([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   y : ECEF y position
+            % Output: -----------------------------------------------------
+            %   y : Mx1, ECEF y position (m)
             %
             arguments
                 obj gt.Gpos
@@ -806,18 +821,20 @@ classdef Gpos < handle
             end
             y = obj.xyz(idx,2);
         end
+        %% z
         function z = z(obj, idx)
-            % z: Access ECEF z position
+            % z: Get ECEF z position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   z = obj.z(idx)
+            %   z = obj.z([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   z : ECEF z position
+            % Output: -----------------------------------------------------
+            %   z : Mx1, ECEF z position (m)
             %
             arguments
                 obj gt.Gpos
@@ -828,18 +845,20 @@ classdef Gpos < handle
             end
             z = obj.xyz(idx,3);
         end
+        %% east
         function east = east(obj, idx)
-            % east: Access Local east position
+            % east: Get Local east position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   east = obj.east(idx)
+            %   east = obj.east([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   east : Local east position
+            % Output: -----------------------------------------------------
+            %   east : Mx1, Local east position (m)
             %
             arguments
                 obj gt.Gpos
@@ -850,18 +869,20 @@ classdef Gpos < handle
             end
             east = obj.enu(idx,1);
         end
+        %% north
         function north = north(obj, idx)
-            % north: Access Local north position
+            % north: Get Local north position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   north = obj.north(idx)
+            %   north = obj.north([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   north : Local north position
+            % Output: -----------------------------------------------------
+            %   north : Mx1, Local north position (m)
             %
             arguments
                 obj gt.Gpos
@@ -872,18 +893,20 @@ classdef Gpos < handle
             end
             north = obj.enu(idx,2);
         end
+        %% up
         function up = up(obj, idx)
-            % up: Access Local up position
+            % up: Get Local up position
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   up = obj.up(idx)
+            %   up = obj.up([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
-            % Output: ------------------------------------------------------
-            %   up : Local up position
+            % Output: -----------------------------------------------------
+            %   up : Mx1, Local up position (m)
             %
             arguments
                 obj gt.Gpos
@@ -894,17 +917,18 @@ classdef Gpos < handle
             end
             up = obj.enu(idx,3);
         end
-
         %% plot
         function plot(obj, idx)
-            % plot: Plot local enu position
+            % plot: Plot position
             % -------------------------------------------------------------
+            % Positions are converted to ENU coordinate and plotted.
             %
             % Usage: ------------------------------------------------------
-            %   obj.plot(idx)
+            %   obj.plot([idx])
             %
             % Input: ------------------------------------------------------
-            %   idx: Integer and vector index to access (optional)
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
             %
             arguments
                 obj gt.Gpos
@@ -931,15 +955,14 @@ classdef Gpos < handle
             ylabel('Up (m)');
             drawnow
         end
-
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gpos
         end
-
         %% overload
         function gerr = minus(obj, gpos)
-            % minus: Calculate position difference
+            % minus: Compute position difference
             % -------------------------------------------------------------
             % You can calculate position difference only running obj - gpos.
             % Obj and gpos must be same size.
@@ -948,10 +971,10 @@ classdef Gpos < handle
             %   gerr = obj - gpos
             %
             % Input: ------------------------------------------------------
-            %   gpos : gt.Gpos class
+            %   gpos : 1x1, gt.Gpos object
             %
-            % Output: ------------------------------------------------------
-            %   gerr: gt.Gerr class with 3D position difference and distance
+            % Output: -----------------------------------------------------
+            %   gerr: 1x1, gt.Gerr object
             %
             arguments
                 obj gt.Gpos
@@ -960,8 +983,9 @@ classdef Gpos < handle
             gerr = obj.difference(gpos);
         end
     end
-
+    %% Private functions
     methods(Access=private)
+        %% Insert data
         function c = insertdata(~,a,idx,b)
             c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
         end

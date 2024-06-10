@@ -1,68 +1,68 @@
 classdef Gstat < handle
-    % Gstat: solution/satellite status class
-    %
+    % Gstat: Solution/Satellite status class
+    % ---------------------------------------------------------------------
     % Gstat Declaration:
     % obj = Gstat()
-    % 
+    %
     % obj = Gstat(file)
-    %   file      : 1x1, RTKLIB solution status file (???.stat)
+    %   file      : 1x1, RTKLIB solution/satellite status file (???.stat)
     %
     % obj = Gnav(statstr)
-    %   statstr   : MxN, ssat_t/stat_t struct array
+    %   statstr   : MxN, RTKLIB ssat_t/stat_t struct array
     % ---------------------------------------------------------------------
-    % Gopt Properties:
+    % Gstat Properties:
     %   n         : 1x1, Number of epochs
     %   nsat      : 1x1, Number of satellites
-    %   sat       : 1x(obj.nsat), Satellite number defined in RTKLIB
+    %   sat       : 1x(obj.nsat), Satellite number (Compliant RTKLIB)
     %   prn       : 1x(obj.nsat), Satellite prn/slot number
     %   sys       : 1x(obj.nsat), Satellite system (SYS_GPS, SYS_GLO, ...)
     %   satstr    : 1x(obj.nsat), Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
     %   time      : 1x1, Time, gt.Gtime classGLONASS
     %   az        : 1x1, Azimath angle (deg)
     %   el        : 1x1, Elevation angle (deg)
-    %   L1        : 1x1, L1 observation struct
+    %   L1        : 1x1, L1 satellite struct
     %     .vsat   : (obj.n)x(obj.nsat), SNR (dB-Hz)
     %     .resP   : (obj.n)x(obj.nsat), Pseudorange residuals (m)
     %     .resL   : (obj.n)x(obj.nsat), Carrier phase residuals (m)
     %     .snr    : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .fix    : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .slip   : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .half   : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .lock   : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .outc   : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .slipc  : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %     .rejc   : (obj.n)x(obj.nsat), SNR (dB-Hz)
-    %   L2        : 1x1, L2 observation struct
-    %   L5        : 1x1, L5 observation struct
-    %   L6        : 1x1, L6 observation struct
-    %   L7        : 1x1, L7 observation struct
-    %   L8        : 1x1, L8 observation struct
-    %   L9        : 1x1, L9 observation struct
+    %     .fix    : (obj.n)x(obj.nsat), Ambiguity flag
+    %     .slip   : (obj.n)x(obj.nsat), Cycle slip
+    %     .half   : (obj.n)x(obj.nsat), Half cycle slip
+    %     .lock   : (obj.n)x(obj.nsat), Carrier lock count
+    %     .outc   : (obj.n)x(obj.nsat), Carrier outage count
+    %     .slipc  : (obj.n)x(obj.nsat), Cycle slip count
+    %     .rejc   : (obj.n)x(obj.nsat), Data reject count
+    %   L2        : 1x1, L2 satellite struct
+    %   L5        : 1x1, L5 satellite struct
+    %   L6        : 1x1, L6 satellite struct
+    %   L7        : 1x1, L7 satellite struct
+    %   L8        : 1x1, L8 satellite struct
+    %   L9        : 1x1, L9 satellite struct
     % ---------------------------------------------------------------------
     % Gstat Methods:
-    %   setStatFile(file): set option data from config file
-    %   setStatStruct(statstr): set status data from status struct array
-    %   help()
+    %   setStatFile(file);      Set solution/satellite status data from status file
+    %   setStatStruct(statstr); Set solution/satellite status data from status struct array
+    %   help();                 Show help
+    % ---------------------------------------------------------------------
+    % Author: Taro Suzuki
     %
-    %     Author: Taro Suzuki
-
     properties
-        n % Number of epochs
-        nsat % Number of satellites
-        sat % Satellite number defined in RTKLIB
-        prn % Satellite prn/slot number
-        sys % Satellite system (SYS_GPS, SYS_GLO, ...)
-        satstr % Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
-        time % Time, gt.Gtime classGLONASS
-        az % Azimath angle (deg)
-        el % Elevation angle (deg)
-        L1 % L1 observation struct
-        L2 % L2 observation struct
-        L5 % L5 observation struct
-        L6 % L6 observation struct
-        L7 % L7 observation struct
-        L8 % L8 observation struct
-        L9 % L9 observation struct
+        n      % Number of epochs
+        nsat   % Number of satellites
+        sat    % Satellite number (Compliant RTKLIB)
+        prn    % Satellite prn/slot number
+        sys    % Satellite system (SYS_GPS, SYS_GLO, ...)
+        satstr % Satellite id cell array
+        time   % Time, gt.Gtime classGLONASS
+        az     % Azimath angle (deg)
+        el     % Elevation angle (deg)
+        L1     % L1 observation struct
+        L2     % L2 observation struct
+        L5     % L5 observation struct
+        L6     % L6 observation struct
+        L7     % L7 observation struct
+        L8     % L8 observation struct
+        L9     % L9 observation struct
     end
     properties(Access=private)
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9"];
@@ -78,17 +78,16 @@ classdef Gstat < handle
                 error('Wrong input arguments');
             end
         end
-
-        %% set option data from config file
+        %% setStatFile
         function setStatFile(obj, file)
-            % setStatFile : set option data from config file
+            % setStatFile : Set solution/satellite status data from status file
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   obj.setStatFile(file)
             %
             % Input: ------------------------------------------------------
-            %  file : 1x1, RTKLIB solution status file
+            %   file : 1x1, RTKLIB solution/satellite status file (???.stat)
             %
             arguments
                 obj gt.Gstat
@@ -97,16 +96,16 @@ classdef Gstat < handle
             statstr = rtklib.readsolstat(file);
             obj.setStatStruct(statstr);
         end
-        %% set status data from status struct array
+        %% setStatStruct
         function setStatStruct(obj, statstr)
-            % setStatStruct : set status data from status struct array
+            % setStatStruct : Set solution/satellite status data from status struct array
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   obj.setStatStruct(statstr)
             %
             % Input: ------------------------------------------------------
-            %  statstr : MxN, ssat_t/stat_t struct array
+            %   statstr : MxN, ssat_t/stat_t struct array
             %
             arguments
                 obj gt.Gstat
@@ -117,7 +116,7 @@ classdef Gstat < handle
             [obj.sat, isat] = sort(statstr.sat);
             obj.az = statstr.az(:,isat);
             obj.el = statstr.el(:,isat);
-            
+
             for f = obj.FTYPE
                 if ~isempty(statstr.(f))
                     obj.(f).resP = statstr.(f).resp(:,isat);
@@ -139,9 +138,9 @@ classdef Gstat < handle
             obj.sys = gt.C.SYS(sys_);
             obj.satstr = rtklib.satno2id(obj.sat);
         end
-
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gstat
         end
     end

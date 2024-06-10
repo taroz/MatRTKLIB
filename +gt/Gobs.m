@@ -2,6 +2,8 @@ classdef Gobs < handle
     % Gobs: GNSS RINEX ovservation data class
     % ---------------------------------------------------------------------
     % Gobs Declaration:
+    % obj = Gobs()
+    %
     % obj = Gobs(file)
     %   file      : 1x1, RINEX observation file
     %
@@ -11,14 +13,14 @@ classdef Gobs < handle
     % Gobs Properties:
     %   n         : 1x1, Number of epochs
     %   nsat      : 1x1, Number of satellites
-    %   sat       : 1x(obj.nsat), Satellite number defined in RTKLIB
-    %   prn       : 1x(obj.nsat), Satellite prn/slot number
+    %   sat       : 1x(obj.nsat), Satellite number (Compliant RTKLIB)
+    %   prn       : 1x(obj.nsat), Satellite PRN/slot number
     %   sys       : 1x(obj.nsat), Satellite system (SYS_GPS, SYS_GLO, ...)
-    %   satstr    : 1x(obj.nsat), Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
-    %   time      : 1x1, Time, gt.Gtime class
+    %   satstr    : 1x(obj.nsat), Satellite ID cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
+    %   time      : 1x1, Observation time, gt.Gtime object
     %   dt        : 1x1, Observation time interval (s)
-    %   pos       : 1x1, Position in RINEX header, gt.Gpos class
-    %   glofcn    : 1x(obj.nsat), Frequency channel number for GLONASS 
+    %   pos       : 1x1, Position in RINEX header, gt.Gpos object
+    %   glofcn    : 1x(obj.nsat), Frequency channel number for GLONASS
     %   L1        : 1x1, L1 observation struct
     %     .P      : (obj.n)x(obj.nsat), Pseudorange (m)
     %     .L      : (obj.n)x(obj.nsat), Carrier phase (cycle)
@@ -34,42 +36,57 @@ classdef Gobs < handle
     %   L7        : 1x1, L7 observation struct
     %   L8        : 1x1, L8 observation struct
     %   L9        : 1x1, L9 observation struct
+    %  (Lwl)      : 1x1, Wide-lane linear combination struct
+    %  (Lml)      : 1x1, Middle-lane linear combination struct
+    %  (Lif)      : 1x1, Ionosphere-free linear combination struct
     % ---------------------------------------------------------------------
     % Gobs Methods:
-    %   setObsFile(file): Set observation from RINEX file
-    %   setObsStruct(obsstr): Set observation from observation struct
-    %   setFrequency(): Set carrier frequency and lamda
-    %   setFrequencyFromNav(nav): Set carrier frequency from navigation
-    %   outObs(file): Output RINEX observation file
-    %   append(gobs): Append of gt.Gobs classes
-    %   difference(gobj):
-    %   gobs = select(tidx, sidx): Select from time/satellite index
-    %   gobs = selectSat(sidx): Select from satellite index
-    %   gobs = selectTime(tidx): Select from time index
-    %   gobs = selectTimeSpan(ts, te, [dt]): Select from time span
-    %   obsstr = struct([tidx], [sidx]): Create a observation struct from specified indices
-    %   gobs = fixedInterval([dt]): Resampling object at fixed interval
-    %   [gobs, gobsref] = common(gobsref): Synchronize object with reference object by common satellite and time
-    %   [gobs, gobsref] = commonSat(gobsref): Synchronize object with reference object by common satellite
-    %   [gobs, gobsref] = commonTime(gobsref):Synchronize object with reference object by common time
-    %   gobsSD = singleDifference(gobs): Calculate single difference
-    %   plot([freq], [sidx]): Plot the SNR for selected satellites and frequency
-    %   plotNSat([freq], [snrth], [sidx]): Plot number of satellite
-    %   plotSky(nav, [sidx]): Plot sky plot
-    %   help()
-    %---------------------------------------------------------------------
+    %   setObsFile(file);              Set observation from RINEX file
+    %   setObsStruct(obsstr);          Set observation from observation struct
+    %   setFrequency();                Set carrier frequency and wavelength
+    %   setFrequencyFromNav(nav);      Set carrier frequency and wavelength from navigation
+    %   outObs(file);                  Output RINEX observation file
+    %   append(gobs);                  Append of gt.Gobs object
+    %   maskP(mask, [freq]);           Apply mask to pseudorange observations
+    %   maskD(mask, [freq]);           Apply mask to Doppler observations
+    %   maskL(mask, [freq]);           Apply mask to carrier phase observations
+    %   mask(mask, [freq]);            Apply mask to observations
+    %   maskLLI(mask, [freq]);         Apply mask to carrier phase from LLI flag
+    %   gobs = eliminateNaN();         Eliminate satellites whose observations are all NaN
+    %   gobs = copy();                 Copy object
+    %   gobs = select(tidx, sidx);     Select observation from time/satellite index
+    %   gobs = selectSat(sidx);        Select observation from satellite index
+    %   gobs = selectTime(tidx);       Select observation from time index
+    %   gobs = selectTimeSpan(ts, te); Select observation from time span
+    %   obsstr = struct([tidx], [sidx]); Create a observation struct from specified indices
+    %   gobs = fixedInterval([dt]);    Resampling object at fixed interval
+    %   [gobsc, gobsrefc] = commonObs(gobsref); Extract common observations with reference observation
+    %   [gobsc, gobsrefc] = commonSat(gobsref); Extract common satellite with reference observation
+    %   [gobsc, gobsrefc] = commonTime(gobsref);Extract common time with reference observation
+    %   gobs = sameObs(obj, gobsref);  Same satellite and time as reference observation
+    %   gobs = sameSat(obj, gobsref);  Same satellite as reference observation
+    %   gobs = sameTime(obj, gobsref); Same time as reference observation
+    %   gobs = linearCombination();    Compute linear combination of observations
+    %   gobs = residuals(gsat);        Compute observation residuals
+    %   gobsSD = singleDifference(gobs); Compute single-difference observations
+    %   gobsDD = doubleDifference(gobs); Compute double-difference observations
+    %   plot([freq], [sidx]);          Plot received observations and SNR
+    %   plotNSat([freq], [snrth], [sidx]); Plot received number of satellites
+    %   plotSky(nav, [sidx]);          Plot satellite constellation
+    %   help();                        Show help
+    % ---------------------------------------------------------------------
     % Author: Taro Suzuki
-
+    %
     properties
         n      % Number of epochs
         nsat   % Number of satellites
-        sat    % corrected satellite prn number (Compliant RTKLIB)
-        prn    % PRN number
-        sys    % Satellite system index
-        satstr % Satellite system and satellite number
-        time   % Time class {n, ep, tow, week, t}
-        dt     % Time delta between epochs (s)
-        pos    % RINEX header position {n, llh, xyz, enu, orgllh, orgxyz}
+        sat    % Satellite number (Compliant RTKLIB)
+        prn    % Satellite PRN number/slot number
+        sys    % Satellite system (SYS_GPS, SYS_GLO, ...)
+        satstr % Satellite id cell array
+        time   % Observation time, gt.Gtime object
+        dt     % Observation time interval (s)
+        pos    % Position in RINEX header, gt.Gpos object
         glofcn % Frequency channel number for GLONASS
         L1     % L1 observation struct {P, L, D, S, I, ctype, freq, lam}
         L2     % L2 observation struct
@@ -80,7 +97,7 @@ classdef Gobs < handle
         L9     % L9 observation struct
         Lwl    % Wide-lane linear combination struct
         Lml    % Middle-lane linear combination struct
-        Lif    % Iono-free linear combination struct
+        Lif    % Ionosphere-free linear combination struct
     end
     properties(Access=private)
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"];
@@ -91,7 +108,7 @@ classdef Gobs < handle
             if nargin==0
                 % generate empty class instance
                 obj.n = 0;
-                obj.nsat = 0;                
+                obj.nsat = 0;
             elseif nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setObsFile(char(varargin{1})); % file
             elseif nargin==1 && isstruct(varargin{1})
@@ -100,17 +117,16 @@ classdef Gobs < handle
                 error('Wrong input arguments');
             end
         end
-
-        %% set observation from RINEX file
+        %% setObsFile
         function setObsFile(obj, file)
-            % setObsFile: Set observation from RINEX file 
+            % setObsFile: Set observation from RINEX file
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
             %   obj.setObsFile(file)
             %
             % Input: ------------------------------------------------------
-            %   file : "RINEX observation file path"
+            %   file : 1x1, RINEX observation file
             %
             arguments
                 obj gt.Gobs
@@ -131,19 +147,21 @@ classdef Gobs < handle
             fcn(fcn==0) = NaN;
             obj.glofcn = NaN(1,obs.nsat);
             obj.glofcn(idxglo) = fcn(obs.prn(idxglo))-8;
-            
+
             obj.setObsStruct(obs);
         end
-        %% set observation from observation struct
+        %% setObsStruct
         function setObsStruct(obj, obsstr)
             % setObsStruct: Set observation from observation struct
             % -------------------------------------------------------------
+            % The observation struct is the output of the RTKLIB wrapper
+            % function.
             %
             % Usage: ------------------------------------------------------
             %   obj.setObsStruct(obsstr)
             %
             % Input: ------------------------------------------------------
-            %   obsstr : Observation struct 
+            %   obsstr : 1x1, Observation struct
             %
             arguments
                 obj gt.Gobs
@@ -170,11 +188,17 @@ classdef Gobs < handle
                 obj.setFrequency();
             end
         end
-        %% set carrier frequency
+        %% setFrequency
         function setFrequency(obj)
-            % setFrequency: Set carrier frequency and lamda
+            % setFrequency: Set carrier frequency and wavelength
             % -------------------------------------------------------------
-            %  
+            % Carrier frequency is determined from the type of observeation.
+            % For GLONASS, the carrier frequency is determined from the
+            % frequency channel number (FCN) in the RINEX header.
+            %
+            % If the RINEX header does not contain an FCN, the GLONASS
+            % frequency is not set.
+            %
             % Usage: ------------------------------------------------------
             %   obj.setFrequency()
             %
@@ -190,18 +214,19 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% set carrier frequency from navigation data
+        %% setFrequencyFromNav
         function setFrequencyFromNav(obj, nav)
-            % setFrequencyFromNav: Set carrier frequency from navigation
+            % setFrequencyFromNav: Set carrier frequency and wavelength from navigation
             % -------------------------------------------------------------
-            % Nabigation is gt.Gnav type.
+            % Carrier frequency is determined from the type of observeation.
+            % For GLONASS, the carrier frequency is determined from the
+            % frequency channel number (FCN) in the navigation data.
             %
             % Usage: ------------------------------------------------------
             %   obj.setObsStruct(nav)
             %
             % Input: ------------------------------------------------------
-            %   nav : Navigation struct 
+            %   nav : 1x1, Navigation struct or gt.Gnav object
             %
             arguments
                 obj gt.Gobs
@@ -225,8 +250,7 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% output observation file
+        %% outObs
         function outObs(obj, file)
             % outObs: Output RINEX observation file
             % -------------------------------------------------------------
@@ -235,7 +259,7 @@ classdef Gobs < handle
             %   obj.outObs(file)
             %
             % Input: ------------------------------------------------------
-            %   file : "The output RINEX observation file path" 
+            %   file : Output RINEX observation file name
             %
             arguments
                 obj gt.Gobs
@@ -246,7 +270,7 @@ classdef Gobs < handle
             fcn = zeros(1,32);
             xyz = zeros(1,3);
 
-            % GLONASS FCN for RINEX header            
+            % GLONASS FCN for RINEX header
             if ~any(isnan(obj.glofcn))
                 sysglo = obj.sys==gt.C.SYS_GLO;
                 fcn(obj.prn(sysglo)) = obj.glofcn(sysglo)+8;
@@ -256,18 +280,18 @@ classdef Gobs < handle
             end
             rtklib.outrnxobs(file, obsstr, xyz, fcn);
         end
-
         %% append
         function append(obj, gobs)
-            % append: Append of gt.Gobs classes
+            % append: Append gt.Gobs object
             % -------------------------------------------------------------
-            % gobs is gt.Gobs type.
+            % Add gt.Gobs object.
+            % obj.n will be obj.n+gobs.n
             %
             % Usage: ------------------------------------------------------
             %   obj.append(gobs)
             %
             % Input: ------------------------------------------------------
-            %   gobs : gt.Gobs class
+            %   gobs : 1x1, gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -296,30 +320,28 @@ classdef Gobs < handle
             end
             obj.setObsStruct(obsstr);
         end
-        
-        %% pseudorange mask
+        %% maskP
         function gobs = maskP(obj, mask, freq)
-            % maskP: Apply mask to pseudorange
+            % maskP: Apply mask to pseudorange observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
-            % Freq is optional. Default is obj.FTYPE.
-            % The masked data points is set to NaN.
-            % 
+            % The masked observations will be NaN.
+            %
             % Usage: ------------------------------------------------------
             %   gobs = obj.maskP(mask, freq)
             %
             % Input: ------------------------------------------------------
-            %   mask : Logical array indicating which data points to mask
-            %          
-            %   freq : String array of frequency types to be masked        
+            %   mask : (obj.n)x(obj.nsat), Logical index array to mask
+            %  [freq] : String array of frequency types to mask (e.g. "L1")
+            %          (optional) Default: obj.FTYPE (all frequencies)
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class masked by pseudorange
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE 
+                freq string = obj.FTYPE
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -347,29 +369,28 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% pseudorange mask
+        %% maskD
         function gobs = maskD(obj, mask, freq)
-            % maskD: Apply mask to carrier phase doppler frequency
+            % maskD: Apply mask to Doppler observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
-            % Freq is optional. Default is obj.FTYPE.
-            % The masked data points is set to NaN.
+            % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.maskD(mask, freq)
             %
             % Input: ------------------------------------------------------
-            %   mask : Logical array indicating which data points to mask
-            %   freq : String array of frequency types to be masked           
+            %   mask : (obj.n)x(obj.nsat), Logical index array to mask
+            %  [freq] : String array of frequency types to mask (e.g. "L1")
+            %          (optional) Default: obj.FTYPE (all frequencies)
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class masked by doppler frequency
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE 
+                freq string = obj.FTYPE
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -391,29 +412,28 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% carrier phase mask
+        %% maskL
         function gobs = maskL(obj, mask, freq)
-            % maskL: Apply mask to carrier phase
+            % maskL: Apply mask to carrier phase observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
-            % Freq is optional. Default is obj.FTYPE.
-            % The masked data points is set to NaN.
+            % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.maskL(mask, freq)
             %
             % Input: ------------------------------------------------------
-            %   mask : Logical array indicating which data points to mask
-            %   freq : String array of frequency types to be masked (optional)
+            %   mask : (obj.n)x(obj.nsat), Logical index array to mask
+            %  [freq] : String array of frequency types to mask (e.g. "L1")
+            %          (optional) Default: obj.FTYPE (all frequencies)
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class masked by carrier phase
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE 
+                freq string = obj.FTYPE
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -441,31 +461,29 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% apply mask to observation 
+        %% mask
         function gobs = mask(obj, mask, freq)
-            % mask: Apply mask to gt.Gobs class 
+            % mask: Apply mask to observations
             % -------------------------------------------------------------
+            % Apply mask to pseudorange, Doppler, and carrier phase.
             % Mask size must be [obj.n, obj.nsat].
-            % Freq is optional. Default is obj.FTYPE.
-            % Apply mask to pseudorange, carrier phase and doppler frequency.
-            % The masked data points is set to NaN.
+            % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.mask(mask, freq)
             %
             % Input: ------------------------------------------------------
-            %   mask : Logical array indicating which data points to mask
-            %   freq : String array of frequency types to be masked (optional)           
+            %   mask : (obj.n)x(obj.nsat), Logical index array to mask
+            %  [freq] : String array of frequency types to mask (e.g. "L1")
+            %          (optional) Default: obj.FTYPE (all frequencies)
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class masked by
-            %         pseudorange, carrier phase, and doppler
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE 
+                freq string = obj.FTYPE
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match the observations');
@@ -475,17 +493,18 @@ classdef Gobs < handle
             gobs = gobs.maskL(mask,freq);
             gobs = gobs.maskD(mask,freq);
         end
-
-        %% apply mask from LLI flag 
+        %% maskLLI
         function gobs = maskLLI(obj)
-            % maskLLI: Apply mask from LLI flag 
+            % maskLLI: Apply mask to carrier phase from LLI flag
             % -------------------------------------------------------------
+            % Carrier phase observations for cycle slip and half-cycle slip
+            % will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.maskLLI()       
+            %   gobs = obj.maskLLI()
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class masked by LLI flag
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
@@ -493,23 +512,22 @@ classdef Gobs < handle
             gobs = obj.copy();
             for f = gobs.FTYPE
                 if ~isempty(gobs.(f))
-                    mask = gobs.(f).I>=1;
+                    mask = gobs.(f).I>=1; % 1:cycle slip, 2or3:half-cycle slip
                     gobs = gobs.maskL(mask,f);
                 end
             end
         end
-
-        %% eliminate all NaN satellite
+        %% eliminateNaN
         function gobs = eliminateNaN(obj)
-            % eliminateNaN: Eliminate all NaN satellite
+            % eliminateNaN: Eliminate satellites whose observations are all NaN
             % -------------------------------------------------------------
-            % If all pseudorange value is NaN, eliminate the data.
+            % If all pseudorange observations are NaN, eliminate the satellite.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.eliminateNaN()       
+            %   gobs = obj.eliminateNaN()
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New gt.Gobs class eliminate all NaN satellite
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, gt.Gobs object with satellites eliminated
             %
             arguments
                 obj gt.Gobs
@@ -522,29 +540,29 @@ classdef Gobs < handle
             end
             gobs = obj.selectSat(sidx);
         end
-
         %% copy
         function gobs = copy(obj)
             % copy: Copy object
             % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different object, you need to use the copy method.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.copy()       
+            %   gobs = obj.copy()
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Copied object
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Copied gt.Gobs object
             %
             arguments
                 obj gt.Gobs
             end
             gobs = obj.select(1:obj.n,1:obj.nsat);
         end
-
-        %% select from time/satellite index
+        %% select
         function gobs = select(obj, tidx, sidx)
-            % select: Select from time/satellite index
+            % select: Select observation from time/satellite index
             % -------------------------------------------------------------
-            % Select time/satellite from the index and return a new object.
+            % Select observation from time/satellite index and return a new object.
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
@@ -554,8 +572,8 @@ classdef Gobs < handle
             %   tidx : Logical or numeric index to select time
             %   sidx : Logical or numeric index to select satellite
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Selected object
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, Selected gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -580,12 +598,11 @@ classdef Gobs < handle
             obj.copyFrequency(gobs,1:gobs.nsat,sidx);
             obj.copyAdditinalObservation(gobs,1:gobs.n,tidx,1:gobs.nsat,sidx);
         end
-
-        %% select from satellite index
+        %% selectSat
         function gobs = selectSat(obj, sidx)
-            % selectSat: Select from satellite index
+            % selectSat: Select observation from satellite index
             % -------------------------------------------------------------
-            % Select time/satellite from the index and return a new object.
+            % Select observation from satellite index and return a new object.
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
@@ -594,8 +611,8 @@ classdef Gobs < handle
             % Input: ------------------------------------------------------
             %   sidx : Logical or numeric index to select satellite
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Selected object
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, Selected gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -603,12 +620,11 @@ classdef Gobs < handle
             end
             gobs = obj.select(1:obj.n, sidx);
         end
-
-        %% select from time index
+        %% selectTime
         function gobs = selectTime(obj, tidx)
-            % selectTime: Select from time index
+            % selectTime: Select observation from time index
             % -------------------------------------------------------------
-            % Select time/satellite from the index and return a new object.
+            % Select observation from time index and return a new object.
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
@@ -617,8 +633,8 @@ classdef Gobs < handle
             % Input: ------------------------------------------------------
             %   tidx : Logical or numeric index to select time
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Selected object
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Selected gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -626,13 +642,12 @@ classdef Gobs < handle
             end
             gobs = obj.select(tidx, 1:obj.nsat);
         end
-
-        %% select from time span
+        %% selectTimeSpan
         function gobs = selectTimeSpan(obj, ts, te)
-            % selectTimeSpan: Select from time span
+            % selectTimeSpan: Select observation from time span
             % -------------------------------------------------------------
-            % Select time from the time span and return a new object.
-            % Time span is the start and end time of gt.Gtime type.
+            % Select observation from the time span and return a new object.
+            % The time span is start and end time represented by gt.Gtime.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.selectTimeSpan(ts, te)
@@ -641,8 +656,8 @@ classdef Gobs < handle
             %   ts  : 1x1, gt.Gtime, Start time
             %   te  : 1x1, gt.Gtime, End time
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Selected object
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Selected gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -655,23 +670,24 @@ classdef Gobs < handle
             tidx = tr>=tsr & tr<=ter;
             gobs = obj.selectTime(tidx);
         end
-
-        %% convert to struct
+        %% struct
         function obsstr = struct(obj, tidx, sidx)
-            % struct: Create a observation struct from specified indices
+            % struct: Convert from gt.Gobs object to observation struct
             % -------------------------------------------------------------
-            % Select time/satellite from the index and return a new struct.
+            % The input to the RTKLIB wrapper function must be a structure.
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
-            %   obsstr = obj.struct(tidx, sidx)
+            %   obsstr = obj.struct([tidx], [sidx][)
             %
             % Input: ------------------------------------------------------
-            %   tidx : Logical or numeric index to select time
-            %   sidx : Logical or numeric index to select satellite
+            %  [tidx]: Logical or numeric to select time (optional)
+            %          Default: tidx = 1:obj.n
+            %  [sidx]: Logical or numeric index to select satellite (optional)
+            %          Default: sidx = 1:obj.nsat
             %
-            % Output: ------------------------------------------------------
-            %   gobs: New struct containing selected data
+            % Output: -----------------------------------------------------
+            %   obsstr: 1x1, Observation struct (for interface to RTKLIB)
             %
             arguments
                 obj gt.Gobs
@@ -693,21 +709,25 @@ classdef Gobs < handle
                 end
             end
         end
-
-        %% fixed interval
+        %% fixedInterval
         function gobs = fixedInterval(obj, dt)
-            % fixedInterval: Resampling object at fixed interval
+            % fixedInterval: Resampling observation at fixed interval
             % -------------------------------------------------------------
-            % Dt is optional. Default is obj.dt.
+            % The time interval of the observed value will be constant at
+            % the specified second.
+            %
+            % If the time interval of the original observation is not
+            % constant, NaN is inserted into the observation at that time.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.fixedInterval(dt)
+            %   gobs = obj.fixedInterval([dt])
             %
             % Input: ------------------------------------------------------
-            %   dt : Time delta for resampling (optional)
+            %  [dt] : 1x1, double, Time interval for resampling (s)
+            %        (optional) Default: dt = obj.dt
             %
-            % Output: ------------------------------------------------------
-            %   gobs: Resampled object
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Resampled gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -743,46 +763,55 @@ classdef Gobs < handle
             gobs.pos = obj.pos;
             gobs.glofcn = obj.glofcn;
         end
-
-        %% common obsevation
-        function [gobsc, gobrefc] = commonObs(obj, gobsref)
-            % commonObs: Synchronize object with reference object by 
-            %            common satellite and time
+        %% commonObs
+        function [gobsc, gobsrefc] = commonObs(obj, gobsref)
+            % commonObs: Extract common observation with reference observation
             % -------------------------------------------------------------
+            % Extract the common time and satellite observations between
+            % the reference gt.Gobs object and the current object.
+            %
+            % Output new gt.Gobs object and reference gt.Gobs object.
+            %
+            % gobsc.time = obsrefc.time
+            % gobsc.sat = obsrefc.sat
             %
             % Usage: ------------------------------------------------------
-            %   [gobsc, gobrefc] = obj.commonObs(gobsref)
+            %   [gobsc, gobsrefc] = obj.commonObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobsc  : Synchronized object
-            %   gobrefc: Synchronized reference object
+            % Output: -----------------------------------------------------
+            %   gobsc   : 1x1, New gt.Gobs object
+            %   gobsrefc: 1x1, New reference gt.Gobs object
             %
             arguments
                 obj gt.Gobs
                 gobsref gt.Gobs
             end
-            [gobsc, gobrefc] = obj.commonSat(gobsref);
-            [gobsc, gobrefc] = gobsc.commonTime(gobrefc);
+            [gobsc, gobsrefc] = obj.commonSat(gobsref);
+            [gobsc, gobsrefc] = gobsc.commonTime(gobsrefc);
         end
-
-        %% common satellite
-        function [gobsc, gobrefc] = commonSat(obj, gobsref)
-            % commonSat: Synchronize object with reference object by 
-            %            common satellite
+        %% commonSat
+        function [gobsc, gobsrefc] = commonSat(obj, gobsref)
+            % commonSat: Extract common satellite with reference observation
             % -------------------------------------------------------------
+            % Extract the common satellites between the reference gt.Gobs
+            % object and the current object.
+            %
+            % Output new gt.Gobs object and reference gt.Gobs object.
+            %
+            % gobsc.sat = obsrefc.sat
             %
             % Usage: ------------------------------------------------------
-            %   [gobsc, gobrefc] = obj.commonSat(gobsref)
+            %   [gobsc, gobsrefc] = obj.commonObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobsc  : Object synchronized by common satellite 
-            %   gobrefc: Reference object synchronized by common satellite 
+            % Output: -----------------------------------------------------
+            %   gobsc   : 1x1, New gt.Gobs object
+            %   gobsrefc: 1x1, New reference gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -790,24 +819,28 @@ classdef Gobs < handle
             end
             [~,sidx1,sidx2] = intersect(obj.sat,gobsref.sat);
             gobsc = obj.selectSat(sidx1);
-            gobrefc = gobsref.selectSat(sidx2);
+            gobsrefc = gobsref.selectSat(sidx2);
         end
-
-        %% common time
-        function [gobsc, gobrefc] = commonTime(obj, gobsref)
-            % commonTime: Synchronize object with reference object by 
-            %             common time
+        %% commonTime
+        function [gobsc, gobsrefc] = commonTime(obj, gobsref)
+            % commonTime: Extract common time with reference observation
             % -------------------------------------------------------------
+            % Extract the common time between the reference gt.Gobs object
+            % and the current object.
+            %
+            % Output new gt.Gobs object and reference gt.Gobs object.
+            %
+            % gobsc.time = gobsrefc.time
             %
             % Usage: ------------------------------------------------------
-            %   [gobsc, gobrefc] = obj.commonTime(gobsref)
+            %   [gobsc, gobsrefc] = obj.commonObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobsc  : Object synchronized by common time 
-            %   gobrefc: Reference object synchronized by common time 
+            % Output: -----------------------------------------------------
+            %   gobsc   : 1x1, New gt.Gobs object
+            %   gobsrefc: 1x1, New reference gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -817,22 +850,30 @@ classdef Gobs < handle
             tref = obj.roundDateTime(gobsref.time.t, gobsref.dt);
             [~,tidx1,tidx2] = intersect(t,tref);
             gobsc = obj.selectTime(tidx1);
-            gobrefc = gobsref.selectTime(tidx2);
+            gobsrefc = gobsref.selectTime(tidx2);
         end
-
-        %% same obsevation
+        %% sameObs
         function gobs = sameObs(obj, gobsref)
-            % sameObs: Match satellite and time with reference object
+            % sameObs: Same satellite and time as reference observation
             % -------------------------------------------------------------
+            % Create an gt.Gobs object whose time and satellite are
+            % consistent with the reference gt.Gobs object.
+            %
+            % gobs.time = gobsref.time
+            % gobs.sat = gobsref.sat
+            %
+            % If the time or satellite of the reference observation is not
+            % included in the current observation, NaN is inserted into the
+            % observations.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.sameObs(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobs : Matched object 
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, New gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -841,20 +882,27 @@ classdef Gobs < handle
             gobs = obj.sameSat(gobsref);
             gobs = gobs.sameTime(gobsref);
         end
-
-        %% same satellite
+        %% sameSat
         function gobs = sameSat(obj, gobsref)
-            % sameSat: Match satellite with reference object
+            % sameSat: Same satellite as reference observation
             % -------------------------------------------------------------
+            % Create an gt.Gobs object whose satellite are consistent with
+            % the reference gt.Gobs object.
+            %
+            % gobs.sat = gobsref.sat
+            %
+            % If the satellite of the reference observation is not
+            % in the current observation, NaN is inserted into the
+            % observations.
             %
             % Usage: ------------------------------------------------------
-            %   [gobsc, gobrefc] = obj.sameSat(gobsref)
+            %   gobs = obj.sameSat(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobs : Object matched by satellite 
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, New gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -882,20 +930,27 @@ classdef Gobs < handle
             gobs.glofcn = gobsref.glofcn;
             obj.copyAdditinalObservation(gobs,1:gobs.n,1:gobs.n,sidx1,sidx2);
         end
-
-        %% same time
+        %% sameTime
         function gobs = sameTime(obj, gobsref)
-            % sameTime: Match satellite with reference object
+            % sameSat: Same time as reference observation
             % -------------------------------------------------------------
+            % Create an gt.Gobs object whose time are consistent with
+            % the reference gt.Gobs object.
+            %
+            % gobs.time = gobsref.time
+            %
+            % If the time of the reference observation is not
+            % in the current observation, NaN is inserted into the
+            % observations.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.sameTime(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : Reference object
+            %   gobsref : 1x1, Reference gt.Gobs object
             %
-            % Output: ------------------------------------------------------
-            %   gobs : Object matched by time 
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, New gt.Gobs object
             %
             arguments
                 obj gt.Gobs
@@ -926,84 +981,61 @@ classdef Gobs < handle
             gobs.glofcn = gobsref.glofcn;
             obj.copyAdditinalObservation(gobs,tidx1,tidx2,1:gobs.nsat,1:gobs.nsat);
         end
-
-        %% carrier smoothing
-        function gobs = carrierSmooth(obj)
-            % carrierSmooth: Carrier smoothing 
-            % -------------------------------------------------------------
-            % The noisy code pseudorange measurements can be smoothed with 
-            % the precise carrier phase measurements. 
-            %
-            % Usage: ------------------------------------------------------
-            %   gobs = obj.carrierSmooth()
-            %
-            % Output: ------------------------------------------------------
-            %   gobs : Object after carrier smoothing
-            %
-            arguments
-                obj gt.Gobs
-            end
-            gobs = obj.copy();
-            % for f = obj.FTYPE
-            %     if isfield(obj.(f),'resP')
-            %         dresPL = obj.(f).resP-obj.(f).resL;
-            %         idx_slip = obj.(f).I>0;
-            %         if obj.dt<=1.0
-            %            idx_slip = idx_slip |...
-            %                [false; abs(obj.(f).dDL)>2.0] | ...
-            %                [false; abs(gobs.(f).dDP)>20.0];
-            %         end
-            %         idx_slip(1:10:end,:) = true;
-            %         group_slip = cumsum(idx_slip);
-            %         resPs = NaN(obj.n,obj.nsat);
-            %         for j=1:obj.nsat
-            %             meandresPL = splitapply(@nanmean,dresPL(:,j),group_slip(:,j));
-            %             resPs(:,j) = obj.(f).resL(:,j)+meandresPL(group_slip(:,j));
-            %         end
-            %         obj.(f).resPs = resPs;
-            %     end
-            % % end
-        end
-        %% linear combination
+        %% linearCombination
         function gobs = linearCombination(obj)
-            % linearCombination: Define linear combination 
+            % linearCombination: Compute linear combination of observations
             % -------------------------------------------------------------
+            % Compute following linear combination of observations
+            % Lwl: Wide-lane carrier phase
+            % Lml: Middle-lane carrier phase
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.linearCombination()
             %
-            % Output: ------------------------------------------------------
-            %   gobs : gt.Gobs class with linear combination defined
+            % Output: -----------------------------------------------------
+            %   gobs : 1x1, New gt.Gobs object
             %
             arguments
                 obj gt.Gobs
             end
             gobs = obj.copy();
-            
+
             % middle-lane (L1-L5)
             if ~isempty(obj.L1) && ~isempty(obj.L5)
                 gobs.Lml.freq = obj.L1.freq-obj.L5.freq;
                 gobs.Lml.lam = gt.C.CLIGHT./gobs.Lml.freq;
-                gobs.Lml.L = obj.L1.L-obj.L5.L;
+                gobs.Lml.L = obj.L1.L-obj.L5.L; % (cycle)
             end
+            % wide-lane (L1-L2)
+            if ~isempty(obj.L1) && ~isempty(obj.L2)
+                gobs.Lwl.freq = obj.L1.freq-obj.L2.freq;
+                gobs.Lwl.lam = gt.C.CLIGHT./gobs.Lwl.freq;
+                gobs.Lwl.L = obj.L1.L-obj.L2.L; % (cycle)
+            end
+            % ToDo: other combinations
         end
         %% residuals
         function gobs = residuals(obj, gsat)
-            % residuals: Calculate residuals
+            % residuals: Compute observation residuals
             % -------------------------------------------------------------
-            % Calculate pseudorange, carrier phase, doppler residuals.
-            % If gsat contain ion data, calculate residuals considering
-            % satellite clock, ionospheric, tropospheric correction.
+            % Compute pseudorange, carrier phase, doppler residuals.
+            %
+            % resP,resD,resL:
+            %   Corrects geometric distance/rate and satellite clock/drift
+            %
+            % resPc,resLc:
+            %   Corrects troposphere and ionosphere errors in addition to
+            %   the above
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.residuals(gsat)
             %
             % Input: ------------------------------------------------------
-            %   gsat : Satellite data at observation time
+            %   gsat : 1x1, gt.Gsat object
             %
-            % Output: ------------------------------------------------------
-            %   gobs: gt.Gobs class with residuals defined
-            %       
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, new gt.Gobs object
+            %
             arguments
                 obj gt.Gobs
                 gsat gt.Gsat
@@ -1014,118 +1046,122 @@ classdef Gobs < handle
             if obj.n ~= gsat.n
                 error('obj.n and gsat.n must be the same')
             end
-            if isempty(gsat.pos)
-                error('Call gsat.setRcvPos(gpos) first to set the receiver position');
-            end
-            if isempty(gsat.vel)
-                error('Call gsat.setRcvVel(gvel) first to set the receiver velocity');
+            if isempty(gsat.pos) & isempty(gsat.vel)
+                error('Call gsat.setRcvPos(gpos) or gsat.setRcvVel(gvel)) first to set the receiver position/velocity');
             end
             gobs = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-gsat.rng+gsat.dts; end % pseudorange residuals
-                    if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L.*gobs.(f).lam-gsat.rng+gsat.dts; end % carrier phase residuals
-                    if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-gsat.rate+gsat.ddts; end % doppler residuals
-                    
+                    if ~isempty(gsat.pos)
+                        if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-(gsat.rng-gsat.dts); end % pseudorange residuals (m)
+                        if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L-(gsat.rng-gsat.dts)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                    end
+                    if ~isempty(gsat.vel)
+                        if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D-(gsat.rate-gsat.ddts)./gobs.(f).lam; end % doppler residuals (Hz)
+                    end
                     if isprop(gsat,"ion"+f)
                         if ~isempty(gsat.("ion"+f))
-                            if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals
-                            if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L.*gobs.(f).lam-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp); end % carrier phase residuals
-                            if isfield(gobs.(f),"D"); gobs.(f).resDc = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals
+                            if ~isempty(gsat.pos)
+                                if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals (m)
+                                if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                            end
                         end
                     end
                 end
             end
         end
-        
-        %% single diffenrece
-        function gobsSD = singleDifference(obj, gobs)
-            % singleDifference: Calculate single difference
+        %% singleDifference
+        function gobsSD = singleDifference(obj, gobsref)
+            % singleDifference: Compute single-difference observations
             % -------------------------------------------------------------
-            % Calculate pseudorange, carrier phase, doppler 
-            % single difference and residuals of single difference.
+            % Compute single-difference observation (difference between
+            % reference station).
+            %
+            % Pd,Ld,Dd,resPd,resDd,resLd: Single-difference observations
+            %
+            % The time and satellite of the reference station's observation
+            % must match the object.
             %
             % Usage: ------------------------------------------------------
-            %   gobsSD = obj.singleDifference(gobs)
+            %   gobsSD = obj.singleDifference(gobsref)
             %
             % Input: ------------------------------------------------------
-            %   gobs : observation data object
+            %   gobsref : 1x1, gt.Gobs object of reference station
             %
-            % Output: ------------------------------------------------------
-            %   gobsSD: gt.Gobs class with single difference defined
+            % Output: -----------------------------------------------------
+            %   gobsSD: 1x1, gt.Gobs object
             %
             arguments
                 obj gt.Gobs
-                gobs gt.Gobs
+                gobsref gt.Gobs
             end
-            if obj.nsat ~= gobs.nsat
+            if obj.nsat ~= gobsref.nsat
                 error('obj.nsat and gobs.nsat must be the same')
             end
-            if obj.n ~= gobs.n
+            if obj.n ~= gobsref.n
                 error('obj.n and gobs.n must be the same')
             end
             gobsSD = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if isfield(obj.(f),"P") && isfield(gobs.(f),"P"); gobsSD.(f).Pd = obj.(f).P-gobs.(f).P; end
-                    if isfield(obj.(f),"L") && isfield(gobs.(f),"L"); gobsSD.(f).Ld = obj.(f).L-gobs.(f).L; end
-                    if isfield(obj.(f),"D") && isfield(gobs.(f),"D"); gobsSD.(f).Dd = obj.(f).D-gobs.(f).D; end
-                    if isfield(obj.(f),"resP") && isfield(gobs.(f),"resP"); gobsSD.(f).resPd = obj.(f).resP-gobs.(f).resP; end
-                    if isfield(obj.(f),"resL") && isfield(gobs.(f),"resL"); gobsSD.(f).resLd = obj.(f).resL-gobs.(f).resL; end
-                    if isfield(obj.(f),"resD") && isfield(gobs.(f),"resD"); gobsSD.(f).resDd = obj.(f).resD-gobs.(f).resD; end
+                    if isfield(obj.(f),"P") && isfield(gobsref.(f),"P"); gobsSD.(f).Pd = obj.(f).P-gobsref.(f).P; end % (m)
+                    if isfield(obj.(f),"L") && isfield(gobsref.(f),"L"); gobsSD.(f).Ld = obj.(f).L-gobsref.(f).L; end % (cycle)
+                    if isfield(obj.(f),"D") && isfield(gobsref.(f),"D"); gobsSD.(f).Dd = obj.(f).D-gobsref.(f).D; end % (Hz)
+                    if isfield(obj.(f),"resP") && isfield(gobsref.(f),"resP"); gobsSD.(f).resPd = obj.(f).resP-gobsref.(f).resP; end % (m)
+                    if isfield(obj.(f),"resL") && isfield(gobsref.(f),"resL"); gobsSD.(f).resLd = obj.(f).resL-gobsref.(f).resL; end % (cycle)
+                    if isfield(obj.(f),"resD") && isfield(gobsref.(f),"resD"); gobsSD.(f).resDd = obj.(f).resD-gobsref.(f).resD; end % (Hz)
                 end
             end
         end
-
-        %% double diffenrece
-        function gobsDD = doubleDifference(obj, refidx)
-            % doubleDifference: Calculate double difference
+        %% doubleDifference
+        function gobsDD = doubleDifference(obj, refsatidx)
+            % doubleDifference: Compute double-difference observations
             % -------------------------------------------------------------
-            % Calculate pseudorange, carrier phase, doppler 
-            % double difference and residuals of double difference.
+            % Compute double-difference observation (difference between
+            % reference station and satellite).
+            %
+            % Pd,Ld,Dd,resPd,resDd,resLd: Double-difference observations
             %
             % Usage: ------------------------------------------------------
-            %   gobsDD = obj.doubleDifference(refidx)
+            %   gobsDD = obj.doubleDifference(refsatidx)
             %
             % Input: ------------------------------------------------------
-            %   refidx : Index of reference satellite
+            %   refsatidx : 1x(obj.nsat), Index of reference satellite
             %
-            % Output: ------------------------------------------------------
-            %   gobsDD: gt.Gobs class with double difference defined
+            % Output: -----------------------------------------------------
+            %   gobsSD: 1x1, gt.Gobs object
             %
             arguments
                 obj gt.Gobs
-                refidx {mustBeInteger, mustBeVector}
+                refsatidx {mustBeInteger, mustBeVector}
             end
-            if length(refidx) ~= obj.nsat
+            if length(refsatidx) ~= obj.nsat
                 error('Size of refidx must be obj.nsat')
             end
-            
+
             gobsDD = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if isfield(obj.(f),"Pd"); gobsDD.(f).Pdd = obj.(f).Pd-obj.(f).Pd(:,refidx); end
-                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refidx); end
-                    if isfield(obj.(f),"resPd"); gobsDD.(f).resPdd = obj.(f).resPd-obj.(f).resPd(:,refidx); end
-                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refidx); end
+                    if isfield(obj.(f),"Pd"); gobsDD.(f).Pdd = obj.(f).Pd-obj.(f).Pd(:,refsatidx); end % (m)
+                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refsatidx); end % (cycle)
+                    if isfield(obj.(f),"resPd"); gobsDD.(f).resPdd = obj.(f).resPd-obj.(f).resPd(:,refsatidx); end % (m)
+                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refsatidx); end % (cycle)
                 end
             end
         end
-
         %% plot
         function plot(obj, freq, sidx)
-            % plot: Plot the SNR for selected satellites and frequency
+            % plot: Plot received observations and SNR
             % -------------------------------------------------------------
-            % Plot the time transition of SNR observations for the 
-            % specified frequency and selected satellites.
-            % Freq can select from  {'L1','L2','L5','L6','L7','L8','L9'}
+            % Plot received observations and SNR
             %
             % Usage: ------------------------------------------------------
-            %   obj.plot(freq, sidx)
+            %   obj.plot([freq], [sidx])
             %
             % Input: ------------------------------------------------------
-            %   freq : Frequency band to plot (default: 'L1')
-            %   sidx : Index of satellites to plot (default: all satellite)
+            %  [freq]: Frequency band to plot (optional) Default: 'L1'
+            %  [sidx]: Logical or numeric index to select satellite (optional)
+            %          Default: sidx = 1:obj.nsat
             %
             arguments
                 obj gt.Gobs
@@ -1144,32 +1180,33 @@ classdef Gobs < handle
                     scatter(gobs.time.t,y(i)*ones(gobs.n,1),[],gobs.(freq).S(:,i),'filled');
                     hold on;
 
-                grid on;
-                xlim([gobs.time.t(1) gobs.time.t(end)]);
-                ylim([0 gobs.nsat+1]);
+                    grid on;
+                    xlim([gobs.time.t(1) gobs.time.t(end)]);
+                    ylim([0 gobs.nsat+1]);
 
-                yticks(1:gobs.nsat)
-                yticklabels(fliplr(gobs.satstr));
-                c = colorbar(gca,'northoutside');
-                c.Label.String = [freq ' SNR (dB-Hz)'];
-                drawnow
+                    yticks(1:gobs.nsat)
+                    yticklabels(fliplr(gobs.satstr));
+                    c = colorbar(gca,'northoutside');
+                    c.Label.String = [freq ' SNR (dB-Hz)'];
+                    drawnow
                 end
             end
         end
+        %% plotNSat
         function plotNSat(obj, freq, snrth, sidx)
-            % plot: Plot the SNR for selected satellites and frequency
+            % plot: Plot received number of satellites
             % -------------------------------------------------------------
-            % Plot the time transition of number of satellites whose SNR 
-            % are above a specified threshold for the given frequency.
-            % Freq can select from  {'L1','L2','L5','L6','L7','L8','L9'}
+            % Plot the time transition of number of satellites whose SNR
+            % are above a specified threshold.
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotNSat(freq, snrth, sidx)
+            %   obj.plotNSat([freq], [snrth], [sidx])
             %
             % Input: ------------------------------------------------------
-            %   freq : Frequency band to plot (default: 'L1')
-            %   snrth: SNR threshold (default: 0.0 dB-Hz)
-            %   sidx : Index of satellites to plot (default: all satellite)
+            %  [freq] : Frequency band to plot (default: 'L1')
+            %  [snrth]: 1x1, SNR threshold (default: 0.0 dB-Hz)
+            %  [sidx] : Logical or numeric index to select satellite (optional)
+            %           Default: sidx = 1:obj.nsat
             %
             arguments
                 obj gt.Gobs
@@ -1197,20 +1234,21 @@ classdef Gobs < handle
                 drawnow
             end
         end
+        %% plotSky
         function plotSky(obj, gnav, tidx, sidx)
-            % plot: Plot the SNR for selected satellites and frequency
+            % plot: Plot satellite constellation
             % -------------------------------------------------------------
-            % Plot the satellite positions in the sky for the specified 
-            % time index and satellite index.
-            % Freq can select from  {'L1','L2','L5','L6','L7','L8','L9'}
+            % Plot the satellite constellation.
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotNSat(freq, snrth, sidx)
+            %   obj.plotSky(gnav, [tidx], [sidx])
             %
             % Input: ------------------------------------------------------
-            %   gnav : Navigation data object
-            %   tidx : Index of time points to plot (default: all time points)
-            %   sidx : Index of satellites to plot (default: all satellite)
+            %   gnav : 1x1, gt.Gnav object
+            %  [tidx]: Logical or numeric to select time (optional)
+            %          Default: tidx = 1:obj.n
+            %  [sidx]: Logical or numeric index to select satellite (optional)
+            %          Default: sidx = 1:obj.nsat
             %
             arguments
                 obj gt.Gobs
@@ -1226,16 +1264,14 @@ classdef Gobs < handle
             gsat.setRcvPos(obj.pos);
             gsat.plotSky;
         end
-        
         %% help
         function help(~)
+            % help: Show help
             doc gt.Gobs
         end
-
         %% overload
-        % minus: single difference
         function gobs = minus(obj, gobs)
-            % minus: Calculate single difference
+            % minus: Compute single difference
             % -------------------------------------------------------------
             % You can calculate single diffenrece only running obj - gobs.
             % Obj and gobs must be same size.
@@ -1243,11 +1279,8 @@ classdef Gobs < handle
             % Usage: ------------------------------------------------------
             %   gobs = obj - gobs
             %
-            % Input: ------------------------------------------------------
-            %   gobs : Observation data object
-            %
-            % Output: ------------------------------------------------------
-            %   gobs: Observation data object with single difference defined
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Observation data object with single difference defined
             %
             arguments
                 obj gt.Gobs
@@ -1256,16 +1289,15 @@ classdef Gobs < handle
             gobs = obj.singleDifference(gobs);
         end
     end
-
+    %% Private functions
     methods(Access=private)
-        % round datetime
+        %% round datetime
         function tr = roundDateTime(~, t, dt)
             pt = posixtime(t);
             pt = round(pt/dt)*dt;
             tr = datetime(pt, "ConvertFrom", "posixtime");
         end
-
-        % select LLI
+        %% select LLI
         function Isel = selectLLI(~,I,tind,sind)
             I(isnan(I)) = 0;
 
@@ -1286,8 +1318,7 @@ classdef Gobs < handle
 
             Isel = I1sel+I2sel;
         end
-
-        % select observation
+        %% select observation
         function Fsel = selectFreqStruct(obj,F,tidx,sidx)
             if isfield(F,"P"); Fsel.P = F.P(tidx,sidx); end
             if isfield(F,"L"); Fsel.L = F.L(tidx,sidx); end
@@ -1298,8 +1329,7 @@ classdef Gobs < handle
             if isfield(F,'freq'); Fsel.freq = F.freq(sidx);end
             if isfield(F,'lam'); Fsel.lam = F.lam(sidx); end
         end
-
-        % initialize observation
+        %% initialize observation
         function Fini = initFreqStruct(obj,f,n,nsat)
             if isfield(obj.(f),"P"); Fini.P = NaN(n,nsat); end
             if isfield(obj.(f),"L"); Fini.L = NaN(n,nsat); end
@@ -1310,8 +1340,7 @@ classdef Gobs < handle
             if isfield(obj.(f),'freq'); Fini.freq = NaN(1,nsat); end
             if isfield(obj.(f),'lam'); Fini.lam = NaN(1,nsat); end
         end
-
-        % set observation
+        %% set observation
         function Fset = setFreqStruct(obj,Fset,F,tidx1,tidx2,sidx1,sidx2)
             if isfield(F,"P"); Fset.P(tidx1,sidx1) = F.P(tidx2,sidx2); end
             if isfield(F,"L"); Fset.L(tidx1,sidx1) = F.L(tidx2,sidx2); end
@@ -1322,8 +1351,7 @@ classdef Gobs < handle
             if isfield(F,'freq'); Fset.freq(sidx1) = F.freq(sidx2); end
             if isfield(F,'lam'); Fset.lam(sidx1) = F.lam(sidx2); end
         end
-
-        % copy frequency and wavelength
+        %% copy frequency and wavelength
         function copyFrequency(obj,dst,sidx1,sidx2)
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
@@ -1334,8 +1362,7 @@ classdef Gobs < handle
                 end
             end
         end
-
-        % copy frequency and wavelength
+        %% copy frequency struct
         function copyAdditinalObservation(obj,dst,tidx1,tidx2,sidx1,sidx2)
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
@@ -1344,7 +1371,6 @@ classdef Gobs < handle
                     if isfield(obj.(f),'resD'); dst.(f).resD(tidx1,sidx1) = obj.(f).resD(tidx2,sidx2); end
                     if isfield(obj.(f),'resPc'); dst.(f).resPc(tidx1,sidx1) = obj.(f).resPc(tidx2,sidx2); end
                     if isfield(obj.(f),'resLc'); dst.(f).resLc(tidx1,sidx1) = obj.(f).resLc(tidx2,sidx2); end
-                    if isfield(obj.(f),'resDc'); dst.(f).resDc(tidx1,sidx1) = obj.(f).resDc(tidx2,sidx2); end
                     if isfield(obj.(f),'Pd'); dst.(f).Pd(tidx1,sidx1) = obj.(f).Pd(tidx2,sidx2); end
                     if isfield(obj.(f),'Ld'); dst.(f).Ld(tidx1,sidx1) = obj.(f).Ld(tidx2,sidx2); end
                     if isfield(obj.(f),'Dd'); dst.(f).Dd(tidx1,sidx1) = obj.(f).Dd(tidx2,sidx2); end
