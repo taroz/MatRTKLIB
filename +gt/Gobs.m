@@ -290,7 +290,7 @@ classdef Gobs < handle
             %   obj.insert(idx, gobs)
             %
             % Input: ------------------------------------------------------
-            %   idx : 1x1, Integer index to insert
+            %   idx : 1x1, Integer index to insert data
             %   gobs: 1x1, gt.Gobs object
             %
             arguments
@@ -301,7 +301,30 @@ classdef Gobs < handle
             if idx<=0 || idx>obj.n
                 error('Index is out of range');
             end
-            % To Do
+            obsstr.n = obj.n+gobs.n;
+            obsstr.sat = unique([obj.sat, gobs.sat]);
+            obsstr.nsat = length(obsstr.sat);
+            [obsstr.sys, obsstr.prn] = rtklib.satsys(obsstr.sat);
+            obsstr.satstr = rtklib.satno2id(obsstr.sat);
+            obsstr.ep = obj.insertdata(obj.time.ep, idx, gobs.time.ep);
+            obsstr.tow = obj.insertdata(obj.time.tow, idx, gobs.time.tow);
+            obsstr.week = obj.insertdata(obj.time.week, idx, gobs.time.week);
+            [~,sidx1] = intersect(obsstr.sat, obj.sat);
+            [~,sidx2] = intersect(obsstr.sat, gobs.sat);
+            tidx1 = [1:(idx-1) (idx+gobs.n):(idx+gobs.n+obj.n)];
+            tidx2 = idx:(idx+gobs.n-1);
+            for f = obj.FTYPE
+                if ~isempty(obj.(f)) || ~isempty(gobs.(f))
+                    obsstr.(f) = obj.initFreqStruct(f,obsstr.n,obsstr.nsat);
+                    if ~isempty(obj.(f))
+                        obsstr.(f) = obj.setFreqStruct(obsstr.(f),obj.(f),tidx1,1:obj.n,sidx1,1:obj.nsat);
+                    end
+                    if ~isempty(gobs.(f))
+                        obsstr.(f) = obj.setFreqStruct(obsstr.(f),gobs.(f),tidx2,1:gobs.n,sidx2,1:gobs.nsat);
+                    end
+                end
+            end
+            obj.setObsStruct(obsstr);
         end
         %% append
         function append(obj, gobs)

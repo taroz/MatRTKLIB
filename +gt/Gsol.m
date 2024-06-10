@@ -279,7 +279,7 @@ classdef Gsol < handle
             %   obj.insert(idx, gsol)
             %
             % Input: ------------------------------------------------------
-            %   idx : 1x1, Integer index to insert
+            %   idx : 1x1, Integer index to insert data
             %   gsol: 1x1, gt.Gsol object
             %
             arguments
@@ -290,7 +290,23 @@ classdef Gsol < handle
             if idx<=0 || idx>obj.n
                 error('Index is out of range');
             end
-            % To Do
+            solstr1 = obj.struct();
+            solstr2 = gsol.struct();
+            solstr.n = solstr1.n+solstr2.n;
+            solstr.rb = obj.insertdata(solstr1.rb, idx, solstr2.rb);
+            solstr.ep = obj.insertdata(solstr1.ep, idx, solstr2.ep);
+            solstr.rr = obj.insertdata(solstr1.xyz, idx, solstr2.xyz);
+            solstr.qr = obj.insertdata(solstr1.qr, idx, solstr2.qr);
+            solstr.qv = obj.insertdata(solstr1.qv, idx, solstr2.qv);
+            solstr.dtr = obj.insertdata(solstr1.dtr, idx, solstr2.dtr);
+            solstr.type = obj.insertdata(solstr1.type, idx, solstr2.type);
+            solstr.stat = obj.insertdata(solstr1.stat, idx, solstr2.stat);
+            solstr.ns = obj.insertdata(solstr1.ns, idx, solstr2.ns);
+            solstr.age = obj.insertdata(solstr1.age, idx, solstr2.age);
+            solstr.ratio = obj.insertdata(solstr1.ratio, idx, solstr2.ratio);
+            solstr.thres = obj.insertdata(solstr1.thres, idx, solstr2.thres);
+
+            obj.setSolStruct(solstr);
         end
         %% append
         function append(obj, gsol)
