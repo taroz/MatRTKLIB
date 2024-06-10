@@ -2,12 +2,10 @@ classdef Gstat < handle
     % Gstat: Solution/Satellite status class
     % ---------------------------------------------------------------------
     % Gstat Declaration:
-    % obj = Gstat()
-    %
-    % obj = Gstat(file)
+    % gstat = Gstat(file);  Create gt.Gstat object from RTKLIB status file
     %   file      : 1x1, RTKLIB solution/satellite status file (???.stat)
     %
-    % obj = Gnav(statstr)
+    % gstat = Gnav(statstr);  Create gt.Gstat object from RTKLIB status file
     %   statstr   : MxN, RTKLIB ssat_t/stat_t struct array
     % ---------------------------------------------------------------------
     % Gstat Properties:
@@ -91,7 +89,7 @@ classdef Gstat < handle
             %
             arguments
                 obj gt.Gstat
-                file (1,:) char = ''
+                file (1,:) char
             end
             statstr = rtklib.readsolstat(file);
             obj.setStatStruct(statstr);

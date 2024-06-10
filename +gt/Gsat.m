@@ -2,15 +2,17 @@ classdef Gsat < handle
     % Gsat: GNSS satellite related data class
     % ---------------------------------------------------------------------
     % Gsat Declaration:
-    % obj = Gsat()
+    % gsat = Gsat();  Create empty gt.Gsat object
     %
-    % obj = Gsat(gobs, gnav, [ephopt])
+    % gsat = Gsat(gobs, gnav, [ephopt]);  Create gt.Gsat object from
+    %                                     observation and navigation
     %   gobs      : 1x1, gt.Gobs object, GNSS observation
     %   gnav      : 1x1, gt.Gnav object, GNSS navigation
     %  [ephopt]   : 1x1, Ephemeris option (gt.C.EPHOPT_???) (optional)
     %                    Default: ephopt = gt.C.EPHOPT_BRDC
     %
-    % obj = Gsat(gtime, sat, gnav, [ephopt])
+    % gsat = Gsat(gtime, sat, gnav, [ephopt]);  Create gt.Gsat object from
+    %                                           time, sat, and navigation
     %   gtime     : 1x1, gt.Gtime object, time
     %   sat       : 1xN, Satellite number (Compliant RTKLIB)
     %   gnav      : 1x1, gt.Gnav object, GNSS navigation
@@ -58,14 +60,14 @@ classdef Gsat < handle
     %   setSat(gtime, sat, gnav, ephopt); Set satellite data at input time
     %   setRcvPos(gpos);                  Set receiver position and compute satellite data
     %   setRcvVel(gvel);                  Set receiver velocity and compute satellite data
-    %   setRcvPosVel(obj, gpos, gvel);    Set receiver position/velocity and compute satellite data
-    %   gsat = copy(obj);                 Copy object
+    %   setRcvPosVel(gpos, gvel);         Set receiver position/velocity and compute satellite data
+    %   gsat = copy();                    Copy object
     %   gsat = select(obj, tidx, sidx);   Select satellite data from time/satellite index
-    %   gsat = selectSat(obj, sidx);      Select satellite data from satellite index
-    %   gsat = selectTime(obj, tidx);     Select satellite data from time index
-    %   gsat = selectTimeSpan(obj, ts, te); Select satellite data from time span
-    %   [refidx,Dinv] = referenceSat(obj, tidx); Compute reference satellite
-    %   plotSky(obj, tidx, sidx);         Plot satellite constellation
+    %   gsat = selectSat(sidx);           Select satellite data from satellite index
+    %   gsat = selectTime(tidx);          Select satellite data from time index
+    %   gsat = selectTimeSpan(ts, te);    Select satellite data from time span
+    %   [refidx,Dinv] = referenceSat([tidx]); Compute reference satellite
+    %   plotSky([tidx], [sidx]);          Plot satellite constellation
     %   help();                           Show help
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki

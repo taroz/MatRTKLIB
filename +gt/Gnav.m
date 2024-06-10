@@ -2,11 +2,11 @@ classdef Gnav < handle
     % Gnav: GNSS RINEX navigation data class
     % ---------------------------------------------------------------------
     % Gnav Declaration:
-    % obj = Gnav(file)
+    % gnav = Gnav(file);  Create gt.Gnav object from RINEX
     %   file      : 1x1, RINEX navigation file
     %               (wind-card * can be used to extract all navigation files)
     %
-    % obj = Gnav(navstr)
+    % gnav = Gnav(navstr);  Create gt.Gnav object from navigation struct
     %   navstr    : 1x1, RTKLIB navigation struct
     % ---------------------------------------------------------------------
     % Gnav Properties:
@@ -31,8 +31,9 @@ classdef Gnav < handle
     %   readSatPCV(file, gtime); Read satellite antenna PCV
     %   readDCB(file);           Read satellite antenna DCB
     %   outNav(file);            Output RINEX navigation file
+    %   gnav = copy();           Copy object
     %   navstr = struct();       Convert to navigation struct
-    %   getTGD(sat);             Get TGD value for specified satellite
+    %   [tgd, vtgd] = getTGD(sat); Get TGD value for specified satellite
     %   help();                  Show help
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
@@ -238,6 +239,24 @@ classdef Gnav < handle
             end
             navstr = obj.struct();
             rtklib.outrnxnav(file, navstr);
+        end
+        %% copy
+        function gnav = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gnav = obj.copy()
+            %
+            % Output: -----------------------------------------------------
+            %   gnav : 1x1, Copied gt.Gnav object
+            %
+            arguments
+                obj gt.Gnav
+            end
+            gnav = gt.Gnav(obj.struct());
         end
         %% struct
         function navstr = struct(obj)

@@ -2,21 +2,24 @@ classdef Gtime < handle
     % Gtime: GPS time class
     % ---------------------------------------------------------------------
     % Gtime Declaration:
-    % obj = Gtime(epoch, [utcflag])
+    % gtime = Gtime(epoch, [utcflag]);  Create gt.Gtime object from calendar
+    %                                   time vector
     %   epoch   : Mx6, calendar time vector
     %               [year, month, day, hour, minutes, second]
     %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
-    % obj = Gtime(tow, week)
+    % gtime = Gtime(tow, week);  Create gt.Gtime object from GPS time of week
+    %                                  and GPS week
     %   tow     : Mx1, time of week in GPST (s)
     %   week    : Mx1 or 1x1, GPS week
     %
-    % obj = Gtime(sod, ymd, [utcflag])
+    % gtime = Gtime(sod, ymd, [utcflag]);  Create gt.Gtime object from
+    %                                      seconds of day
     %   sod     : Mx1, Seconds of day (s)
     %   ymd     : Mx3 or 1x3, [year, month, day]
     %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
-    % obj = Gtime(t)
+    % gtime = Gtime(t);  Create gt.Gtime object from MATLAB datetime
     %   t       : Mx1, MATLAB datetime
     % ---------------------------------------------------------------------
     % Gtime Properties:
@@ -32,6 +35,7 @@ classdef Gtime < handle
     %   setGPST(tow, week);         Set GPS time of week and GPS week
     %   setSod(sod, ymd, [utcflag]);Set seconds of day
     %   setDatetime(t);             Set MATLAB datetime
+    %   insert(idx, gtime);         Insert gt.Gtime object
     %   append(gtime);              Append gt.Gtime object
     %   addOffset(offset);          Add offset to time
     %   round([ndigit]);            Round time to the nearest arbitrary digit
@@ -191,6 +195,28 @@ classdef Gtime < handle
             obj.ep = [t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second];
             [obj.tow, obj.week] = rtklib.epoch2tow(obj.ep);
             obj.n = size(obj.ep,1);
+        end
+        %% insert
+        function insert(obj, idx, gtime)
+            % insert: Insert gt.Gtime object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gtime)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gtime: 1x1, gt.Gtime object
+            %
+            arguments
+                obj gt.Gtime
+                idx (1,1) {mustBeInteger}
+                gtime gt.Gtime
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            obj.setDatetime(obj.insertdata(obj.t, idx, gtime.t));
         end
         %% append
         function append(obj, gtime)
@@ -662,6 +688,10 @@ classdef Gtime < handle
     end
     %% Private functions
     methods (Access = private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
+        end
         %% Convert hms to seconds of day
         function sod = hms2sod(~, hms)
             arguments

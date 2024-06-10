@@ -2,7 +2,8 @@ classdef Gerr < handle
     % Gerr: GNSS position/velocity/acceleration error class
     % ---------------------------------------------------------------------
     % Gerr Declaration:
-    % obj = Gerr('errtype', err, 'coordtype', [orgpos], ['orgtype'])
+    % gerr = Gerr('errtype', err, 'coordtype', [orgpos], ['orgtype']);
+    %                              Create gt.Gerr object from error vector
     %   errtype  : 1x1, Error type: 'position' or 'velocity' or 'acceleration'
     %   err      : Mx3, position/velocity/acceleration error vector
     %   coordtype: 1x1, Coordinate type: 'xyz' or 'enu'
@@ -24,8 +25,10 @@ classdef Gerr < handle
     % Gerr Methods:
     %   setErr(err, type);            Set error
     %   setOrg(pos, postype);         Set coordinate origin
+    %   insert(idx, gerr);            Insert gt.Gerr object
     %   append(gerr);                 Append gt.Gerr object
     %   addOffset(offset, [coordtype]); Add offset to error
+    %   gerr = copy();                Copy object
     %   gerr = select([idx]);         Select time from index
     %   [gerr, gcov] = mean([idx]);   Compute mean error and covariance
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean and standard deviation of ECEF error
@@ -157,6 +160,32 @@ classdef Gerr < handle
             end
             obj.d2 = vecnorm(obj.enu(:,1:2), 2, 2);
             obj.d3 = vecnorm(obj.enu, 2, 2);
+        end
+        %% insert
+        function insert(obj, idx, gerr)
+            % insert: Insert gt.Gerr object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gerr)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gvel: 1x1, gt.Gerr object
+            %
+            arguments
+                obj gt.Gvel
+                idx (1,1) {mustBeInteger}
+                gerr gt.Gcov
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            if ~isempty(obj.xyz) && ~isempty(gerr.xyz)
+                obj.setErr(obj.insertdata(obj.xyz, idx, gerr.xyz), 'xyz');
+            else
+                obj.setErr(obj.insertdata(obj.enu, idx, gerr.enu), 'enu');
+            end
         end
         %% append
         function append(obj, gerr)
@@ -926,6 +955,13 @@ classdef Gerr < handle
         function help(~)
             % help: Show help
             doc gt.Gcov
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
         end
     end
 end

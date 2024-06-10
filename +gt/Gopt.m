@@ -2,26 +2,67 @@ classdef Gopt < handle
     % Gopt: RTKLIB process option class
     % ---------------------------------------------------------------------
     % Gopt Declaration:
-    % obj = Gopt()
+    % gopt = gt.Gopt();  Create gt.Gopt object using default option struct
     %
-    % obj = Gopt(file)
-    %   file      : 1x1, RTKLIB configration file (???.conf)
+    % gopt = gt.Gopt(file);  Create gt.Gopt object from configration file
+    %   file         : 1x1, RTKLIB configration file (???.conf)
     %
-    % obj = Gnav(optstr)
-    %   optstr    : 1x1, RTKLIB option struct
+    % gopt = gt.Gopt(optstr);  Create gt.Gopt object from option struct
+    %   optstr       : 1x1, RTKLIB option struct
     % ---------------------------------------------------------------------
     % Gopt Properties:
-    %   pos1      : 1x1, Positioning setting 1 struct
-    %   pos2      : 1x1, Positioning setting 2 struct
-    %   out       : 1x1, Output setting struct
-    %   stats     : 1x1, Statistics setting struct
-    %   ant       : 1x1, Antenna setting struct
-    %   misc      : 1x1, Misc setting struct
+    % pos1 : 1x1, Positioning setting 1 struct
+    %     .posmode   : 1x1, Positioning mode (PMODE_???)
+    %     .navsys    : 1x1, Navigation systems (NAVSYS_G, ... , NAVSYS_GREQC)
+    %     .frequency : 1x1, Number of frequencies (FREQOPT_L1, ..., FREQOPT_L12345)
+    %     .elmask    : 1x1, Elevation mask (deg)
+    %     .snrmask_r : 1x1, SNR mask for rover (ON/OFF)
+    %     .snrmask_b : 1x1, SNR mask for base (ON/OFF)
+    %     .snrmask_L1: 1x9, Elevation vs mask L1 SNR (db-Hz)
+    %     .snrmask_L2: 1x1, Elevation vs mask L2 SNR (db-Hz)
+    %     .snrmask_L5: 1x1, Elevation vs mask L5 SNR (db-Hz)
+    %     .tidecorr  : 1x1, Earth tide correction (0:off,1:solid,2:solid+otl+pole)
+    %     .ionoopt   : 1x1, Ionosphere option (IONOOPT_???)
+    %     .tropopt   : 1x1, Troposphere option (TROPOPT_???)
+    %     .ephopt    : 1x1, Satellite ephemeris/clock (EPHOPT_???)
+    %     .raim_fde  : 1x1, RAIM FDE (ON/OFF)
+    %     .exclsats  : cell array, Exccluded satellites e.g. {'G01','C02'}
+    % pos2 : 1x1, Positioning setting 2 struct
+    %     .armode    : 1x1, AR mode (0:off,1:continuous,2:instantaneous,3:fix and hold,4:ppp-ar)
+    %     .gloarmode : 1x1, GLONASS AR mode (0:off,1:on,2:auto cal,3:ext cal)
+    %     .bdsarmode : 1x1, BeiDou AR mode (0:off,1:on)
+    %     .arthres   : 1x1, AR validation threshold
+    %     .arlockcnt : 1x1, Min lock count to fix ambiguity
+    %     .aroutcnt  : 1x1, Outage count to reset bias
+    %     .armaxiter : 1x1, Max iteration to resolve ambiguity
+    %     .filteriter: 1x1, Number of filter iteration
+    %     .maxinno   : 1x1, Reject threshold of innovation (m)
+    % out : 1x1, Output setting struct
+    %     .solformat  : 1x1, Solution format (SOLF_???)
+    %     .timeformat : 1x1, Time format (0:sssss.s,1:yyyy/mm/dd hh:mm:ss.s)
+    %     .trace      : 1x1, Debug trace level (0:off,1-5:debug)
+    % stats : 1x1, Statistics setting struct
+    %     .eratio1    : 1x1, L1 code/phase error ratio
+    %     .eratio2    : 1x1, L2 code/phase error ratio
+    %     .errphase   : 1x1, Phase error factor (m)
+    %     .errphaseel : 1x1, Phase error factor (m)
+    % ant : 1x1, Antenna setting struct
+    %     .rovtype    : 1x1, Position type (0:llh,1:xyz,2:single,3:posfile,4:rinexhead,5:rtcm,6:raw)
+    %     .rovpos     : 1x3, Rover position for fixed mode
+    %     .rovant     : char, Rover antenna name
+    %     .rovdenu    : 1x3, Rovere antenna delta position (m)
+    %     .reftype    : 1x1, Position type (0:llh,1:xyz,2:single,3:posfile,4:rinexhead,5:rtcm,6:raw)
+    %     .refpos     : 1x3, Base position
+    %     .refant     : char, Base antenna name
+    %     .refdenu    : 1x3, Base antenna delta position (m)
+    % misc : 1x1, Misc setting struct
+    %     .timeinterp : 1x1, Interpolate reference observation (ON/OFF)
     % ---------------------------------------------------------------------
     % Gopt Methods;
     %   setOptFile(file);     Set option data from config file
     %   setOptStruct(optstr); Set option data from option struct
     %   saveOpt(file);        Save option file
+    %   gopt = copy();        Copy object
     %   optstr = struct();    Convert from gt.Gopt to struct
     %   show();               Show current options
     %   help();               Show help
@@ -139,6 +180,24 @@ classdef Gopt < handle
             end
             optstr = obj.struct();
             rtklib.saveopts(file, optstr);
+        end
+        %% copy
+        function gopt = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   gopt = obj.copy()
+            %
+            % Output: -----------------------------------------------------
+            %   gopt : 1x1, Copied gt.Gopt object
+            %
+            arguments
+                obj gt.Gopt
+            end
+            gopt = gt.Gopt(obj.struct());
         end
         %% struct
         function optstr = struct(obj)

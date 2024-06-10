@@ -2,12 +2,12 @@ classdef Gobs < handle
     % Gobs: GNSS RINEX ovservation data class
     % ---------------------------------------------------------------------
     % Gobs Declaration:
-    % obj = Gobs()
+    % gobs = Gobs();  Create empty gt.Gobs object
     %
-    % obj = Gobs(file)
+    % gobs = Gobs(file);  Create gt.Gobs object from RINEX file
     %   file      : 1x1, RINEX observation file
     %
-    % obj = Gobs(obsstr)
+    % gobs = Gobs(obsstr);  Create gt.Gobs object from observation struct
     %   obsstr    : 1x1, RTKLIB observation struct
     % ---------------------------------------------------------------------
     % Gobs Properties:
@@ -46,6 +46,7 @@ classdef Gobs < handle
     %   setFrequency();                Set carrier frequency and wavelength
     %   setFrequencyFromNav(nav);      Set carrier frequency and wavelength from navigation
     %   outObs(file);                  Output RINEX observation file
+    %   insert(idx, gobs);             Insert gt.Gobs object
     %   append(gobs);                  Append of gt.Gobs object
     %   maskP(mask, [freq]);           Apply mask to pseudorange observations
     %   maskD(mask, [freq]);           Apply mask to Doppler observations
@@ -63,9 +64,9 @@ classdef Gobs < handle
     %   [gobsc, gobsrefc] = commonObs(gobsref); Extract common observations with reference observation
     %   [gobsc, gobsrefc] = commonSat(gobsref); Extract common satellite with reference observation
     %   [gobsc, gobsrefc] = commonTime(gobsref);Extract common time with reference observation
-    %   gobs = sameObs(obj, gobsref);  Same satellite and time as reference observation
-    %   gobs = sameSat(obj, gobsref);  Same satellite as reference observation
-    %   gobs = sameTime(obj, gobsref); Same time as reference observation
+    %   gobs = sameObs(gobsref);       Same satellite and time as reference observation
+    %   gobs = sameSat(gobsref);       Same satellite as reference observation
+    %   gobs = sameTime(gobsref);      Same time as reference observation
     %   gobs = linearCombination();    Compute linear combination of observations
     %   gobs = residuals(gsat);        Compute observation residuals
     %   gobsSD = singleDifference(gobs); Compute single-difference observations
@@ -279,6 +280,28 @@ classdef Gobs < handle
                 xyz = obj.pos.xyz;
             end
             rtklib.outrnxobs(file, obsstr, xyz, fcn);
+        end
+        %% insert
+        function insert(obj, idx, gobs)
+            % insert: Insert gt.Gobs object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gobs)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gobs: 1x1, gt.Gobs object
+            %
+            arguments
+                obj gt.Gobs
+                idx (1,1) {mustBeInteger}
+                gobs gt.Gobs
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            % To Do
         end
         %% append
         function append(obj, gobs)
@@ -1291,6 +1314,10 @@ classdef Gobs < handle
     end
     %% Private functions
     methods(Access=private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
+        end
         %% round datetime
         function tr = roundDateTime(~, t, dt)
             pt = posixtime(t);

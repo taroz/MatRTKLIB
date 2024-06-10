@@ -1,4 +1,9 @@
 classdef C
+    % C: RTKLIB constants class
+    % ---------------------------------------------------------------------
+    % Grtk Declaration:
+    % C = gt.C();   Create constants used for RTKLIB
+    % ---------------------------------------------------------------------
     properties (Constant)
         PI        = 3.1415926535897932  % pi
         D2R       = (gt.C.PI/180.0)     % deg to rad

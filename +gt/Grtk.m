@@ -2,10 +2,10 @@ classdef Grtk < handle
     % Grtk: RTK control struct class
     % ---------------------------------------------------------------------
     % Grtk Declaration:
-    % obj = Grtk(file)
+    % grtk = Grtk(file);  Create gt.Grtk object from config file
     %   file   : 1x1, RTKLIB configuration file (???.conf)
     %
-    % obj = Grtk(rtkstr)
+    % grtk = Grtk(rtkstr);  Create gt.Grtk object from RTK control struct
     %   optstr : 1x1, RTK control struct
     % ---------------------------------------------------------------------
     % Grtk Properties:
@@ -25,6 +25,7 @@ classdef Grtk < handle
     % Grtk Methods:
     %   setRtkFile(file);     Set RTK data from config file
     %   setRtkStruct(rtkstr); Set RTK data from RTK control struct
+    %   grtk = copy();        Copy object
     %   rtkstr = struct();    Convert from gt.Grtk object to struct
     %   help();               Show help
     % ---------------------------------------------------------------------
@@ -102,6 +103,24 @@ classdef Grtk < handle
             obj.tt = trtk.tt;
             obj.rb = trtk.rb;
             obj.errmsg = trtk.errmsg;
+        end
+        %% copy
+        function grtk = copy(obj)
+            % copy: Copy object
+            % -------------------------------------------------------------
+            % MATLAB handle class is used, so if you want to create a
+            % different instance, you need to use the copy method.
+            %
+            % Usage: ------------------------------------------------------
+            %   grtk = obj.copy()
+            %
+            % Output: -----------------------------------------------------
+            %   grtk : 1x1, Copied gt.Grtk object
+            %
+            arguments
+                obj gt.Grtk
+            end
+            grtk = gt.Grtk(obj.struct());
         end
         %% convert to struct
         function rtkstr = struct(obj)

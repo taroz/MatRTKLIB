@@ -2,13 +2,13 @@ classdef Gsol < handle
     % Gsol: GNSS solution class
     % ---------------------------------------------------------------------
     % Gsol Declaration:
-    % obj = Gsol(file)
+    % gsol = Gsol(file);  Create gt.Gsol object from RTKLIB solution file
     %   file   : 1x1, RTKLIB solution file (???.pos)
     %
-    % obj = Gsol(solstr)
+    % gsol = Gsol(solstr);  Create gt.Gsol object from solution struct
     %   sol    : 1x1, RTKLIB solution struct
     %
-    % obj = Gsol(time, pos)
+    % gsol = Gsol(time, pos);  Create gt.Gsol object from time annd position
     %   time   : 1x1, Time, gt.Gtime object
     %   pos    : 1x1, Position, gt.Gpos object
     % ---------------------------------------------------------------------
@@ -34,9 +34,10 @@ classdef Gsol < handle
     %   setSolTimePos(time, pos);      Set solution from gt.Gtime and gt.Gpos objects
     %   setOrg(pos, type);             Set coordinate origin
     %   outSol(file, [gopt]);          Output solution file
+    %   insert(idx, gsol);             Insert gt.Gsol object
     %   append(gsol);                  Append gt.Gsol object
     %   difference(gobj);              Compute position/velocity errors
-    %   gsol = copy(obj);              Copy object
+    %   gsol = copy();                 Copy object
     %   gsol = select(idx);            Select solution from index
     %   gsol = selectTimeSpan(ts, te); Select solution from time span
     %   sol = struct([idx]);           Convert from gt.Gsol object to solution struct
@@ -269,6 +270,28 @@ classdef Gsol < handle
                 rtklib.outsol(file, solstr);
             end
         end
+        %% insert
+        function insert(obj, idx, gsol)
+            % insert: Insert gt.Gsol object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gsol)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gsol: 1x1, gt.Gsol object
+            %
+            arguments
+                obj gt.Gobs
+                idx (1,1) {mustBeInteger}
+                gsol gt.Gsol
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            % To Do
+        end
         %% append
         function append(obj, gsol)
             % append: Append gt.Gsol object
@@ -305,7 +328,7 @@ classdef Gsol < handle
             obj.setSolStruct(solstr);
         end
         %% difference
-        function difference(obj, gsol)
+        function difference(obj, gobj)
             % difference: Compute position/velocity errors
             % -------------------------------------------------------------
             % Compute the difference between two gt.Gsol objects and
@@ -315,26 +338,26 @@ classdef Gsol < handle
             % object.
             %
             % Usage: ------------------------------------------------------
-            %   obj.difference(gsol)
+            %   obj.difference(gobj)
             %
             % Input: ------------------------------------------------------
-            %   gsol : gt.Gsol or gt.Gpos or gt.Gvel object
+            %   gobj : gt.Gsol or gt.Gpos or gt.Gvel object
             %
             arguments
                 obj gt.Gsol
-                gsol
+                gobj
             end
-            switch class(gsol)
+            switch class(gobj)
                 case 'gt.Gpos'
-                    obj.perr = obj.pos-gsol;
+                    obj.perr = obj.pos-gobj;
                 case 'gt.Gvel'
-                    obj.verr = obj.vel-gsol;
+                    obj.verr = obj.vel-gobj;
                 case 'gt.Gsol'
-                    if ~isempty(obj.pos) && ~isempty(gsol.pos)
-                        obj.perr = obj.pos-gsol.pos;
+                    if ~isempty(obj.pos) && ~isempty(gobj.pos)
+                        obj.perr = obj.pos-gobj.pos;
                     end
-                    if ~isempty(obj.vel) && ~isempty(gsol.vel)
-                        obj.verr = obj.vel-gsol.vel;
+                    if ~isempty(obj.vel) && ~isempty(gobj.vel)
+                        obj.verr = obj.vel-gobj.vel;
                     end
                 otherwise
                     error('gt.Gpos or gt.Gvel or gt.Gsol must be input')
@@ -917,6 +940,10 @@ classdef Gsol < handle
     end
     %% private functions
     methods (Access = private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
+        end
         %% round datetime
         function dtr = roundDateTime(~, dt, dec)
 

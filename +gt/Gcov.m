@@ -2,7 +2,8 @@ classdef Gcov < handle
     % Gcov: GNSS position/velocity covariance class
     % ---------------------------------------------------------------------
     % Gcov Declaration:
-    % obj = Gcov(cov, 'type', [orgpos], ['orgtype'])
+    % gcov = Gcov(cov, 'type', [orgpos], ['orgtype']);
+    %                           Create gt.Gcov object from covariance vector
     %   cov      : Mx6, vector of elements of covariance
     %                  [c_xx, c_yy, c_zz, c_xy, c_yz, c_zx] or
     %                  [c_ee,c_nn,c_uu,c_en,c_nu,c_ue] or
@@ -11,13 +12,13 @@ classdef Gcov < handle
     %  [orgpos]  : 1x3, Coordinate origin [option] 1x3 or 3x1 position vector
     %  [orgtype] : 1x1, Position type [option]: 'llh' or 'xyz'
     %
-    % obj = Gcov(gpos)
+    % gcov = Gcov(gpos);  Create gt.Gcov object from position
     %   gpos   : 1x1, gt.Gpos
     %
-    % obj = Gcov(gvel)
+    % gcov = Gcov(gvel);  Create gt.Gcov object from velocity
     %   gvel   : 1x1, gt.Gvel
     %
-    % obj = Gcov(gerr)
+    % gcov = Gcov(gerr);  Create gt.Gcov object from error
     %   gerr   : 1x1, gt.Gerr
     % ---------------------------------------------------------------------
     % Gcov Properties:
@@ -34,8 +35,9 @@ classdef Gcov < handle
     %   setCovVec(cov, type); Set covariance vector
     %   setCov(cov, type);    Set covariance matrix
     %   setOrg(pos, type);    Set coordinate origin and update covariance matrix
+    %   insert(idx, gvel);    Insert gt.Gcov object
     %   append(gcov);         Append gt.Gcov object
-    %   gcov = copy(obj);     Copy object
+    %   gcov = copy();        Copy object
     %   gcov = select(idx);   Select object from index
     %   cov = covXYZ([idx]);  Convert to 3x3 covariance matrix in ECEF coordinate
     %   cov = covENU([idx]);  Convert to 3x3 covariance matrix in ENU coordinate
@@ -238,6 +240,32 @@ classdef Gcov < handle
                 obj.enu = rtklib.covenusol(obj.xyz, obj.orgllh);
             elseif ~isempty(obj.enu)
                 obj.xyz = rtklib.covecefsol(obj.enu, obj.orgllh);
+            end
+        end
+        %% insert
+        function insert(obj, idx, gcov)
+            % insert: Insert gt.Gcov object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gcov)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gvel: 1x1, gt.Gvel object
+            %
+            arguments
+                obj gt.Gvel
+                idx (1,1) {mustBeInteger}
+                gcov gt.Gcov
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            if ~isempty(obj.xyz) && ~isempty(gcov.xyz)
+                obj.setCovVec(obj.insertdata(obj.xyz, idx, gcov.xyz), 'xyz');
+            else
+                obj.setCovVec(obj.insertdata(obj.enu, idx, gcov.enu), 'enu');
             end
         end
         %% append
@@ -519,6 +547,10 @@ classdef Gcov < handle
     end
     %% private functions
     methods (Access = private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
+        end
         %% convert vector to matrix
         function mat = vec2matrix(~, vec)
             arguments

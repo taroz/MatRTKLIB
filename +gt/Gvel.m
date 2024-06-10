@@ -2,8 +2,9 @@ classdef Gvel < handle
     % Gvel: GNSS velocity class
     % ---------------------------------------------------------------------
     % Gvel Declaration:
-    % obj = Gvel(vel, 'type', [orgpos], ['orgtype'])
-    %   vel     : Mx3, velocity vector
+    % gvel = Gvel(vel, 'type', [orgpos], ['orgtype']);
+    %                            Create gt.Gerr object from velocity vector
+    %   vel     : Mx3, Velocity vector
     %               [ECEF x(m/s), ECEF y(m/s), ECEF z(m/s)] or
     %               [east(m/s), north(m/s), up(m/s)]
     %   veltype : Coordinate type: 'xyz' or 'enu'
@@ -24,11 +25,12 @@ classdef Gvel < handle
     % Gvel Methods:
     %   setVel(vel, veltype);        Set velocity
     %   setOrg(pos, postype);        Set coordinate origin
+    %   insert(idx, gvel);           Insert gt.Gvel object
     %   append(gvel);                Append gt.Gvel object
     %   addOffset(offset, [coordtype]); Add offset to velocity data
     %   gerr = difference(gvel);     Compute difference between two gt.Gvel objects
     %   gpos = integral(dt, [idx]);  Cumulative integral
-    %   gvel = copy(obj);            Copy object
+    %   gvel = copy();               Copy object
     %   gvel = select([idx]);        Select velocity from index
     %   [gvel, gcov] = mean([idx]):  Compute mean velocity and variance
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF velocity and standard deviation
@@ -138,6 +140,32 @@ classdef Gvel < handle
             end
             obj.v2 = vecnorm(obj.enu(:,1:2), 2, 2);
             obj.v3 = vecnorm(obj.enu, 2, 2);
+        end
+        %% insert
+        function insert(obj, idx, gvel)
+            % insert: Insert gt.Gvel object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.insert(idx, gvel)
+            %
+            % Input: ------------------------------------------------------
+            %   idx : 1x1, Integer index to insert
+            %   gvel: 1x1, gt.Gvel object
+            %
+            arguments
+                obj gt.Gvel
+                idx (1,1) {mustBeInteger}
+                gvel gt.Gvel
+            end
+            if idx<=0 || idx>obj.n
+                error('Index is out of range');
+            end
+            if ~isempty(obj.xyz) && ~isempty(gvel.xyz)
+                obj.setVel(obj.insertdata(obj.xyz, idx, gvel.xyz), 'xyz');
+            else
+                obj.setVel(obj.insertdata(obj.enu, idx, gvel.enu), 'enu');
+            end
         end
         %% append
         function append(obj, gvel)
@@ -716,6 +744,13 @@ classdef Gvel < handle
             %   gerr : gt.Gerr object
             %
             gerr = obj.difference(gvel);
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Insert data
+        function c = insertdata(~,a,idx,b)
+            c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
         end
     end
 end

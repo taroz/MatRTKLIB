@@ -2,8 +2,9 @@ classdef Gpos < handle
     % Gpos: GNSS position class
     % ---------------------------------------------------------------------
     % Gpos Declaration:
-    % obj = Gpos(pos, 'type', [orgpos], ['orgtype'])
-    %   pos      : Mx3, postion vector
+    % gpos = Gpos(pos, 'type', [orgpos], ['orgtype']);
+    %                            Create gt.Gpos object from position vector
+    %   pos      : Mx3, Postion vector
     %                [latitude(deg), longitude(deg), ellipsoidal height(m)] or
     %                [ECEF x(m), ECEF y(m), ECEF z(m)] or
     %                [east(m), north(m), up(m)]
@@ -27,8 +28,9 @@ classdef Gpos < handle
     %   addOffset(offset, [coordtype]); Add position offset
     %   gerr = difference(gpos);        Compute difference between two gt.Gpos objects
     %   gvel = gradient(dt, [idx]);     Compute velocity based on position differences
+    %   gpos = copy();                  Copy object
     %   gpos = select(idx);             Select position from index
-    %   outpos(file, type, idx);        Output position
+    %   outpos(file, type, [idx]);      Output position
     %   [gpos, gcov] = mean([idx]);     Compute mean position and covariance
     %   [mllh, sdenu] = meanLLH([idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF position and standard deviation
@@ -170,9 +172,9 @@ classdef Gpos < handle
                 error('Index is out of range');
             end
             if ~isempty(obj.llh) && ~isempty(gpos.llh)
-                obj.setPos(obj.insertdata(obj.llh,idx,gpos.llh), 'llh');
+                obj.setPos(obj.insertdata(obj.llh, idx, gpos.llh), 'llh');
             else
-                obj.setPos(obj.insertdata(obj.enu,idx,gpos.enu), 'enu');
+                obj.setPos(obj.insertdata(obj.enu, idx, gpos.enu), 'enu');
             end
         end
         %% append
