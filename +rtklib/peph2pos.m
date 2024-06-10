@@ -6,7 +6,7 @@
 %                {year, month, day, hour, minute, second}
 %    sat   : 1xN, satellite number defined in RTKLIB
 %    nav   : 1x1, navigation data struct
-%    opt   : 1x1, sat postion option
+%    opt   : 1x1, sat position option
 %                (0: center of mass, 1: antenna phase center)
 %
 % Outputs:

@@ -106,7 +106,7 @@ classdef Gobs < handle
         %% constractor
         function obj = Gobs(varargin)
             if nargin==0
-                % generate empty class instance
+                % generate empty object
                 obj.n = 0;
                 obj.nsat = 0;
             elseif nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
@@ -192,7 +192,7 @@ classdef Gobs < handle
         function setFrequency(obj)
             % setFrequency: Set carrier frequency and wavelength
             % -------------------------------------------------------------
-            % Carrier frequency is determined from the type of observeation.
+            % Carrier frequency is determined from the type of observation.
             % For GLONASS, the carrier frequency is determined from the
             % frequency channel number (FCN) in the RINEX header.
             %
@@ -1274,13 +1274,13 @@ classdef Gobs < handle
             % minus: Compute single difference
             % -------------------------------------------------------------
             % You can calculate single diffenrece only running obj - gobs.
-            % Obj and gobs must be same size.
+            % This object and gobs object must be same size.
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj - gobs
             %
             % Output: -----------------------------------------------------
-            %   gobs: 1x1, Observation data object with single difference defined
+            %   gobs: 1x1, gt.Gobs object with single difference
             %
             arguments
                 obj gt.Gobs

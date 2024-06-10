@@ -7,7 +7,7 @@
 % Inputs: 
 %    file   : 1x1, file name {???.obs}
 %    obs    : 1x1, observation struct
-%    pos    : 1x3, apploximate position in ECEF
+%    pos    : 1x3, approximate position in ECEF
 %    fcn    : 1x32, GLONASS FCN
 %    rnxver : 1x1, RINEX version (x100) default: 303
 %     

@@ -7,7 +7,7 @@
 %
 % Outputs:
 %    enu   : Mx3, local ENU position (m)
-%    E     : 3x3, ECEF to ENU transfromation matrix
+%    E     : 3x3, ECEF to ENU transformation matrix
 % 
 % Notes: The function is different from the original xyz2enu in RTKLIB that 
 %        only computes the coordinate transformation matrix

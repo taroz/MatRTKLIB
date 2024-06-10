@@ -37,7 +37,7 @@ classdef Gopt < handle
         misc  % Misc setting struct
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gopt(varargin)
             if nargin == 0
                 obj.setOptFile()

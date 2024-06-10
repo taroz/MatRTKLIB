@@ -32,7 +32,7 @@ classdef Gtime < handle
     %   setGPST(tow, week);         Set GPS time of week and GPS week
     %   setSod(sod, ymd, [utcflag]);Set seconds of day
     %   setDatetime(t);             Set MATLAB datetime
-    %   append(gtime);              Append gt.Gtime class
+    %   append(gtime);              Append gt.Gtime object
     %   addOffset(offset);          Add offset to time
     %   round([ndigit]);            Round time to the nearest arbitrary digit
     %   gtime = copy();             Copy object

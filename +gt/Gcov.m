@@ -31,19 +31,20 @@ classdef Gcov < handle
     %   setGpos(gpos);        Set gt.Gpos object and calculate variance
     %   setGvel(gvel);        Set gt.Gvel object and calculate variance
     %   setGerr(gerr);        Set gt.Gerr object and calculate variance
-    %   setCovVec(cov, type); Set coveriance vector
-    %   setCov(cov, type);    Set coveriance matrix
-    %   setOrg(pos, type);    Set coordinate origin and update coveriance matrix
+    %   setCovVec(cov, type); Set covariance vector
+    %   setCov(cov, type);    Set covariance matrix
+    %   setOrg(pos, type);    Set coordinate origin and update covariance matrix
     %   append(gcov);         Append gt.Gcov object
+    %   gcov = copy(obj);     Copy object
     %   gcov = select(idx);   Select object from index
     %   cov = covXYZ([idx]);  Convert to 3x3 covariance matrix in ECEF coordinate
     %   cov = covENU([idx]);  Convert to 3x3 covariance matrix in ENU coordinate
     %   var = varXYZ([idx]);  Compute variance in ECEF coordinate
     %   var = varENU([idx]);  Compute variance in ENU coordinate
-    %   sd = sdXYZ([idx]);    Compute standard deviation in ECEF coordinatea
+    %   sd = sdXYZ([idx]);    Compute standard deviation in ECEF coordinate
     %   sd = sdENU([idx]);    Compute standard deviation in ENU coordinate
-    %   plot([idx]);          Plot standard deviation in ENU coorinate
-    %   plotXYZ([idx]);       Plot standard deviation in ECEF coorinate
+    %   plot([idx]);          Plot standard deviation in ENU coordinate
+    %   plotXYZ([idx]);       Plot standard deviation in ECEF coordinate
     %   help();               Show help
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
@@ -56,7 +57,7 @@ classdef Gcov < handle
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gcov(varargin)
             if nargin == 1
                 if isa(varargin{1},'gt.Gpos')
@@ -183,7 +184,7 @@ classdef Gcov < handle
         end
         %% setCov
         function setCov(obj, cov, covtype)
-            % setCov: Set coveriance matrix
+            % setCov: Set covariance matrix
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -210,7 +211,7 @@ classdef Gcov < handle
         end
         %% setOrg
         function setOrg(obj, org, orgtype)
-            % setOrg: Set coordinate origin and update coveriance matrix
+            % setOrg: Set coordinate origin and update covariance matrix
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

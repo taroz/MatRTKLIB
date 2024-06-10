@@ -77,7 +77,7 @@ classdef Gsat < handle
         prn    % Satellite prn/slot number
         sys    % Satellite system (SYS_GPS, SYS_GLO, ...)
         satstr % Satellite id cell array
-        time   % Time, gt.Gtime class
+        time   % Time, gt.Gtime object
         x      % Satellite position in ECEF X (m)
         y      % Satellite position in ECEF Y (m)
         z      % Satellite position in ECEF Z (m)
@@ -134,7 +134,7 @@ classdef Gsat < handle
             % setSatObs: Set satellite data at observation time
             % -------------------------------------------------------------
             % Compute satellite position/velocity and satellite clock at
-            % obervation time. Includes correction of signal propagation
+            % observation time. Includes correction of signal propagation
             % time from L1 pseudorange.
             %
             % Call rtklib.satposs to compute satellite data.
@@ -143,7 +143,7 @@ classdef Gsat < handle
             %   obj.setSatObs(gobs, gnav, ephopt)
             %
             % Input: ------------------------------------------------------
-            %   gobs : 1x1, gt.Gobs, GNSS ovservation object
+            %   gobs : 1x1, gt.Gobs, GNSS observation object
             %   gnav : 1x1, gt.Gnav, GNSS navigation data object
             %   ephopt : 1×1 : Ephemeris option to compute satellite position
             %                (optional) Default: ephopt = gt.C.EPHOPT_BRDC

@@ -42,7 +42,7 @@ classdef Gpos < handle
     %   gh = geoid([idx]);              Compute geoid height
     %   oh = orthometric([idx]);        Compute orthometric height
     %   lat = lat([idx]);               Get latitude
-    %   lon = lon([idx]);               Get logitude
+    %   lon = lon([idx]);               Get longitude
     %   h = h([idx]);                   Get ellipsoidal height
     %   x = x([idx]);                   Get ECEF x position
     %   y = y([idx]);                   Get ECEF y position
@@ -67,7 +67,7 @@ classdef Gpos < handle
         orgxyz % Coordinate origin in ECEF (m, m, m)
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gpos(pos, postype, org, orgtype)
             arguments
                 pos (:,3) double
@@ -159,7 +159,7 @@ classdef Gpos < handle
             %
             % Input: ------------------------------------------------------
             %   idx : 1x1, Integer index to insert
-            %   gpos: 1x1, gt.Gpos class
+            %   gpos: 1x1, gt.Gpos object
             %
             arguments
                 obj gt.Gpos
@@ -184,7 +184,7 @@ classdef Gpos < handle
             %   obj.append(gpos)
             %
             % Input: ------------------------------------------------------
-            %   gpos: 1x1, gt.Gpos class
+            %   gpos: 1x1, gt.Gpos object
             %
             arguments
                 obj gt.Gpos
@@ -285,7 +285,7 @@ classdef Gpos < handle
             %         Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   gvel: 1x1, gt.Gvel class containing calculated velocity
+            %   gvel: 1x1, gt.Gvel object containing calculated velocity
             %
             arguments
                 obj gt.Gpos

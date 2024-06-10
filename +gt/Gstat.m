@@ -17,8 +17,8 @@ classdef Gstat < handle
     %   prn       : 1x(obj.nsat), Satellite prn/slot number
     %   sys       : 1x(obj.nsat), Satellite system (SYS_GPS, SYS_GLO, ...)
     %   satstr    : 1x(obj.nsat), Satellite id cell array ('Gnn','Rnn','Enn','Jnn','Cnn','Inn' or 'nnn')
-    %   time      : 1x1, Time, gt.Gtime classGLONASS
-    %   az        : 1x1, Azimath angle (deg)
+    %   time      : 1x1, Time, gt.Gtime object
+    %   az        : 1x1, Azimuth angle (deg)
     %   el        : 1x1, Elevation angle (deg)
     %   L1        : 1x1, L1 satellite struct
     %     .vsat   : (obj.n)x(obj.nsat), SNR (dB-Hz)
@@ -53,8 +53,8 @@ classdef Gstat < handle
         prn    % Satellite prn/slot number
         sys    % Satellite system (SYS_GPS, SYS_GLO, ...)
         satstr % Satellite id cell array
-        time   % Time, gt.Gtime classGLONASS
-        az     % Azimath angle (deg)
+        time   % Time, gt.Gtime object
+        az     % Azimuth angle (deg)
         el     % Elevation angle (deg)
         L1     % L1 observation struct
         L2     % L2 observation struct
@@ -68,7 +68,7 @@ classdef Gstat < handle
         FTYPE = ["L1","L2","L5","L6","L7","L8","L9"];
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gstat(varargin)
             if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setStatFile(char(varargin{1})); % file

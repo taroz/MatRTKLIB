@@ -4,7 +4,7 @@
 % Inputs: 
 %    epoch : Mx6, calendar day/time in GPST
 %               {year, month, day, hour, minute, second}
-%    ion   : 1x8, iono model parameters {a0,a1,a2,a3,b0,b1,b2,b3}
+%    ion   : 1x8, ionosphere model parameters {a0,a1,a2,a3,b0,b1,b2,b3}
 %    llh   : Mx3 or 1x3, receiver geodetic position (deg, deg, m)
 %    az    : MxN, satellite azimuth (deg)
 %               M: number of epochs

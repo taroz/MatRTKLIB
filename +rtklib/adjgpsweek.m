@@ -5,7 +5,7 @@
 %    week    : Mx1, non-adjusted GPS week number (0-1023)
 %
 % Outputs:
-%    adjweek : Mx1, adjusted GPS week numbe
+%    adjweek : Mx1, adjusted GPS week number
 %
 % Author: 
 %    Taro Suzuki

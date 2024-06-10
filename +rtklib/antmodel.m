@@ -9,7 +9,7 @@
 %                 N: number of satellites
 %    el      : MxN, satellite elevation (deg)
 %    opt     : 1x1, option (0:only offset, 1:offset+pcv)
-%    freqidx : 1x1, freqency index
+%    freqidx : 1x1, frequency index
 %
 % Outputs:
 %    dant    : MxN, range offsets for specified frequency (m)

@@ -5,7 +5,7 @@
 %    pcvs    : MAXSATx1, array of PCV struct
 %    sat     : 1xN, satellite number defined in RTKLIB
 %    nadir   : MxN, nadir angle for satellite (deg)
-%    freqidx : 1x1, freqency index
+%    freqidx : 1x1, frequency index
 %
 % Outputs:
 %    dant    : MxN, range offsets for specified frequency (m)

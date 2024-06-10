@@ -6,7 +6,7 @@
 % Inputs: 
 %    epoch : Mx6, calendar day/time in GPST
 %                {year, month, day, hour, minute, second}
-%    rr    : Mx3, ssite position in ECEF coordinate (m)
+%    rr    : Mx3, site position in ECEF coordinate (m)
 %    opt   : 1x1, options (or of the followings)
 %                      1: solid earth tide
 %                      2: ocean tide loading

@@ -23,16 +23,16 @@ classdef Gsol < handle
     %   ns     : (obj.n)x1, Number of valid satellites
     %   stat   : (obj.n)x1, Solution status (SOLQ_???)
     %   age    : (obj.n)x1, Age of differential (s)
-    %   ratio  : (obj.n)x1, AR ratio factor for valiation
+    %   ratio  : (obj.n)x1, AR ratio factor for validation
     %   dt     : 1x1, Solution time interval (s)
     %   perr   : 1x1, Position error, gt.Gerr object
     %   verr   : 1x1, Velocity error, gt.Gerr object
     % ---------------------------------------------------------------------
     % Gsol Methods:
-    %   setSolFile(file);              Set soltion from file
-    %   setSolStruct(solstr);          Set soltion from solution struct
-    %   setSolTimePos(time, pos);      Set soltion from gt.Gtime and gt.Gpos objects
-    %   setOrg(pos, type);             Set coordinate orgin
+    %   setSolFile(file);              Set solution from file
+    %   setSolStruct(solstr);          Set solution from solution struct
+    %   setSolTimePos(time, pos);      Set solution from gt.Gtime and gt.Gpos objects
+    %   setOrg(pos, type);             Set coordinate origin
     %   outSol(file, [gopt]);          Output solution file
     %   append(gsol);                  Append gt.Gsol object
     %   difference(gobj);              Compute position/velocity errors
@@ -90,7 +90,7 @@ classdef Gsol < handle
         end
         %% setSolFile
         function setSolFile(obj, file)
-            % setSolFile: Set soltion from file
+            % setSolFile: Set solution from file
             % -------------------------------------------------------------
             % Read the .pos file of RTKLIB.
             %
@@ -114,7 +114,7 @@ classdef Gsol < handle
         end
         %% setSolStruct
         function setSolStruct(obj, solstr)
-            % setSolStruct: Set soltion from solution struct
+            % setSolStruct: Set solution from solution struct
             % -------------------------------------------------------------
             % Set objects from RTKLIB's solution structure.
             %
@@ -172,7 +172,7 @@ classdef Gsol < handle
         end
         %% setSolTimePos
         function setSolTimePos(obj, time, pos)
-            % setSolTimePos: Set soltion from gt.Gtime and gt.Gpos objects
+            % setSolTimePos: Set solution from gt.Gtime and gt.Gpos objects
             % -------------------------------------------------------------
             % gtime and gpos must be the same size.
             %
@@ -180,8 +180,8 @@ classdef Gsol < handle
             %   obj.setSolTimePos(time, pos)
             %
             % Input: ------------------------------------------------------
-            %   time : Time, gt.Gtime class
-            %   pos  :  Position, gt.Gpos class
+            %   gtime : Time, gt.Gtime object
+            %   gpos  :  Position, gt.Gpos object
             %
             arguments
                 obj gt.Gsol

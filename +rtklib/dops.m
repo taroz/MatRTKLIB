@@ -6,7 +6,7 @@
 %                 M: number of epochs
 %                 N: number of satellites {N>=4}
 %    el      : MxN, satellite elevation (deg)
-%    [elmin] : 1x1, elevation cut-off angle (deg) (dafult: 0 deg)
+%    [elmin] : 1x1, elevation cut-off angle (deg) (default: 0 deg)
 %
 % Outputs:
 %    dop   : Mx4, DOPs {GDOP, PDOP, HDOP, VDOP}

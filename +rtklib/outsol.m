@@ -3,7 +3,7 @@
 %
 % Inputs: 
 %    file   : 1x1, file path {???.pos}
-%    solbuf : 1x1, soltion buffer struct
+%    solbuf : 1x1, solution buffer struct
 % 
 % Author: 
 %    Taro Suzuki

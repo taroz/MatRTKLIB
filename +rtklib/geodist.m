@@ -16,7 +16,7 @@
 %    ez : MxN, line-of-sight vector Z in ECEF coordinate
 %
 % Notes:
-%    Distance includes sagnac effect correction
+%    Distance includes Sagnac effect correction
 % 
 % Author: 
 %    Taro Suzuki

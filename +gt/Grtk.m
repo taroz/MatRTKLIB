@@ -3,7 +3,7 @@ classdef Grtk < handle
     % ---------------------------------------------------------------------
     % Grtk Declaration:
     % obj = Grtk(file)
-    %   file   : 1x1, RTKLIB configration file (???.conf)
+    %   file   : 1x1, RTKLIB configuration file (???.conf)
     %
     % obj = Grtk(rtkstr)
     %   optstr : 1x1, RTK control struct
@@ -18,7 +18,7 @@ classdef Grtk < handle
     %   xa     : (obj.n)x(obj.na),  Fixed states
     %   Pa     : (obj.na)x(obj.na)x(obj.n), Fixed covariance
     %   nfix   : (obj.n)x1, Number of continuous fixes of ambiguity
-    %   tt     : (obj.n)x1, Yime difference between current and previous (s)
+    %   tt     : (obj.n)x1, Time difference between current and previous (s)
     %   rb     : (obj.n)x6, Base position/velocity (ECEF) (m|m/s)
     %   errmsg : (obj.n)x1, Error message
     % ---------------------------------------------------------------------

@@ -5,7 +5,7 @@
 %    file : 1x1, RTKLIB solution file (???.pos)
 %
 % Outputs:
-%    sol  : 1x1, soltion struct array
+%    sol  : 1x1, solution struct array
 %
 % Author: 
 %    Taro Suzuki

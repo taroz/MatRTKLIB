@@ -23,7 +23,7 @@ classdef Gerr < handle
     % ---------------------------------------------------------------------
     % Gerr Methods:
     %   setErr(err, type);            Set error
-    %   setOrg(pos, postype);         Set coordinate orgin
+    %   setOrg(pos, postype);         Set coordinate origin
     %   append(gerr);                 Append gt.Gerr object
     %   addOffset(offset, [coordtype]); Add offset to error
     %   gerr = select([idx]);         Select time from index
@@ -46,7 +46,7 @@ classdef Gerr < handle
     %   east = east([idx]);           Get East-component of ENU error
     %   north = north([idx]);         Get North-component of ENU error
     %   up = up([idx]);               Get Up-component of ENU error
-    %   plot([idx]);                  Plot horizontal and virtical error
+    %   plot([idx]);                  Plot horizontal and vertical error
     %   plotENU([idx]);               Plot ENU error
     %   plotXYZ([idx]);               Plot XYZ error
     %   plot2D([idx]);                Plot 2D error
@@ -71,7 +71,7 @@ classdef Gerr < handle
         unit   % unit of error
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gerr(errtype, err, coordtype, org, orgtype)
             arguments
                 errtype (1,:) char {mustBeMember(errtype,{'position', 'velocity', 'acceleration'})}

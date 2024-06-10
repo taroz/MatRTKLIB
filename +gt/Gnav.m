@@ -49,7 +49,7 @@ classdef Gnav < handle
         ion  % Ionosphere model parameter
     end
     methods
-        %% constractor
+        %% contractor
         function obj = Gnav(varargin)
             if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setNavFile(char(varargin{1})); % file
@@ -137,7 +137,7 @@ classdef Gnav < handle
             %   obj.readSP3(file)
             %
             % Input: ------------------------------------------------------
-            %   file : 1x1, Precisse ephemeris(.SP3)  file
+            %   file : 1x1, Precise ephemeris(.SP3)  file
             %
             arguments
                 obj gt.Gnav

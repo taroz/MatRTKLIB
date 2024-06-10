@@ -23,11 +23,12 @@ classdef Gvel < handle
     % ---------------------------------------------------------------------
     % Gvel Methods:
     %   setVel(vel, veltype);        Set velocity
-    %   setOrg(pos, postype);        Set coordinate orgin
+    %   setOrg(pos, postype);        Set coordinate origin
     %   append(gvel);                Append gt.Gvel object
     %   addOffset(offset, [coordtype]); Add offset to velocity data
     %   gerr = difference(gvel);     Compute difference between two gt.Gvel objects
     %   gpos = integral(dt, [idx]);  Cumulative integral
+    %   gvel = copy(obj);            Copy object
     %   gvel = select([idx]);        Select velocity from index
     %   [gvel, gcov] = mean([idx]):  Compute mean velocity and variance
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF velocity and standard deviation
@@ -107,7 +108,7 @@ classdef Gvel < handle
         end
         %% setOrg
         function setOrg(obj, org, orgtype)
-            % setOrg: Set coordinate orgin
+            % setOrg: Set coordinate origin
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -140,7 +141,7 @@ classdef Gvel < handle
         end
         %% append
         function append(obj, gvel)
-            % append: Append gt.Gvel class
+            % append: Append gt.Gvel object
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

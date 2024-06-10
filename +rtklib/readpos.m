@@ -11,7 +11,7 @@
 %                      all 0 if search error
 %
 %  Notes:
-%    Use the "readsol" function to read a soluton file (???.pos).
+%    Use the "readsol" function to read a solution file (???.pos).
 % 
 % Author: 
 %    Taro Suzuki
