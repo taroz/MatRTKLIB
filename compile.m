@@ -25,7 +25,7 @@ end
 
 %% Satellites, systems, codes functions
 eval(['mex satno.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
-eval(['mex satsys.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../' option]);
+eval(['mex satsys.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex satid2no.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex satno2id.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex obs2code.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
@@ -150,7 +150,8 @@ eval(['mex readdcb.c nav2nav.c eph2eph.c pcv2pcv.c erp2erp.c -I../RTKLIB/src ../
 %% Solution functions
 eval(['mex readsol.c sol2sol.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);
 eval(['mex readsolstat.c solstat2solstat.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);
-eval(['mex outsol.c sol2sol.c opt2opt.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);% outsolex
+eval(['mex outsol.c sol2sol.c opt2opt.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);
+% outsolex
 % outnmea_rmc
 % outnmea_gga
 % outnmea_gsv
