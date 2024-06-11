@@ -26,7 +26,7 @@ end
 %% Satellites, systems, codes functions
 eval(['mex satno.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex satsys.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../' option]);
-eval(['mex satid2no.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+../+rtklibrtklib' option]);
+eval(['mex satid2no.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex satno2id.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex obs2code.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex code2obs.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
