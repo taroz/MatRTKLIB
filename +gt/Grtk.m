@@ -122,9 +122,9 @@ classdef Grtk < handle
             end
             grtk = gt.Grtk(obj.struct());
         end
-        %% convert to struct
+        %% struct
         function rtkstr = struct(obj)
-            % setRtkStruct: Convert to struct
+            % setRtkStruct: Convert from gt.Grtk object to struct
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

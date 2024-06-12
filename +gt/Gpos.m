@@ -27,10 +27,10 @@ classdef Gpos < handle
     %   append(gpos);                   Append gt.Gpos object
     %   addOffset(offset, [coordtype]); Add position offset
     %   gerr = difference(gpos);        Compute difference between two gt.Gpos objects
-    %   gvel = gradient(dt, [idx]);     Compute velocity based on position differences
+    %   gvel = gradient(dt, [idx]);     Compute velocity based on position gradient
     %   gpos = copy();                  Copy object
     %   gpos = select(idx);             Select position from index
-    %   outpos(file, type, [idx]);      Output position
+    %   outpos(file, type, [idx]);      Output position to file
     %   [gpos, gcov] = mean([idx]);     Compute mean position and covariance
     %   [mllh, sdenu] = meanLLH([idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF position and standard deviation
@@ -240,7 +240,7 @@ classdef Gpos < handle
         end
         %% difference
         function gerr = difference(obj, gpos)
-            % difference: Compute position difference
+            % difference: Compute difference between two gt.Gpos objects
             % -------------------------------------------------------------
             % Size of the two gt.Gpos must be same.
             %
@@ -579,7 +579,7 @@ classdef Gpos < handle
         end
         %% llhDMS
         function llhdms = llhDMS(obj, idx)
-            % llhDMS: Convert latitude and longitude to DMS format
+            % llhDMS: Convert latitude and longitude to degree,minute,second format
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -753,7 +753,7 @@ classdef Gpos < handle
         end
         %% h
         function h = h(obj, idx)
-            % h: Get height
+            % h: Get ellipsoidal height
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

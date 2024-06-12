@@ -675,7 +675,7 @@ classdef Gtime < handle
             end
             if obj.n > 1
                 figure;
-                plot(seconds(diff(obj.t(idx))), '.-');
+                plot(seconds(diff(obj.roundDateTime(obj.t(idx),obj.estInterval()))), '.-');
                 ylabel('Time difference (s)');
                 grid on;
             end
@@ -691,6 +691,12 @@ classdef Gtime < handle
         %% Insert data
         function c = insertdata(~,a,idx,b)
             c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
+        end
+        %% Round datetime
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime");
         end
         %% Convert hms to seconds of day
         function sod = hms2sod(~, hms)

@@ -542,7 +542,7 @@ classdef Gsat < handle
         function plotSky(obj, tidx, sidx)
             % plotSky: Plot satellite constellation
             % -------------------------------------------------------------
-            % Satellite constellation display.
+            % Display satellite constellation.
             % The receiver position must be set by calling setRcvPos first.
             %
             % Usage: ------------------------------------------------------

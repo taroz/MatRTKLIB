@@ -59,7 +59,7 @@ classdef Gobs < handle
     %   gobs = selectSat(sidx);        Select observation from satellite index
     %   gobs = selectTime(tidx);       Select observation from time index
     %   gobs = selectTimeSpan(ts, te); Select observation from time span
-    %   obsstr = struct([tidx], [sidx]); Create a observation struct from specified indices
+    %   obsstr = struct([tidx], [sidx]); Convert from gt.Gobs object to observation struct
     %   gobs = fixedInterval([dt]);    Resampling object at fixed interval
     %   [gobsc, gobsrefc] = commonObs(gobsref); Extract common observations with reference observation
     %   [gobsc, gobsrefc] = commonSat(gobsref); Extract common satellite with reference observation
@@ -978,7 +978,7 @@ classdef Gobs < handle
         end
         %% sameTime
         function gobs = sameTime(obj, gobsref)
-            % sameSat: Same time as reference observation
+            % sameTime: Same time as reference observation
             % -------------------------------------------------------------
             % Create an gt.Gobs object whose time are consistent with
             % the reference gt.Gobs object.
@@ -1240,7 +1240,7 @@ classdef Gobs < handle
         end
         %% plotNSat
         function plotNSat(obj, freq, snrth, sidx)
-            % plot: Plot received number of satellites
+            % plotNSat: Plot received number of satellites
             % -------------------------------------------------------------
             % Plot the time transition of number of satellites whose SNR
             % are above a specified threshold.
@@ -1282,9 +1282,11 @@ classdef Gobs < handle
         end
         %% plotSky
         function plotSky(obj, gnav, tidx, sidx)
-            % plot: Plot satellite constellation
+            % plotSky: Plot satellite constellation
             % -------------------------------------------------------------
-            % Plot the satellite constellation.
+            % Display satellite constellation display.
+            % The receiver location uses the antenna location in the RINEX 
+            % header.
             %
             % Usage: ------------------------------------------------------
             %   obj.plotSky(gnav, [tidx], [sidx])
@@ -1341,13 +1343,13 @@ classdef Gobs < handle
         function c = insertdata(~,a,idx,b)
             c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
         end
-        %% round datetime
+        %% Round datetime
         function tr = roundDateTime(~, t, dt)
             pt = posixtime(t);
             pt = round(pt/dt)*dt;
             tr = datetime(pt, "ConvertFrom", "posixtime");
         end
-        %% select LLI
+        %% Select LLI
         function Isel = selectLLI(~,I,tind,sind)
             I(isnan(I)) = 0;
 
@@ -1368,7 +1370,7 @@ classdef Gobs < handle
 
             Isel = I1sel+I2sel;
         end
-        %% select observation
+        %% Select observation
         function Fsel = selectFreqStruct(obj,F,tidx,sidx)
             if isfield(F,"P"); Fsel.P = F.P(tidx,sidx); end
             if isfield(F,"L"); Fsel.L = F.L(tidx,sidx); end
@@ -1379,7 +1381,7 @@ classdef Gobs < handle
             if isfield(F,'freq'); Fsel.freq = F.freq(sidx);end
             if isfield(F,'lam'); Fsel.lam = F.lam(sidx); end
         end
-        %% initialize observation
+        %% Initialize observation
         function Fini = initFreqStruct(obj,f,n,nsat)
             if isfield(obj.(f),"P"); Fini.P = NaN(n,nsat); end
             if isfield(obj.(f),"L"); Fini.L = NaN(n,nsat); end
@@ -1390,7 +1392,7 @@ classdef Gobs < handle
             if isfield(obj.(f),'freq'); Fini.freq = NaN(1,nsat); end
             if isfield(obj.(f),'lam'); Fini.lam = NaN(1,nsat); end
         end
-        %% set observation
+        %% Set observation
         function Fset = setFreqStruct(obj,Fset,F,tidx1,tidx2,sidx1,sidx2)
             if isfield(F,"P"); Fset.P(tidx1,sidx1) = F.P(tidx2,sidx2); end
             if isfield(F,"L"); Fset.L(tidx1,sidx1) = F.L(tidx2,sidx2); end
@@ -1401,7 +1403,7 @@ classdef Gobs < handle
             if isfield(F,'freq'); Fset.freq(sidx1) = F.freq(sidx2); end
             if isfield(F,'lam'); Fset.lam(sidx1) = F.lam(sidx2); end
         end
-        %% copy frequency and wavelength
+        %% Copy frequency and wavelength
         function copyFrequency(obj,dst,sidx1,sidx2)
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
@@ -1412,7 +1414,7 @@ classdef Gobs < handle
                 end
             end
         end
-        %% copy frequency struct
+        %% Copy frequency struct
         function copyAdditinalObservation(obj,dst,tidx1,tidx2,sidx1,sidx2)
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
