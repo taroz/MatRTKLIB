@@ -1184,14 +1184,18 @@ classdef Gobs < handle
             if length(refsatidx) ~= obj.nsat
                 error('Size of refidx must be obj.nsat')
             end
-
+            sidx = unique(refsatidx);
             gobsDD = obj.copy();
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
-                    if isfield(obj.(f),"Pd"); gobsDD.(f).Pdd = obj.(f).Pd-obj.(f).Pd(:,refsatidx); end % (m)
-                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refsatidx); end % (m)
-                    if isfield(obj.(f),"resPd"); gobsDD.(f).resPdd = obj.(f).resPd-obj.(f).resPd(:,refsatidx); end % (m)
-                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refsatidx); end % (m)
+                    if isfield(obj.(f),"Pd"); gobsDD.(f).Pdd = obj.(f).Pd-obj.(f).Pd(:,refsatidx); ...
+                            gobsDD.(f).Pdd(:,sidx) = NaN; end % (m)
+                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refsatidx); ...
+                            gobsDD.(f).Ldd(:,sidx) = NaN; end % (m)
+                    if isfield(obj.(f),"resPd"); gobsDD.(f).resPdd = obj.(f).resPd-obj.(f).resPd(:,refsatidx); ...
+                            gobsDD.(f).resPdd(:,sidx) = NaN; end % (m)
+                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refsatidx); ...
+                            gobsDD.(f).resLdd(:,sidx) = NaN; end % (m)
                 end
             end
         end
