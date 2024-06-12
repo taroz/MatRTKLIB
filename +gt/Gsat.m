@@ -161,6 +161,19 @@ classdef Gsat < handle
             end
             [obj.x,obj.y,obj.z,obj.vx,obj.vy,obj.vz,obj.dts,obj.ddts,obj.var,obj.svh] ...
                 = rtklib.satposs(gobs.struct, gnav.struct, ephopt);
+            
+            % mask unhealthy satellite
+            idx = obj.svh~=0;
+            obj.x(idx) = NaN;
+            obj.y(idx) = NaN;
+            obj.z(idx) = NaN;
+            obj.vx(idx) = NaN;
+            obj.vy(idx) = NaN;
+            obj.vz(idx) = NaN;
+            obj.dts(idx) = NaN;
+            obj.ddts(idx) = NaN;
+            obj.var(idx) = NaN;
+
             obj.n = gobs.n;
             obj.nsat = gobs.nsat;
             obj.sat = gobs.sat;
