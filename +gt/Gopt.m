@@ -63,7 +63,7 @@ classdef Gopt < handle
     %   setOptStruct(optstr); Set option data from option struct
     %   saveOpt(file);        Save option file
     %   gopt = copy();        Copy object
-    %   optstr = struct();    Convert from gt.Gopt to struct
+    %   optstr = struct();    Convert from gt.Gopt object to struct
     %   show();               Show current options
     %   help();               Show help
     % ---------------------------------------------------------------------
@@ -92,7 +92,7 @@ classdef Gopt < handle
         end
         %% setOptFile
         function setOptFile(obj, file)
-            % setOptFile: Set process option from file
+            % setOptFile: Set option data from config file
             % -------------------------------------------------------------
             % Read the config file of RTKLIB.
             %
@@ -115,7 +115,7 @@ classdef Gopt < handle
         end
         %% setOptStruct
         function setOptStruct(obj, optstr)
-            % setOptStruct: Set process option from option struct
+            % setOptStruct: Set option data from option struct
             % -------------------------------------------------------------
             % Set objects from RTKLIB's option structure.
             %
@@ -236,7 +236,7 @@ classdef Gopt < handle
         end
         %% show
         function show(obj)
-            % show: Show current process options
+            % show: Show current options
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

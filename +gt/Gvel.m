@@ -32,19 +32,19 @@ classdef Gvel < handle
     %   gpos = integral(dt, [idx]);  Cumulative integral
     %   gvel = copy();               Copy object
     %   gvel = select([idx]);        Select velocity from index
-    %   [gvel, gcov] = mean([idx]):  Compute mean velocity and variance
-    %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF velocity and standard deviation
-    %   [menu, sdenu] = meanENU([idx]); Compute mean ENU velocity and standard deviation
-    %   [m2d, sd2d] = mean2D([idx]); Compute mean 2D velocity and standard deviation
-    %   [m3d, sd3d] = mean3D([idx]); Compute mean 3D velocity and standard deviation
-    %   x = x([idx]);                Get ECEF x velocity
-    %   y = y([idx]);                Get ECEF y velocity
-    %   z = z([idx]);                Get ECEF z velocity
-    %   east = east([idx]);          Get local east velocity
-    %   north = north([idx]);        Get local north velocity
-    %   up = up([idx]);              Get local up velocity
+    %   [gvel, gcov] = mean([idx]):  Compute mean and variance of velocity
+    %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean and standard deviation of ECEF velocity
+    %   [menu, sdenu] = meanENU([idx]); Compute mean and standard deviation of ENU velocity
+    %   [m2d, sd2d] = mean2D([idx]); Compute mean and standard deviation of 2D velocity
+    %   [m3d, sd3d] = mean3D([idx]); Compute mean and standard deviation of 3D velocity
+    %   x = x([idx]);                Get X-component of ECEF velocity
+    %   y = y([idx]);                Get Y-component of ECEF velocity
+    %   z = z([idx]);                Get Z-component of ECEF velocity
+    %   east = east([idx]);          Get East-component of ENU velocity
+    %   north = north([idx]);        Get North-component of ENU velocity
+    %   up = up([idx]);              Get Up-component of ENU velocity
     %   plot([idx]);                 Plot ENU velocity
-    %   plotXYZ([idx]);              Plot XYZ velocity
+    %   plotXYZ([idx]);              Plot ECEF velocity
     %   plot2D([idx]);               Plot 2D velocity
     %   plot3D([idx]);               Plot 3D velocity
     %   help();                      Show help
@@ -81,7 +81,7 @@ classdef Gvel < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plot(org, vel, veltype)
+            %   obj.setVel(vel, veltype)
             %
             % Input: ------------------------------------------------------
             %   vel    : Mx3, Velocity vector
@@ -303,7 +303,7 @@ classdef Gvel < handle
         end
         %% select
         function gvel = select(obj, idx)
-            % select : Select from index
+            % select : Select velocity from index
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -331,7 +331,7 @@ classdef Gvel < handle
         end
         %% mean
         function [gvel, gcov] = mean(obj, idx)
-            % mean: Compute mean velocity and variance
+            % mean: Compute mean and variance of velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -464,7 +464,7 @@ classdef Gvel < handle
         end
         %% x
         function x = x(obj, idx)
-            % x : Get x-component of ECEF velocity
+            % x : Get X-component of ECEF velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -475,7 +475,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   x :  Mx1, x-component of ECEF velocity
+            %   x :  Mx1, X-component of ECEF velocity
             %
             arguments
                 obj gt.Gvel
@@ -488,7 +488,7 @@ classdef Gvel < handle
         end
         %% y
         function y = y(obj, idx)
-            % y : Get y-component of ECEF velocity
+            % y : Get Y-component of ECEF velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -499,7 +499,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   y :  Mx1, y-component of ECEF velocity data
+            %   y :  Mx1, Y-component of ECEF velocity
             %
             arguments
                 obj gt.Gvel
@@ -512,7 +512,7 @@ classdef Gvel < handle
         end
         %% z
         function z = z(obj, idx)
-            % z : Get z-component of ECEF velocity
+            % z : Get Z-component of ECEF velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -523,7 +523,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   z :  Mx1, z-component of ECEF velocity
+            %   z :  Mx1, Z-component of ECEF velocity
             %
             arguments
                 obj gt.Gvel
@@ -536,7 +536,7 @@ classdef Gvel < handle
         end
         %% east
         function east = east(obj, idx)
-            % east : Get east-component of ENU velocity
+            % east : Get East-component of ENU velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -547,7 +547,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   east :  Mx1, east-component of ENU velocity
+            %   east :  Mx1, East-component of ENU velocity
             %
             arguments
                 obj gt.Gvel
@@ -560,7 +560,7 @@ classdef Gvel < handle
         end
         %% north
         function north = north(obj, idx)
-            % north : Get north-component of ENU velocity
+            % north : Get North-component of ENU velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -571,7 +571,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   north : Mx1, north-component of ENU velocity
+            %   north : Mx1, North-component of ENU velocity
             %
             arguments
                 obj gt.Gvel
@@ -584,7 +584,7 @@ classdef Gvel < handle
         end
         %% up
         function up = up(obj, idx)
-            % up : Get up-component of ENU velocity
+            % up : Get Up-component of ENU velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -595,7 +595,7 @@ classdef Gvel < handle
             %          Default: idx = 1:obj.n
             %
             % Output: -----------------------------------------------------
-            %   up :  Mx1, up-component of ENU velocity
+            %   up :  Mx1, Up-component of ENU velocity
             %
             arguments
                 obj gt.Gvel
@@ -642,7 +642,7 @@ classdef Gvel < handle
         end
         %% plotXYZ
         function plotXYZ(obj, idx)
-            % plotXYZ : Plot XYZ velocity
+            % plotXYZ : Plot ECEF velocity
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------

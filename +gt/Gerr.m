@@ -51,7 +51,7 @@ classdef Gerr < handle
     %   up = up([idx]);               Get Up-component of ENU error
     %   plot([idx]);                  Plot horizontal and vertical error
     %   plotENU([idx]);               Plot ENU error
-    %   plotXYZ([idx]);               Plot XYZ error
+    %   plotXYZ([idx]);               Plot ECEF error
     %   plot2D([idx]);                Plot 2D error
     %   plot3D([idx]);                Plot 3D error
     %   plotCDF2D([idx]);             Plot Cumulative Distribution Function of 2D error
@@ -354,7 +354,7 @@ classdef Gerr < handle
         end
         %% meanENU
         function [menu, sdenu] = meanENU(obj, idx)
-            % meanENU: Compute mean and standard deviation of ENU data
+            % meanENU: Compute mean and standard deviation of ENU error
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
@@ -687,7 +687,7 @@ classdef Gerr < handle
         end
         %% east
         function east = east(obj, idx)
-            % east: Get east-component of ENU error
+            % east: Get East-component of ENU error
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
