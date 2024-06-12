@@ -1100,16 +1100,16 @@ classdef Gobs < handle
                 if ~isempty(obj.(f))
                     if ~isempty(gsat.pos)
                         if isfield(gobs.(f),"P"); gobs.(f).resP = gobs.(f).P-(gsat.rng-gsat.dts); end % pseudorange residuals (m)
-                        if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L-(gsat.rng-gsat.dts)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                        if isfield(gobs.(f),"L"); gobs.(f).resL = gobs.(f).L.*gobs.(f).lam-(gsat.rng-gsat.dts); end % carrier phase residuals (m)
                     end
                     if ~isempty(gsat.vel)
-                        if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D-(gsat.rate-gsat.ddts)./gobs.(f).lam; end % doppler residuals (Hz)
+                        if isfield(gobs.(f),"D"); gobs.(f).resD = -gobs.(f).D.*gobs.(f).lam-(gsat.rate-gsat.ddts); end % doppler residuals (m/s)
                     end
                     if isprop(gsat,"ion"+f)
                         if ~isempty(gsat.("ion"+f))
                             if ~isempty(gsat.pos)
                                 if isfield(gobs.(f),"P"); gobs.(f).resPc = gobs.(f).P-(gsat.rng-gsat.dts+gsat.("ion"+f)+gsat.trp); end % pseudorange residuals (m)
-                                if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp)./gobs.(f).lam; end % carrier phase residuals (cycle)
+                                if isfield(gobs.(f),"L"); gobs.(f).resLc = gobs.(f).L.*gobs.(f).lam-(gsat.rng-gsat.dts-gsat.("ion"+f)+gsat.trp); end % carrier phase residuals (m)
                             end
                         end
                     end
@@ -1151,11 +1151,11 @@ classdef Gobs < handle
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
                     if isfield(obj.(f),"P") && isfield(gobsref.(f),"P"); gobsSD.(f).Pd = obj.(f).P-gobsref.(f).P; end % (m)
-                    if isfield(obj.(f),"L") && isfield(gobsref.(f),"L"); gobsSD.(f).Ld = obj.(f).L-gobsref.(f).L; end % (cycle)
-                    if isfield(obj.(f),"D") && isfield(gobsref.(f),"D"); gobsSD.(f).Dd = obj.(f).D-gobsref.(f).D; end % (Hz)
+                    if isfield(obj.(f),"L") && isfield(gobsref.(f),"L"); gobsSD.(f).Ld = obj.(f).L-gobsref.(f).L; end % (m)
+                    if isfield(obj.(f),"D") && isfield(gobsref.(f),"D"); gobsSD.(f).Dd = obj.(f).D-gobsref.(f).D; end % (m/s)
                     if isfield(obj.(f),"resP") && isfield(gobsref.(f),"resP"); gobsSD.(f).resPd = obj.(f).resP-gobsref.(f).resP; end % (m)
-                    if isfield(obj.(f),"resL") && isfield(gobsref.(f),"resL"); gobsSD.(f).resLd = obj.(f).resL-gobsref.(f).resL; end % (cycle)
-                    if isfield(obj.(f),"resD") && isfield(gobsref.(f),"resD"); gobsSD.(f).resDd = obj.(f).resD-gobsref.(f).resD; end % (Hz)
+                    if isfield(obj.(f),"resL") && isfield(gobsref.(f),"resL"); gobsSD.(f).resLd = obj.(f).resL-gobsref.(f).resL; end % (m)
+                    if isfield(obj.(f),"resD") && isfield(gobsref.(f),"resD"); gobsSD.(f).resDd = obj.(f).resD-gobsref.(f).resD; end % (m/s)
                 end
             end
         end
@@ -1189,9 +1189,9 @@ classdef Gobs < handle
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
                     if isfield(obj.(f),"Pd"); gobsDD.(f).Pdd = obj.(f).Pd-obj.(f).Pd(:,refsatidx); end % (m)
-                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refsatidx); end % (cycle)
+                    if isfield(obj.(f),"Ld"); gobsDD.(f).Ldd = obj.(f).Ld-obj.(f).Ld(:,refsatidx); end % (m)
                     if isfield(obj.(f),"resPd"); gobsDD.(f).resPdd = obj.(f).resPd-obj.(f).resPd(:,refsatidx); end % (m)
-                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refsatidx); end % (cycle)
+                    if isfield(obj.(f),"resLd"); gobsDD.(f).resLdd = obj.(f).resLd-obj.(f).resLd(:,refsatidx); end % (m)
                 end
             end
         end
