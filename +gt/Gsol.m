@@ -2,6 +2,8 @@ classdef Gsol < handle
     % Gsol: GNSS solution class
     % ---------------------------------------------------------------------
     % Gsol Declaration:
+    % gsol = Gsol();  Create empty gt.Gsol object
+    %
     % gsol = Gsol(file);  Create gt.Gsol object from RTKLIB solution file
     %   file   : 1x1, RTKLIB solution file (???.pos)
     %
@@ -25,8 +27,6 @@ classdef Gsol < handle
     %   age    : (obj.n)x1, Age of differential (s)
     %   ratio  : (obj.n)x1, AR ratio factor for validation
     %   dt     : 1x1, Solution time interval (s)
-    %   perr   : 1x1, Position error, gt.Gerr object
-    %   verr   : 1x1, Velocity error, gt.Gerr object
     % ---------------------------------------------------------------------
     % Gsol Methods:
     %   setSolFile(file);              Set solution from file
@@ -36,7 +36,7 @@ classdef Gsol < handle
     %   outSol(file, [gopt]);          Output solution file
     %   insert(idx, gsol);             Insert gt.Gsol object
     %   append(gsol);                  Append gt.Gsol object
-    %   difference(gobj);              Compute position/velocity errors
+    %   [perr, verr] = difference(gobj); Compute position/velocity errors
     %   gsol = copy();                 Copy object
     %   gsol = select(idx);            Select solution from index
     %   gsol = selectTimeSpan(ts, te); Select solution from time span
@@ -55,7 +55,7 @@ classdef Gsol < handle
     %   help();                        Show help
     % ---------------------------------------------------------------------
     % Gsol Overloads:
-    %   gsol = obj - gsol;             Compute position/velocity errors
+    %   [perr, verr] =  obj - gobj;    Compute position/velocity errors
     % ---------------------------------------------------------------------
     % Author: Taro Suzuki
     %
@@ -73,13 +73,13 @@ classdef Gsol < handle
         ratio % AR ratio factor for valiation
         thres % threshold
         dt    % Solution time interval (s)
-        perr  % Position error, gt.Gerr object
-        verr  % Velocity error, gt.Gerr object
     end
     methods
         %% constructor
         function obj = Gsol(varargin)
-            if nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
+            if nargin==0 % generate empty object
+                obj.n = 0;
+            elseif nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
                 obj.setSolFile(char(varargin{1})); % file
             elseif nargin==1 && isstruct(varargin{1})
                 obj.setSolStruct(varargin{1}); % sol struct
@@ -344,7 +344,7 @@ classdef Gsol < handle
             obj.setSolStruct(solstr);
         end
         %% difference
-        function difference(obj, gobj)
+        function [perr, verr] = difference(obj, gobj)
             % difference: Compute position/velocity errors
             % -------------------------------------------------------------
             % Compute the difference between two gt.Gsol objects and
@@ -354,26 +354,31 @@ classdef Gsol < handle
             % object.
             %
             % Usage: ------------------------------------------------------
-            %   obj.difference(gobj)
+            %   [perr, verr] = obj.difference(gobj)
             %
             % Input: ------------------------------------------------------
             %   gobj : gt.Gsol or gt.Gpos or gt.Gvel object
+            %
+            % Output: -----------------------------------------------------
+            %   perr : 1x1, Position error, gt.Gerr object
+            %   verr : 1x1, Velocity error, gt.Gerr object
             %
             arguments
                 obj gt.Gsol
                 gobj
             end
+            verr = gt.Gerr();
             switch class(gobj)
                 case 'gt.Gpos'
-                    obj.perr = obj.pos-gobj;
+                    perr = obj.pos-gobj;
                 case 'gt.Gvel'
-                    obj.verr = obj.vel-gobj;
-                case 'gt.Gsol'
-                    if ~isempty(obj.pos) && ~isempty(gobj.pos)
-                        obj.perr = obj.pos-gobj.pos;
+                    if ~isempty(obj.vel)
+                        verr = obj.vel-gobj;
                     end
+                case 'gt.Gsol'
+                    perr = obj.pos-gobj.pos;
                     if ~isempty(obj.vel) && ~isempty(gobj.vel)
-                        obj.verr = obj.vel-gobj.vel;
+                        verr = obj.vel-gobj.vel;
                     end
                 otherwise
                     error('gt.Gpos or gt.Gvel or gt.Gsol must be input')
@@ -422,13 +427,6 @@ classdef Gsol < handle
             end
             solstr = obj.struct(idx);
             gsol = gt.Gsol(solstr);
-
-            if ~isempty(obj.perr)
-                gsol.perr = obj.perr.select(idx);
-            end
-            if ~isempty(obj.verr)
-                gsol.verr = obj.verr.select(idx);
-            end
         end
         %% selectTimeSpan
         function gsol = selectTimeSpan(obj, ts, te)
@@ -938,20 +936,21 @@ classdef Gsol < handle
             doc gt.Gsol
         end
         %% overload
-        function gsol = minus(obj, gsol)
+        function [perr, verr] = minus(obj, gobj)
             % minus: Subtract two Gsol objects
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj-gsol
+            %   [perr, verr] = obj-gobj
             %
             % Input: ------------------------------------------------------
             %   gsol : gt.Gsol/gt.Gpos/gt.Gvel object
             %
             % Output: -----------------------------------------------------
-            %   gsol : gt.Gsol object
+            %   perr : Position error, gt.Gerr object
+            %   verr : Velocity error, gt.Gerr object
             %
-            gsol = obj.difference(gsol);
+            [perr, verr] = obj.difference(gobj);
         end
     end
     %% private functions
