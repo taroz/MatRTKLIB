@@ -2,6 +2,8 @@ classdef Gtime < handle
     % Gtime: GPS time class
     % ---------------------------------------------------------------------
     % Gtime Declaration:
+    % gtime = Gtime();  Create empty gt.Gtime object
+    %
     % gtime = Gtime(epoch, [utcflag]);  Create gt.Gtime object from calendar
     %                                   time vector
     %   epoch   : Mx6, calendar time vector
@@ -71,7 +73,9 @@ classdef Gtime < handle
     methods
         %% constructor
         function obj = Gtime(varargin)
-            if nargin==1
+            if nargin==0 % generate empty object
+                obj.n = 0;
+            elseif nargin==1
                 if isdatetime(varargin{1})
                     obj.setDatetime(varargin{1}); % datetime
                 else

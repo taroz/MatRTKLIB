@@ -2,6 +2,8 @@ classdef Gvel < handle
     % Gvel: GNSS velocity class
     % ---------------------------------------------------------------------
     % Gvel Declaration:
+    % gvel = Gvel();  Create empty gt.Gvel object
+    %
     % gvel = Gvel(vel, 'type', [orgpos], ['orgtype']);
     %                            Create gt.Gerr object from velocity vector
     %   vel     : Mx3, Velocity vector
@@ -65,15 +67,10 @@ classdef Gvel < handle
     end
     methods
         %% constructor
-        function obj = Gvel(vel, veltype, org, orgtype)
-            arguments
-                vel (:,3) double
-                veltype (1,:) char {mustBeMember(veltype,{'xyz','enu'})}
-                org (1,3) double = [0, 0, 0]
-                orgtype (1,:) char {mustBeMember(orgtype,{'llh','xyz'})} = 'llh'
-            end
-            if nargin>=2; obj.setVel(vel, veltype); end
-            if nargin==4; obj.setOrg(org, orgtype); end
+        function obj = Gvel(varargin)
+            if nargin==0; obj.n = 0; end % generate empty object
+            if nargin>=2; obj.setVel(varargin{1}, varargin{2}); end
+            if nargin==4; obj.setOrg(varargin{3}, varargin{4}); end
         end
         %% setVel
         function setVel(obj, vel, veltype)

@@ -2,6 +2,8 @@ classdef Gcov < handle
     % Gcov: GNSS position/velocity covariance class
     % ---------------------------------------------------------------------
     % Gcov Declaration:
+    % gcov = Gcov();  Create empty gt.Gcov object
+    %
     % gcov = Gcov(cov, 'type', [orgpos], ['orgtype']);
     %                           Create gt.Gcov object from covariance vector
     %   cov      : Mx6, vector of elements of covariance
@@ -61,7 +63,9 @@ classdef Gcov < handle
     methods
         %% constructor
         function obj = Gcov(varargin)
-            if nargin == 1
+            if nargin==0 % generate empty object
+                obj.n = 0;
+            elseif nargin == 1
                 if isa(varargin{1},'gt.Gpos')
                     obj.setGpos(varargin{1});
                 elseif isa(varargin{1},'gt.Gvel')

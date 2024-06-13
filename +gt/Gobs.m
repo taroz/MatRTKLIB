@@ -76,6 +76,9 @@ classdef Gobs < handle
     %   plotSky(nav, [sidx]);          Plot satellite constellation
     %   help();                        Show help
     % ---------------------------------------------------------------------
+    % Gobs Overloads:
+    %   gobsSD =  obj - gobs;          Compute single-difference observations
+    % ---------------------------------------------------------------------
     % Author: Taro Suzuki
     %
     properties
@@ -106,8 +109,7 @@ classdef Gobs < handle
     methods
         %% constructor
         function obj = Gobs(varargin)
-            if nargin==0
-                % generate empty object
+            if nargin==0 % generate empty object
                 obj.n = 0;
                 obj.nsat = 0;
             elseif nargin==1 && (ischar(varargin{1}) || isStringScalar(varargin{1}))
@@ -1322,23 +1324,23 @@ classdef Gobs < handle
             doc gt.Gobs
         end
         %% overload
-        function gobs = minus(obj, gobs)
+        function gobsSD = minus(obj, gobs)
             % minus: Compute single difference
             % -------------------------------------------------------------
             % You can calculate single diffenrece only running obj - gobs.
             % This object and gobs object must be same size.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj - gobs
+            %   gobsSD = obj - gobs
             %
             % Output: -----------------------------------------------------
-            %   gobs: 1x1, gt.Gobs object with single difference
+            %   gobsSD: 1x1, gt.Gobs object with single difference
             %
             arguments
                 obj gt.Gobs
                 gobs gt.Gobs
             end
-            gobs = obj.singleDifference(gobs);
+            gobsSD = obj.singleDifference(gobs);
         end
     end
     %% Private functions

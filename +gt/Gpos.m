@@ -2,6 +2,8 @@ classdef Gpos < handle
     % Gpos: GNSS position class
     % ---------------------------------------------------------------------
     % Gpos Declaration:
+    % gpos = Gpos();  Create empty gt.Gpos object
+    %
     % gpos = Gpos(pos, 'type', [orgpos], ['orgtype']);
     %                            Create gt.Gpos object from position vector
     %   pos      : Mx3, Position vector
@@ -70,15 +72,10 @@ classdef Gpos < handle
     end
     methods
         %% constructor
-        function obj = Gpos(pos, postype, org, orgtype)
-            arguments
-                pos (:,3) double
-                postype (1,:) char {mustBeMember(postype,{'llh','xyz','enu'})}
-                org (1,3) double = [0, 0, 0]
-                orgtype (1,:) char {mustBeMember(orgtype,{'llh','xyz'})} = 'llh'
-            end
-            if nargin>=2; obj.setPos(pos, postype); end
-            if nargin==4; obj.setOrg(org, orgtype); end
+        function obj = Gpos(varargin)
+            if nargin==0; obj.n = 0; end % generate empty object
+            if nargin>=2; obj.setPos(varargin{1}, varargin{2}); end
+            if nargin==4; obj.setOrg(varargin{3}, varargin{4}); end
         end
         %% setPos
         function setPos(obj, pos, postype)

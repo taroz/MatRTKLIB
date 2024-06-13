@@ -2,6 +2,8 @@ classdef Gerr < handle
     % Gerr: GNSS position/velocity/acceleration error class
     % ---------------------------------------------------------------------
     % Gerr Declaration:
+    % gerr = Gerr();  Create empty gt.Gerr object
+    %
     % gerr = Gerr('errtype', err, 'coordtype', [orgpos], ['orgtype']);
     %                              Create gt.Gerr object from error vector
     %   errtype  : 1x1, Error type: 'position' or 'velocity' or 'acceleration'
@@ -75,25 +77,24 @@ classdef Gerr < handle
     end
     methods
         %% constructor
-        function obj = Gerr(errtype, err, coordtype, org, orgtype)
-            arguments
-                errtype (1,:) char {mustBeMember(errtype,{'position', 'velocity', 'acceleration'})}
-                err (:,3) double
-                coordtype (1,:) char {mustBeMember(coordtype,{'xyz','enu'})}
-                org (1,3) double = [0, 0, 0]
-                orgtype (1,:) char {mustBeMember(orgtype,{'llh','xyz'})} = 'llh'
+        function obj = Gerr(varargin)            
+            if nargin==0 % generate empty object
+                obj.n = 0;
+            elseif nargin>1
+                obj.type = varargin{1};
+                switch varargin{1}
+                    case 'position'
+                        obj.unit = '(m)';
+                    case 'velocity'
+                        obj.unit = '(m/s)';
+                    case 'acceleration'
+                        obj.unit = '(m/s^2)';
+                    otherwise
+                        error('errtype must be position or velocity or acceleration');
+                end
             end
-            obj.type = errtype;
-            switch errtype
-                case 'position'
-                    obj.unit = '(m)';
-                case 'velocity'
-                    obj.unit = '(m/s)';
-                case 'acceleration'
-                    obj.unit = '(m/s^2)';
-            end
-            if nargin>=3; obj.setErr(err, coordtype); end
-            if nargin==5; obj.setOrg(org, orgtype); end
+            if nargin>=3; obj.setErr(varargin{2}, varargin{3}); end
+            if nargin==5; obj.setOrg(varargin{4}, varargin{5}); end
         end
         %% setErr
         function setErr(obj, err, coordtype)
