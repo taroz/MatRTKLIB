@@ -525,6 +525,9 @@ classdef Gerr < handle
         function p2d = ptile2D(obj, p, idx)
             % ptile2D: Compute specified percentiles of 2D error
             % -------------------------------------------------------------
+            % If error contains NaN, NaN is also counted in percentile error.
+            % If you want to calculate the percentile error excluding NaN, 
+            % input the index excluding NaN into the function.
             %
             % Usage: ------------------------------------------------------
             %   p2d = obj.ptile2D([p], [idx])
@@ -546,12 +549,18 @@ classdef Gerr < handle
             if isempty(obj.d2)
                 error('enu must be set to a value');
             end
-            p2d = prctile(obj.d2(idx), p, 1);
+            d2_ = obj.d2(idx);
+            d2_(isnan(d2_)) = Inf;
+            p2d = prctile(d2_, p, 1);
+            p2d(p2d==Inf) = NaN;
         end
         %% ptile3D
         function p3d = ptile3D(obj, p, idx)
             % ptile3D: Compute specified percentiles of 3D error
             % -------------------------------------------------------------
+            % If error contains NaN, NaN is also counted in percentile error.
+            % If you want to calculate the percentile error excluding NaN, 
+            % input the index excluding NaN into the function.
             %
             % Usage: ------------------------------------------------------
             %   p3d = obj.ptile3D([p], [idx])
@@ -570,7 +579,10 @@ classdef Gerr < handle
                 p (1,:) double {mustBeVector} = 95
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
-            p3d = prctile(obj.d3(idx), p, 1);
+            d3_ = obj.d3(idx);
+            d3_(isnan(d3_)) = Inf;
+            p3d = prctile(d3_, p, 1);
+            p3d(p3d==Inf) = NaN;
         end
         %% cep
         function cep = cep(obj, idx)
@@ -914,12 +926,11 @@ classdef Gerr < handle
             if isempty(obj.d2)
                 error('enu must be set to a value');
             end
-            figure;
             y = 0:100;
             x = obj.ptile2D(y,idx);
 
             figure;
-            plot(x,y,',-');
+            plot(x,y,'-');
             grid on;
             xlabel(['Horizontal ' obj.type ' error ' obj.unit]);
             ylabel('Probability (%)');
@@ -941,12 +952,11 @@ classdef Gerr < handle
                 obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
-            figure;
             y = 0:100;
             x = obj.ptile3D(y,idx);
 
             figure;
-            plot(x,y,',-');
+            plot(x,y,'-');
             grid on;
             xlabel(['3D ' obj.type ' error ' obj.unit]);
             ylabel('Probability (%)');
