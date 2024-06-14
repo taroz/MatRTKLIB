@@ -908,7 +908,7 @@ classdef Gerr < handle
             %         Default: idx = 1:obj.n
             %
             arguments
-                obj gt.Gsol
+                obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             if isempty(obj.d2)
@@ -938,7 +938,7 @@ classdef Gerr < handle
             %         Default: idx = 1:obj.n
             %
             arguments
-                obj gt.Gsol
+                obj gt.Gerr
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
             figure;
