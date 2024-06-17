@@ -1004,8 +1004,8 @@ classdef Gobs < handle
                 obj gt.Gobs
                 gobsref gt.Gobs
             end
-            t = obj.roundDateTime(obj.time.t, obj.time.dt);
-            tref = obj.roundDateTime(gobsref.time.t, gobsref.time.dt);
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gobsref.time.t, gobsref.dt);
 
             [~,tidx1,tidx2] = intersect(tref,t);
             obsstr.n = gobsref.n;
