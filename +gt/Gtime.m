@@ -428,7 +428,7 @@ classdef Gtime < handle
                 obj gt.Gtime
                 idx {mustBeInteger, mustBeVector} = 1:obj.n
             end
-            dow = weekday(obj.t.t(idx));
+            dow = weekday(obj.t(idx));
         end
         %% sod
         function sod = sod(obj, idx)
