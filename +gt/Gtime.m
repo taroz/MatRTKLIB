@@ -21,8 +21,9 @@ classdef Gtime < handle
     %   ymd     : Mx3 or 1x3, [year, month, day]
     %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
-    % gtime = Gtime(t);  Create gt.Gtime object from MATLAB datetime
-    %   t       : Mx1, MATLAB datetime
+    % gtime = Gtime(t, [utcflag]);  Create gt.Gtime object from MATLAB datetime
+    %   t       : Mx1, MATLAB datetime vector
+    %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     % ---------------------------------------------------------------------
     % Gtime Properties:
     %   n       : 1x1, Number of epochs
@@ -36,7 +37,7 @@ classdef Gtime < handle
     %   setEpoch(epoch, [utcflag]); Set calendar time vector
     %   setGPST(tow, week);         Set GPS time of week and GPS week
     %   setSod(sod, ymd, [utcflag]);Set seconds of day
-    %   setDatetime(t);             Set MATLAB datetime
+    %   setDatetime(t, [utcflag]);  Set MATLAB datetime
     %   insert(idx, gtime);         Insert gt.Gtime object
     %   append(gtime);              Append gt.Gtime object
     %   addOffset(offset);          Add offset to time
@@ -82,7 +83,9 @@ classdef Gtime < handle
                     obj.setEpoch(varargin{1}); % epoch
                 end
             elseif nargin==2
-                if size(varargin{1}, 2) == 6
+                if isdatetime(varargin{1})
+                    obj.setDatetime(varargin{1}, varargin{2}); % datetime+utcflag
+                elseif size(varargin{1}, 2) == 6
                     obj.setEpoch(varargin{1}, varargin{2}); % epoch+utcflag
                 elseif size(varargin{1}, 2) == 1 && size(varargin{2}, 2) == 3
                     obj.setSod(varargin{1}, varargin{2}); % sod+ymd
@@ -180,23 +183,29 @@ classdef Gtime < handle
             obj.n = size(obj.ep,1);
         end
         %% setDatetime
-        function setDatetime(obj, t)
+        function setDatetime(obj, t, utcflag)
             % setDatetime: Set MATLAB datetime
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.setDatetime(tow, week)
+            %   obj.setDatetime(t, [utcflag])
             %
             % Input: ------------------------------------------------------
-            %   tow : Mx1, Time of week in GPST (s)
-            %   week: Mx1 or 1x1, GPS week
+            %   t : Mx1, MATLAB datetime vector in GPST
+            %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC (optional)
+            %               Default: utcflag = 0
             %
             arguments
                 obj gt.Gtime
                 t (:,1) datetime
+                utcflag (1,1) {mustBeInteger} = 0
             end
-            obj.t = t;
-            obj.ep = [t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second];
+            ep_ = [t.Year, t.Month, t.Day, t.Hour, t.Minute, t.Second];
+            if utcflag
+                ep_ = rtklib.utc2gpst(ep_);
+            end
+            obj.ep = ep_;
+            obj.t = obj.ep2datetime(obj.ep);
             [obj.tow, obj.week] = rtklib.epoch2tow(obj.ep);
             obj.n = size(obj.ep,1);
         end
@@ -700,7 +709,7 @@ classdef Gtime < handle
         function tr = roundDateTime(~, t, dt)
             pt = posixtime(t);
             pt = round(pt/dt)*dt;
-            tr = datetime(pt, "ConvertFrom", "posixtime");
+            tr = datetime(pt, "ConvertFrom", "posixtime", "TimeZone", "UTC");
         end
         %% Convert hms to seconds of day
         function sod = hms2sod(~, hms)
@@ -728,7 +737,7 @@ classdef Gtime < handle
                 ep (:,6) double
             end
             t = datetime(ep(:,1),ep(:,2),ep(:,3),ep(:,4),ep(:,5),fix(ep(:,6)),...
-                round(1000*(ep(:,6)-fix(ep(:,6))))); % ms
+                round(1000*(ep(:,6)-fix(ep(:,6)))), "TimeZone", "UTC"); % ms
         end
     end
 end
