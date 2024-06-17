@@ -1014,9 +1014,9 @@ classdef Gobs < handle
             obsstr.prn = obj.prn;
             obsstr.sys = double(obj.sys);
             obsstr.satstr = obj.satstr;
-            obsstr.ep = gobsref.time.ep;
-            obsstr.tow = gobsref.time.tow;
-            obsstr.week = gobsref.time.week;
+            obsstr.ep = obj.time.ep(tidx2,:);
+            obsstr.tow = obj.time.tow(tidx2,:);
+            obsstr.week = obj.time.week(tidx2,:);
 
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
