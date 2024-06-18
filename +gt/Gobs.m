@@ -397,7 +397,9 @@ classdef Gobs < handle
             gobs = obj.copy();
             for f = freq
                 if ~isempty(gobs.(f))
-                    gobs.(f).P(mask) = NaN;
+                    if isfield(gobs.(f),'P')
+                        gobs.(f).P(mask) = NaN;
+                    end
                     if isfield(gobs.(f),'resP')
                         gobs.(f).resP(mask) = NaN;
                         gobs.(f).resPc(mask) = NaN;
@@ -446,7 +448,9 @@ classdef Gobs < handle
             gobs = obj.copy();
             for f = freq
                 if ~isempty(gobs.(f))
-                    gobs.(f).D(mask) = NaN;
+                    if isfield(gobs.(f),'D')
+                        gobs.(f).D(mask) = NaN;
+                    end
                     if isfield(gobs.(f),'resD')
                         gobs.(f).resD(mask) = NaN;
                         gobs.(f).resDc(mask) = NaN;
@@ -489,7 +493,9 @@ classdef Gobs < handle
             gobs = obj.copy();
             for f = freq
                 if ~isempty(gobs.(f))
-                    gobs.(f).L(mask) = NaN;
+                    if isfield(gobs.(f),'L')
+                        gobs.(f).L(mask) = NaN;
+                    end
                     if isfield(gobs.(f),'resL')
                         gobs.(f).resL(mask) = NaN;
                         gobs.(f).resLc(mask) = NaN;
