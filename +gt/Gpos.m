@@ -215,7 +215,7 @@ classdef Gpos < handle
                 offset (:,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
             end
-            if size(offset,1)~=obj.n || size(offset,1)~=1
+            if size(offset,1)~=obj.n && size(offset,1)~=1
                 error("Size of offset must be obj.n or 1");
             end
             switch coordtype
@@ -254,15 +254,15 @@ classdef Gpos < handle
                 obj gt.Gpos
                 gpos gt.Gpos
             end
-            if obj.n ~= gpos.n
-                error('size of the two gt.Gpos must be same')
+            if obj.n ~= gpos.n && gpos.n ~= 1
+                error('Size of gpos must be obj.n or 1')
             end
             if ~isempty(obj.xyz) && ~isempty(gpos.xyz)
                 gerr = gt.Gerr('position', obj.xyz - gpos.xyz, 'xyz');
             elseif ~isempty(obj.enu) && ~isempty(gpos.enu)
                 gerr = gt.Gerr('position', obj.enu - gpos.enu, 'enu');
             else
-                error('two gt.Gpos must have both xyz or enu')
+                error('Two gt.Gpos must have both xyz or enu')
             end
             if ~isempty(gpos.orgllh)
                 gerr.setOrg(gpos.orgllh, 'llh')

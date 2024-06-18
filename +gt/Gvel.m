@@ -203,7 +203,7 @@ classdef Gvel < handle
                 offset (:,3) double
                 coordtype (1,:) char {mustBeMember(coordtype,{'enu','xyz'})} = 'enu'
             end
-            if size(offset,1)~=obj.n || size(offset,1)~=1
+            if size(offset,1)~=obj.n && size(offset,1)~=1
                 error("Size of offset must be obj.n or 1");
             end
             switch coordtype
@@ -237,8 +237,8 @@ classdef Gvel < handle
                 obj gt.Gvel
                 gvel gt.Gvel
             end
-            if obj.n ~= gvel.n
-                error('size of the two gt.Gvel must be same')
+            if obj.n ~= gvel.n && gvel.n ~= 1
+                error('Size of gvel must be obj.n or 1')
             end
             if ~isempty(obj.xyz) && ~isempty(gvel.xyz)
                 gerr = gt.Gerr('velocity', obj.xyz - gvel.xyz, 'xyz');
