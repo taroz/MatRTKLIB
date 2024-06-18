@@ -652,6 +652,8 @@ classdef Gpos < handle
         function gh = geoid(obj, idx)
             % geoid: Compute geoid height
             % -------------------------------------------------------------
+            % RTKLIB internal Geoid model (EGM96 1°x1°) is used to compute
+            % geoid height.
             %
             % Usage: ------------------------------------------------------
             %   gh = obj.geoid([idx])
@@ -680,6 +682,8 @@ classdef Gpos < handle
         function oh = orthometric(obj, idx)
             % orthometric: Compute orthometric height
             % -------------------------------------------------------------
+            % RTKLIB internal Geoid model (EGM96 1°x1°) is used to compute
+            % geoid height.
             %
             % Usage: ------------------------------------------------------
             %   oh = obj.orthometric([idx])

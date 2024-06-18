@@ -43,7 +43,7 @@ classdef Gsol < handle
     %   sol = struct([idx]);           Convert from gt.Gsol object to solution struct
     %   gsol = fixedInterval([dt]);    Resampling solution at fixed interval
     %   [gsol,gsolref] = common(gsolref);      Extract common time with reference solution
-    %   gobs = obj.sameSat(gobsref);           Same time as reference solution
+    %   gobs = obj.same(gobsref);              Same time as reference solution
     %   [gpos, gcov] = mean([stat],[idx]);     Compute the position and covariance
     %   [mllh, sdenu] = meanLLH([stat],[idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([stat],[idx]); Compute mean ECEF position and standard deviation
@@ -547,7 +547,7 @@ classdef Gsol < handle
             tr = obj.roundDateTime(obj.time.t,2);
             tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',2);
             nfix = length(tfixr);
-            tfix = NaT(nfix,1);
+            tfix = NaT(nfix,1,"TimeZone","UTC");
             [~, idx1,idx2] = intersect(tfixr,tr);
             tfix(idx1) = obj.time.t(idx2);
             tfix = fillmissing(tfix,'linear');
@@ -615,8 +615,8 @@ classdef Gsol < handle
             gsolrefc = gsolref.select(tindref);
         end
         %% sameSol
-        function gsol = sameSol(obj, gsolref)
-            % sameSol: Same time as reference solution
+        function gsol = same(obj, gsolref)
+            % same: Same time as reference solution
             % -------------------------------------------------------------
             % Create an gt.Gsol object whose time are consistent with
             % the reference gt.Gsol object.
@@ -627,7 +627,7 @@ classdef Gsol < handle
             % solution, NaN is inserted into the solution.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.sameSat(gobsref)
+            %   gobs = obj.same(gobsref)
             %
             % Input: ------------------------------------------------------
             %   gobsref : 1x1, Reference gt.Gobs object
@@ -639,9 +639,50 @@ classdef Gsol < handle
                 obj gt.Gsol
                 gsolref gt.Gsol
             end
+            if isempty(obj.pos.xyz)
+                type = 1; % 0:xyz-ecef,1:enu-baseline
+            else
+                type = 0; % 0:xyz-ecef,1:enu-baseline
+            end
+            
+            solstr_ = obj.struct;
+            n_ = gsolref.n;
+            solstr.n = n_;
 
-            % To DO
-            gsol = gsolref;
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gsolref.time.t, gsolref.dt);
+
+            [~,idx1,idx2] = intersect(tref,t);
+
+            ep_ = gsolref.time.ep;
+            ep_(idx1,:) = obj.time.ep(idx2,:);
+            solstr.ep = ep_;
+
+            solstr.rb = obj.pos.orgxyz;
+
+            solstr.rr = NaN(n_,6);
+            solstr.qr = NaN(n_,6);
+            solstr.qv = NaN(n_,6);
+            solstr.dtr = NaN(n_,6);
+            solstr.type = type*ones(n_,1);
+            solstr.stat = zeros(n_,1);
+            solstr.ns = NaN(n_,1);
+            solstr.age = NaN(n_,1);
+            solstr.ratio = NaN(n_,1);
+            solstr.thres = zeros(n_,1);
+
+            solstr.rr(idx1,:) = solstr_.rr(idx2,:);
+            solstr.qr(idx1,:) = solstr_.qr(idx2,:);
+            solstr.qv(idx1,:) = solstr_.qv(idx2,:);
+            solstr.dtr(idx1,:) = solstr_.dtr(idx2,:);
+            solstr.type(idx1) = solstr_.type(idx2,:);
+            solstr.stat(idx1) = solstr_.stat(idx2,:);
+            solstr.ns(idx1) = solstr_.ns(idx2,:);
+            solstr.age(idx1) = solstr_.age(idx2,:);
+            solstr.ratio(idx1) = solstr_.ratio(idx2,:);
+            solstr.thres(idx1) = solstr_.thres(idx2,:);
+
+            gsol = gt.Gsol(solstr);
         end
         %% mean
         function [gpos, gcov] = mean(obj, stat, idx)
@@ -959,12 +1000,13 @@ classdef Gsol < handle
         function c = insertdata(~,a,idx,b)
             c = [a(1:size(a,1)<idx,:); b; a(1:size(a,1)>=idx,:)];
         end
-        %% round datetime
-        function dtr = roundDateTime(~, dt, dec)
-
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        %% Round datetime
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime", "TimeZone", "UTC");
         end
-        %% plot with solution status
+        %% Plot with solution status
         function plotSolStat(~, x, y, stat, lflag)
             plot(x, y, '-', 'Color', gt.C.C_LINE);
             grid on; hold on;

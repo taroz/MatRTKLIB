@@ -785,7 +785,7 @@ classdef Gobs < handle
             tr = obj.roundDateTime(obj.time.t, obj.dt);
             tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))', dt);
             nfix = length(tfixr);
-            tfix = NaT(nfix,1);
+            tfix = NaT(nfix,1,"TimeZone","UTC");
             [~, idx1,idx2] = intersect(tfixr,tr);
             tfix(idx1) = obj.time.t(idx2);
             tfix = fillmissing(tfix,'linear');
@@ -960,12 +960,7 @@ classdef Gobs < handle
             obsstr.n = obj.n;
             obsstr.nsat = gobsref.nsat;
             obsstr.sat = gobsref.sat;
-            obsstr.prn = gobsref.prn;
-            obsstr.sys = double(gobsref.sys);
-            obsstr.satstr = gobsref.satstr;
             obsstr.ep = obj.time.ep;
-            obsstr.tow = obj.time.tow;
-            obsstr.week = obj.time.week;
 
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
@@ -1011,12 +1006,10 @@ classdef Gobs < handle
             obsstr.n = gobsref.n;
             obsstr.nsat = obj.nsat;
             obsstr.sat = obj.sat;
-            obsstr.prn = obj.prn;
-            obsstr.sys = double(obj.sys);
-            obsstr.satstr = obj.satstr;
-            obsstr.ep = obj.time.ep(tidx2,:);
-            obsstr.tow = obj.time.tow(tidx2,:);
-            obsstr.week = obj.time.week(tidx2,:);
+
+            ep_ = gobsref.time.ep;
+            ep_(tidx1,:) = obj.time.ep(tidx2,:);
+            obsstr.ep = ep_;
 
             for f = obj.FTYPE
                 if ~isempty(obj.(f))
@@ -1353,7 +1346,7 @@ classdef Gobs < handle
         function tr = roundDateTime(~, t, dt)
             pt = posixtime(t);
             pt = round(pt/dt)*dt;
-            tr = datetime(pt, "ConvertFrom", "posixtime");
+            tr = datetime(pt, "ConvertFrom", "posixtime", "TimeZone", "UTC");
         end
         %% Select LLI
         function Isel = selectLLI(~,I,tind,sind)

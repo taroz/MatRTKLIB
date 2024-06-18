@@ -470,10 +470,10 @@ classdef Gsat < handle
                 ts gt.Gtime
                 te gt.Gtime
             end
-            ndec = floor(-log10(obj.time.estInterval()));
-            tr = obj.roundDateTime(obj.time.t,ndec);
-            tsr = obj.roundDateTime(ts.t,ndec);
-            ter = obj.roundDateTime(te.t,ndec);
+            dt = obj.time.estInterval();
+            tr = obj.roundDateTime(obj.time.t, dt);
+            tsr = obj.roundDateTime(ts.t, dt);
+            ter = obj.roundDateTime(te.t, dt);
             tidx = tr>=tsr & tr<=ter;
             gsat = obj.selectTime(tidx);
         end
@@ -641,13 +641,13 @@ classdef Gsat < handle
     end
     %% Private functions
     methods(Access=private)
-        %% update azimuth and elevation for skyplot (using navigation toolbox)
+        %% Update azimuth and elevation for skyplot (using navigation toolbox)
         % function update_azel(obj, sld, txt, sp)
         %     idx = uint32(sld.Value);
         %     set(sp,AzimuthData=obj.az(1:idx,:), ElevationData=obj.el(1:idx,:));
         %     txt.String = string(obj.time.t(idx),'yyyy-MM-dd HH:mm:ss.S');
         % end
-        %% update azimuth and elevation for skyplot
+        %% Update azimuth and elevation for skyplot
         function update_azel(obj, sld, txt, ps, uniquesys)
             idx = uint32(sld.Value);
             txt.String = string(obj.time.t(idx),'yyyy-MM-dd HH:mm:ss.S');
@@ -659,9 +659,11 @@ classdef Gsat < handle
                 ps(i).RData = el_(idx,:);
             end
         end
-        %% round datetime
-        function dtr = roundDateTime(~, dt, dec)
-            dtr = dateshift(dt,'start','minute') + seconds(round(second(dt),dec));
+        %% Round datetime
+        function tr = roundDateTime(~, t, dt)
+            pt = posixtime(t);
+            pt = round(pt/dt)*dt;
+            tr = datetime(pt, "ConvertFrom", "posixtime", "TimeZone", "UTC");
         end
     end
 end
