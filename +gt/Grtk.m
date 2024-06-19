@@ -5,8 +5,11 @@ classdef Grtk < handle
     % grtk = Grtk(file);  Create gt.Grtk object from config file
     %   file   : 1x1, RTKLIB configuration file (???.conf)
     %
+    % grtk = Grtk(gopt);  Create gt.Grtk object from gt.Gopt object
+    %   gopt   : 1x1, gt.Gopt object
+    %
     % grtk = Grtk(rtkstr);  Create gt.Grtk object from RTK control struct
-    %   optstr : 1x1, RTK control struct
+    %   rtkstr : 1x1, RTK control struct
     % ---------------------------------------------------------------------
     % Grtk Properties:
     %   n      : 1x1, Number of epochs
@@ -52,6 +55,8 @@ classdef Grtk < handle
                 obj.setRtkFile(varargin{1}); % file
             elseif nargin==1 && isstruct(varargin{1})
                 obj.setRtkStruct(varargin{1}); % opt struct
+            elseif nargin==1 && isa(varargin{1},"gt.Gopt") % 
+                obj.setRtkObject(varargin{1}); % gt.Gopt
             else
                 error('Wrong input arguments');
             end
@@ -103,6 +108,24 @@ classdef Grtk < handle
             obj.tt = trtk.tt;
             obj.rb = trtk.rb;
             obj.errmsg = trtk.errmsg;
+        end
+        %% setRtkObject
+        function setRtkObject(obj, gopt)
+            % setRtkObject: Set RTK data from gt.Gobj object
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setRtkObject(gopt)
+            %
+            % Input: ------------------------------------------------------
+            %   gopt: 1x1, gt.Gobj object
+            %
+            arguments
+                obj gt.Grtk
+                gopt gt.Gopt
+            end
+            rtkstr = rtklib.rtkinit(gopt.struct);
+            obj.setRtkStruct(rtkstr);
         end
         %% copy
         function grtk = copy(obj)
