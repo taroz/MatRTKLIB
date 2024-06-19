@@ -1,9 +1,9 @@
 clear; clc; close all;
 addpath ..\
-basepath = ".\data\";
+datapath = ".\data\kinematic\";
 
 %% Read RINEX observation file
-gobs = gt.Gobs(basepath+"rover_1Hz.obs");
+gobs = gt.Gobs(datapath+"rover_1Hz.obs");
 
 %% Fixed observation interval
 % Observations missing a few seconds due to satellite signal blockage

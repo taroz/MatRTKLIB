@@ -1,16 +1,19 @@
-clear; clc; close all;
+clear;
+clc; close all;
 addpath ..\
-datapath = ".\data\";
+datapath = ".\data\kinematic\";
 
 %% Read RINEX observation file
 gobs = gt.Gobs(datapath+"rover_1Hz.obs");
 
 %% Exclude satellite system
+% Plot number of satellites
 gobs.plotNSat();
 
 % Exclude satellite
 gobs_exsys = gobs.selectSat(gobs.sys==gt.C.SYS_GPS); % Only GPS
 
+% Plot number of satellites
 gobs_exsys.plotNSat();
 
 %% Exclude G05 and G06

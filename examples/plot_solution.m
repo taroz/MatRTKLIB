@@ -1,9 +1,9 @@
 clear; clc; close all;
 addpath ..\
-basepath = ".\data\";
+datapath = ".\data\kinematic\";
 
 %% Read RTKLIB solution file
-gsol = gt.Gsol(basepath+"rover_rtk.pos");
+gsol = gt.Gsol(datapath+"rover_rtk.pos");
 
 %% Plot solution file
 gsol.plot();

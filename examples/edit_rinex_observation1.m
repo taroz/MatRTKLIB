@@ -1,9 +1,9 @@
 clear; clc; close all;
 addpath ..\
-basepath = ".\data\";
+datapath = ".\data\kinematic\";
 
 %% Read RINEX observation file
-gobs = gt.Gobs(basepath+"rover.obs");
+gobs = gt.Gobs(datapath+"rover.obs");
 
 %% Change observation interval
 % 0.2s (5Hz) to 1.0s (1Hz)
@@ -12,4 +12,4 @@ gobs_1Hz = gobs.fixedInterval(1.0);
 fprintf('observation interval: %f\n', gobs_1Hz.dt);
 
 %% Write RINEX observation
-gobs_1Hz.outObs(basepath+"rover_1Hz.obs");
+gobs_1Hz.outObs(datapath+"rover_1Hz.obs");

@@ -1,6 +1,6 @@
 clear; clc; close all;
 addpath ..\
-basepath = ".\data\";
+basepath = ".\data\static\";
 
 %% Read RINEX navigation and observation files
 gnav = gt.Gnav(basepath+"base.nav");
@@ -12,7 +12,7 @@ gsat = gt.Gsat(gobs,gnav);
 % Set receiver position
 gsat.setRcvPos(gobs.pos);
 
-%% Plot satellite constellation
+%% Plot satellite elevation and azimuth
 % GPS satellite index
 idxgps = gsat.sys==gt.C.SYS_GPS; 
 
@@ -31,6 +31,7 @@ plot(gsat.time.t,gsat.az(:,idxgps),"LineWidth",2);
 ylabel("Azimuth angle (deg)")
 grid on
 
+% Show satellite name
 lg = legend(gsat.satstr(idxgps));
 lg.Layout.Tile = "East";
 linkaxes([ax1 ax2],"x");
