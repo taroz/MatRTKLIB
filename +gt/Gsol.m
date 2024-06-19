@@ -544,8 +544,8 @@ classdef Gsol < handle
                 type = 0; % 0:xyz-ecef,1:enu-baseline
             end
 
-            tr = obj.roundDateTime(obj.time.t,2);
-            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',2);
+            tr = obj.roundDateTime(obj.time.t,obj.dt);
+            tfixr = obj.roundDateTime((tr(1):seconds(dt):tr(end))',dt);
             nfix = length(tfixr);
             tfix = NaT(nfix,1,"TimeZone","UTC");
             [~, idx1,idx2] = intersect(tfixr,tr);
@@ -608,9 +608,9 @@ classdef Gsol < handle
                 obj gt.Gsol
                 gsolref gt.Gsol
             end
-            t = obj.roundDateTime(obj.time.t,2);
-            tref = obj.roundDateTime(gsolref.time.t,2);
-            [~,tind,tindref] = intersect(t,tref);
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gsolref.time.t, gsolref.dt);
+            [~,tind,tindref] = intersect(t, tref);
             gsolc = obj.select(tind);
             gsolrefc = gsolref.select(tindref);
         end
