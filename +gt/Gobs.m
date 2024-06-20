@@ -52,7 +52,7 @@ classdef Gobs < handle
     %   maskD(mask, [freq]);           Apply mask to Doppler observations
     %   maskL(mask, [freq]);           Apply mask to carrier phase observations
     %   mask(mask, [freq]);            Apply mask to observations
-    %   maskLLI(mask, [freq]);         Apply mask to carrier phase from LLI flag
+    %   maskLLI(mask);                 Apply mask to carrier phase from LLI flag
     %   gobs = eliminateNaN();         Eliminate satellites whose observations are all NaN
     %   gobs = copy();                 Copy object
     %   gobs = select(tidx, sidx);     Select observation from time/satellite index
@@ -369,22 +369,19 @@ classdef Gobs < handle
             obj.setObsStruct(obsstr);
         end
         %% maskP
-        function gobs = maskP(obj, mask, freq)
+        function maskP(obj, mask, freq)
             % maskP: Apply mask to pseudorange observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
             % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.maskP(mask, freq)
+            %   obj.maskP(mask, [freq])
             %
             % Input: ------------------------------------------------------
             %   mask : (obj.n)x(obj.nsat), Logical index array to mask
             %  [freq] : String array of frequency types to mask (e.g. "L1")
             %          (optional) Default: obj.FTYPE (all frequencies)
-            %
-            % Output: -----------------------------------------------------
-            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
@@ -394,48 +391,44 @@ classdef Gobs < handle
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
             end
-            gobs = obj.copy();
             for f = freq
-                if ~isempty(gobs.(f))
-                    if isfield(gobs.(f),'P')
-                        gobs.(f).P(mask) = NaN;
+                if ~isempty(obj.(f))
+                    if isfield(obj.(f),'P')
+                        obj.(f).P(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'resP')
-                        gobs.(f).resP(mask) = NaN;
-                        gobs.(f).resPc(mask) = NaN;
+                    if isfield(obj.(f),'resP')
+                        obj.(f).resP(mask) = NaN;
+                        obj.(f).resPc(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'Pd')
-                        gobs.(f).Pd(mask) = NaN;
-                        if isfield(gobs.(f),'resPd')
-                            gobs.(f).resPd(mask) = NaN;
+                    if isfield(obj.(f),'Pd')
+                        obj.(f).Pd(mask) = NaN;
+                        if isfield(obj.(f),'resPd')
+                            obj.(f).resPd(mask) = NaN;
                         end
                     end
-                    if isfield(gobs.(f),'Pdd')
-                        gobs.(f).Pdd(mask) = NaN;
-                        if isfield(gobs.(f),'resPdd')
-                            gobs.(f).resPdd(mask) = NaN;
+                    if isfield(obj.(f),'Pdd')
+                        obj.(f).Pdd(mask) = NaN;
+                        if isfield(obj.(f),'resPdd')
+                            obj.(f).resPdd(mask) = NaN;
                         end
                     end
                 end
             end
         end
         %% maskD
-        function gobs = maskD(obj, mask, freq)
+        function maskD(obj, mask, freq)
             % maskD: Apply mask to Doppler observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
             % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.maskD(mask, freq)
+            %   obj.maskD(mask, [freq])
             %
             % Input: ------------------------------------------------------
             %   mask : (obj.n)x(obj.nsat), Logical index array to mask
             %  [freq] : String array of frequency types to mask (e.g. "L1")
             %          (optional) Default: obj.FTYPE (all frequencies)
-            %
-            % Output: -----------------------------------------------------
-            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
@@ -445,42 +438,38 @@ classdef Gobs < handle
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
             end
-            gobs = obj.copy();
             for f = freq
-                if ~isempty(gobs.(f))
-                    if isfield(gobs.(f),'D')
-                        gobs.(f).D(mask) = NaN;
+                if ~isempty(obj.(f))
+                    if isfield(obj.(f),'D')
+                        obj.(f).D(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'resD')
-                        gobs.(f).resD(mask) = NaN;
-                        gobs.(f).resDc(mask) = NaN;
+                    if isfield(obj.(f),'resD')
+                        obj.(f).resD(mask) = NaN;
+                        obj.(f).resDc(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'Dd')
-                        gobs.(f).Dd(mask) = NaN;
-                        if isfield(gobs.(f),'resDd')
-                            gobs.(f).resDd(mask) = NaN;
+                    if isfield(obj.(f),'Dd')
+                        obj.(f).Dd(mask) = NaN;
+                        if isfield(obj.(f),'resDd')
+                            obj.(f).resDd(mask) = NaN;
                         end
                     end
                 end
             end
         end
         %% maskL
-        function gobs = maskL(obj, mask, freq)
+        function maskL(obj, mask, freq)
             % maskL: Apply mask to carrier phase observations
             % -------------------------------------------------------------
             % Mask size must be [obj.n, obj.nsat].
             % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.maskL(mask, freq)
+            %   obj.maskL(mask, [freq])
             %
             % Input: ------------------------------------------------------
             %   mask : (obj.n)x(obj.nsat), Logical index array to mask
             %  [freq] : String array of frequency types to mask (e.g. "L1")
             %          (optional) Default: obj.FTYPE (all frequencies)
-            %
-            % Output: -----------------------------------------------------
-            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
@@ -490,33 +479,32 @@ classdef Gobs < handle
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
             end
-            gobs = obj.copy();
             for f = freq
-                if ~isempty(gobs.(f))
-                    if isfield(gobs.(f),'L')
-                        gobs.(f).L(mask) = NaN;
+                if ~isempty(obj.(f))
+                    if isfield(obj.(f),'L')
+                        obj.(f).L(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'resL')
-                        gobs.(f).resL(mask) = NaN;
-                        gobs.(f).resLc(mask) = NaN;
+                    if isfield(obj.(f),'resL')
+                        obj.(f).resL(mask) = NaN;
+                        obj.(f).resLc(mask) = NaN;
                     end
-                    if isfield(gobs.(f),'Ld')
-                        gobs.(f).Ld(mask) = NaN;
-                        if isfield(gobs.(f),'resLd')
-                            gobs.(f).resLd(mask) = NaN;
+                    if isfield(obj.(f),'Ld')
+                        obj.(f).Ld(mask) = NaN;
+                        if isfield(obj.(f),'resLd')
+                            obj.(f).resLd(mask) = NaN;
                         end
                     end
-                    if isfield(gobs.(f),'Ldd')
-                        gobs.(f).Ldd(mask) = NaN;
-                        if isfield(gobs.(f),'resLdd')
-                            gobs.(f).resLdd(mask) = NaN;
+                    if isfield(obj.(f),'Ldd')
+                        obj.(f).Ldd(mask) = NaN;
+                        if isfield(obj.(f),'resLdd')
+                            obj.(f).resLdd(mask) = NaN;
                         end
                     end
                 end
             end
         end
         %% mask
-        function gobs = mask(obj, mask, freq)
+        function mask(obj, mask, freq)
             % mask: Apply mask to observations
             % -------------------------------------------------------------
             % Apply mask to pseudorange, Doppler, and carrier phase.
@@ -524,15 +512,12 @@ classdef Gobs < handle
             % The masked observations will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.mask(mask, freq)
+            %   obj.mask(mask, [freq])
             %
             % Input: ------------------------------------------------------
             %   mask : (obj.n)x(obj.nsat), Logical index array to mask
             %  [freq] : String array of frequency types to mask (e.g. "L1")
             %          (optional) Default: obj.FTYPE (all frequencies)
-            %
-            % Output: -----------------------------------------------------
-            %   gobs : 1x1, gt.Gobs object with masked observations
             %
             arguments
                 obj gt.Gobs
@@ -542,23 +527,19 @@ classdef Gobs < handle
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match the observations');
             end
-            gobs = obj.copy();
-            gobs = gobs.maskP(mask,freq);
-            gobs = gobs.maskL(mask,freq);
-            gobs = gobs.maskD(mask,freq);
+            obj.maskP(mask,freq);
+            obj.maskL(mask,freq);
+            obj.maskD(mask,freq);
         end
         %% maskLLI
-        function gobs = maskLLI(obj)
+        function maskLLI(obj)
             % maskLLI: Apply mask to carrier phase from LLI flag
             % -------------------------------------------------------------
             % Carrier phase observations for cycle slip and half-cycle slip
             % will be NaN.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.maskLLI()
-            %
-            % Output: -----------------------------------------------------
-            %   gobs: 1x1, gt.Gobs object with masked observations
+            %   obj.maskLLI()
             %
             arguments
                 obj gt.Gobs
