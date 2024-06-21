@@ -56,6 +56,8 @@ classdef Gpos < handle
     %   up = up([idx]);                 Get local up position
     %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   plot([idx]);                    Plot position
+    %   plotMap([idx]);                 Plot position to map
+    %   plotSatMap([idx]);              Plot position to satellite map
     %   help();                         Show help
     % ---------------------------------------------------------------------
     % Gpos Overloads:
@@ -923,7 +925,7 @@ classdef Gpos < handle
         end
         %% outKML
         function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
-            % outkml: Output Google Earth KML file
+            % outKML: Output Google Earth KML file
             % -------------------------------------------------------------
             % Output Google Earth KML file. If Google Earth is installed, 
             % it will automatically open the KML file by default.
@@ -1024,6 +1026,49 @@ classdef Gpos < handle
             grid on;
             ylabel('Up (m)');
             drawnow
+        end
+        %% plotMap
+        function plotMap(obj, idx)
+            % plotMap: Plot position to map
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotMap([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
+            %
+            arguments
+                obj gt.Gpos
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+            end
+            if isempty(obj.llh)
+                error('llh must be set to a value');
+            end
+
+            figure;
+            geoplot(obj.lat(idx),obj.lon(idx),"r.-");
+            drawnow
+        end
+        %% plotSatMap
+        function plotSatMap(obj, idx)
+            % plotSatMap: Plot position to satellite map
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotSatMap([idx])
+            %
+            % Input: ------------------------------------------------------
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
+            %
+            arguments
+                obj gt.Gpos
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+            end
+            obj.plotMap(idx);
+            geobasemap("satellite");
         end
         %% help
         function help(~)

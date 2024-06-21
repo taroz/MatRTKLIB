@@ -53,6 +53,8 @@ classdef Gsol < handle
     %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   plot([stat],[idx]);            Plot solution position
     %   plotAll([stat],[idx]);         Plot all solution
+    %   plotMap([stat],[idx]);         Plot solution to map
+    %   plotSatMap([stat],[idx]);      Plot solution to satellite map
     %   help();                        Show help
     % ---------------------------------------------------------------------
     % Gsol Overloads:
@@ -873,7 +875,7 @@ classdef Gsol < handle
 
         %% outKML
         function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
-            % outkml: Output Google Earth KML file
+            % outKML: Output Google Earth KML file
             % -------------------------------------------------------------
             % Output Google Earth KML file. If Google Earth is installed, 
             % it will automatically open the KML file by default.
@@ -1038,6 +1040,62 @@ classdef Gsol < handle
 
             linkaxes([a1 a2 a3 a4],'x');
             drawnow
+        end
+        %% plotMap
+        function plotMap(obj, stat, idx)
+            % plotMap: Plot solution to map
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotMap(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %  [stat]: Solution status to plot (optional)
+            %          0:ALL, SOLQ_XXX, Default: stat = 0
+            %  [idx] : Logical or numeric index to select (optional)
+            %          Default: idx = 1:obj.n
+            %
+            arguments
+                obj gt.Gsol
+                stat (1,1) {mustBeInteger} = 0
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+            end
+            if isempty(obj.pos.llh)
+                error('llh must be set to a value');
+            end
+            gsol = obj.select(idx);
+            if stat==0
+                idxstat = true(gsol.n,1);
+            else
+                idxstat = gsol.stat==stat;
+            end
+            figure;
+            geoplot(obj.pos.lat(idxstat),obj.pos.lon(idxstat),"color",[0.2 0.2 0.2]);
+            hold on;
+            geoscatter(obj.pos.lat(idxstat),obj.pos.lon(idxstat),20,gt.C.C_SOL(obj.stat(idxstat),:),"filled");
+            drawnow
+        end
+        %% plotSatMap
+        function plotSatMap(obj, stat, idx)
+            % plotSatMap: Plot solution to satellite map
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.plotSatMap(stat, idx)
+            %
+            % Input: ------------------------------------------------------
+            %  [stat]: Solution status to plot (optional)
+            %          0:ALL, SOLQ_XXX, Default: stat = 0
+            %  [idx] : Logical or numeric index to select (optional)
+            %          Default: idx = 1:obj.n
+            %
+            arguments
+                obj gt.Gsol
+                stat (1,1) {mustBeInteger} = 0
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+            end
+            obj.plotMap(stat, idx);
+            geobasemap("satellite");
         end
         %% help
         function help(~)
