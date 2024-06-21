@@ -386,10 +386,13 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
+            end
+            if freq=="ALL"
+                freq = obj.FTYPE;
             end
             for f = freq
                 if ~isempty(obj.(f))
@@ -433,10 +436,13 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
+            end
+            if freq=="ALL"
+                freq = obj.FTYPE;
             end
             for f = freq
                 if ~isempty(obj.(f))
@@ -474,10 +480,13 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
+            end
+            if freq=="ALL"
+                freq = obj.FTYPE;
             end
             for f = freq
                 if ~isempty(obj.(f))
@@ -522,7 +531,7 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string = obj.FTYPE
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match the observations');
@@ -1196,7 +1205,7 @@ classdef Gobs < handle
             %
             arguments
                 obj gt.Gobs
-                freq (1,2) char {mustBeMember(freq,{'L1','L2','L5','L6','L7','L8','L9'})} = 'L1'
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"])} = "L1"
                 sidx {mustBeInteger, mustBeVector} = 1:obj.nsat
             end
             gobs = obj.selectSat(sidx);
@@ -1241,7 +1250,7 @@ classdef Gobs < handle
             %
             arguments
                 obj gt.Gobs
-                freq (1,2) char {mustBeMember(freq,{'L1','L2','L5','L6','L7','L8','L9'})} = 'L1'
+                freq string {mustBeMember(freq,{"L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"})} = "L1"
                 snrth (1,1) double = 0.0
                 sidx {mustBeInteger, mustBeVector} = 1:obj.nsat
             end
