@@ -13,8 +13,8 @@ function [grtk, gsol, gstat] = rtkpos(grtk, gobsr, gnav, gopt, gobsb)
 %   grtk : 1x1, gt.Grtk, RTK control object
 %   gobsr: 1x1, gt.Gobs, GNSS observation object for rover
 %   gnav : 1x1, gt.Gnav, GNSS navigation data object
-%   gopt : 1×1, gt.Gopt, RTKLIB process option object
-%  [gobsb] : 1×1, gt.Gobs, RTKLIB observation object for base
+%   gopt : 1x1, gt.Gopt, RTKLIB process option object
+%  [gobsb] : 1x1, gt.Gobs, RTKLIB observation object for base
 %
 % Output: ------------------------------------------------------
 %   grtk : 1x1, gt.Grtk, RTK control object
