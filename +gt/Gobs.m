@@ -544,11 +544,10 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
             end
-            gobs = obj.copy();
-            for f = gobs.FTYPE
-                if ~isempty(gobs.(f))
-                    mask = gobs.(f).I>=1; % 1:cycle slip, 2or3:half-cycle slip
-                    gobs = gobs.maskL(mask,f);
+            for f = obj.FTYPE
+                if ~isempty(obj.(f))
+                    mask = obj.(f).I>=1; % 1:cycle slip, 2or3:half-cycle slip
+                    obj.maskL(mask,f);
                 end
             end
         end
