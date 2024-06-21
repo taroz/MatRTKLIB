@@ -50,6 +50,7 @@ classdef Gsol < handle
     %   [menu, sdenu] = meanENU([stat],[idx]); Compute mean ENU position and standard deviation
     %   nstat = solStatCount([stat]);  Count solution status
     %   rstat = solStatRate([stat]);   Compute solution status rate
+    %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   plot([stat],[idx]);            Plot solution position
     %   plotAll([stat],[idx]);         Plot all solution
     %   help();                        Show help
@@ -869,6 +870,73 @@ classdef Gsol < handle
             nstat = obj.solStatCount(stat);
             rstat = 100*nstat/obj.n;
         end
+
+        %% outKML
+        function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
+            % outkml: Output Google Earth KML file
+            % -------------------------------------------------------------
+            % Output Google Earth KML file. If Google Earth is installed, 
+            % it will automatically open the KML file by default.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt])
+            %
+            % Input: ------------------------------------------------------
+            %   file:  Output KML file name (???.kml)
+            %  [open]: 1x1, Open KML file (optional) (0:off,1:on)
+            %          Default: off
+            %  [lw]:   1x1, Line width (0: No line) (optional) Default: 3.0
+            %  [lc]:   Line Color, MATLAB Style, e.g. "r" or [1 0 0]
+            %          (optional) Default: "w"
+            %  [ps]:   1x1, Point size (0: No point) (optional) Default: 0.5
+            %  [pc]:   Point Color, MATLAB Style (0: Solution status)
+            %          e.g. "r" or [1 0 0] (optional) Default: 0
+            %  [idx]:  Logical or numeric index to select (optional)
+            %          Default: idx = 1:obj.n
+            %  [alt]:  1x1, Output altitude (optional) 
+            %          (0:off,1:elipsoidal,2:geodetic) Default: off
+            %
+            arguments
+                obj gt.Gsol
+                file (1,:) char
+                open (1,1) = 0
+                lw (1,1) = 1.0
+                lc = "w"
+                ps (1,1) = 0.5
+                pc = 0
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+                alt (1,1) = 0
+            end
+            if obj.n==0
+                error('No data to output');
+            end
+            if isempty(obj.pos.llh)
+                error('llh must be set to a value');
+            end    
+            gsol = obj.select(idx);
+            gsol = gsol.select(~isnan(gsol.pos.llh(:,1)));
+            kmlstr = "";
+            kmlstr = kmlstr+"<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\n";
+            kmlstr = kmlstr+"<kml xmlns=\""http://earth.google.com/kml/2.1\"">\n";
+            kmlstr = kmlstr+"<Document>\n";
+
+            if lw ~= 0
+                kmlstr = kmlstr+gsol.kmltrack(lc, lw, alt);
+            end
+            if ps ~= 0
+                kmlstr = kmlstr+gsol.kmlpoint(pc, ps, alt);
+            end
+            kmlstr = kmlstr+"</Document>\n";
+            kmlstr = kmlstr+"</kml>\n";
+
+            fid = fopen(file,"wt");
+            fprintf(fid, kmlstr);
+            fclose(fid);
+
+            if open
+                system(file);
+            end
+        end
         %% plot
         function plot(obj, stat, idx)
             % plot: Plot solution position
@@ -1023,6 +1091,101 @@ classdef Gsol < handle
             if lflag
                 legend(p, l);
             end
+        end
+        %% Output KML track
+        function kmlstr = kmltrack(obj, linecol, linewidth, outalt)
+            linecol = validatecolor(linecol);
+
+            kmlstr = "";
+            kmlstr = kmlstr+"<Placemark>\n";
+            kmlstr = kmlstr+"<name>Rover Track</name>\n";
+            kmlstr = kmlstr+"<Style>\n";
+            kmlstr = kmlstr+"<LineStyle>\n";
+            kmlstr = kmlstr+sprintf("<color>%s</color>\n",obj.col2hex(linecol));
+            kmlstr = kmlstr+sprintf("<width>%d</width>\n",linewidth);
+            kmlstr = kmlstr+"</LineStyle>\n";
+            kmlstr = kmlstr+"</Style>\n";
+            kmlstr = kmlstr+"<LineString>\n";
+            if outalt>0; kmlstr = kmlstr+"<altitudeMode>absolute</altitudeMode>\n"; end
+            kmlstr = kmlstr+"<coordinates>\n";
+            for i=1:obj.n
+                if outalt==0
+                    alt = 0.0;
+                elseif outalt==1
+                    alt = obj.pos.h(i);
+                elseif outalt==2
+                    alt =obj.pos.orthometric(i);
+                end
+                kmlstr = kmlstr+sprintf("%13.9f,%12.9f,%5.3f\n",obj.pos.lon(i),obj.pos.lat(i),alt);
+            end
+            kmlstr = kmlstr+"</coordinates>\n";
+            kmlstr = kmlstr+"</LineString>\n";
+            kmlstr = kmlstr+"</Placemark>\n";
+        end
+        %% Output KML point
+        function kmlstr = kmlpoint(obj, pointcol, pointsize, outalt)
+            icon = "http://maps.google.com/mapfiles/kml/pal2/icon18.png";
+            kmlstr = "";
+            
+            if pointcol == 0
+                for i=1:7
+                    kmlstr = kmlstr+sprintf("<Style id=""P%d"">\n",i);
+                    kmlstr = kmlstr+"<IconStyle>\n";
+                    kmlstr = kmlstr+sprintf("<color>%s</color>\n",obj.col2hex(gt.C.C_SOL(i,:)));
+                    kmlstr = kmlstr+sprintf("<scale>%.1f</scale>\n",pointsize);
+                    kmlstr = kmlstr+sprintf("<Icon><href>%s</href></Icon>\n",icon);
+                    kmlstr = kmlstr+"</IconStyle>\n";
+                    kmlstr = kmlstr+"</Style>\n";
+                end
+            else
+                pointcol = validatecolor(pointcol);
+                kmlstr = kmlstr+"<Style id=""P1"">\n";
+                kmlstr = kmlstr+"<IconStyle>\n";
+                kmlstr = kmlstr+sprintf("<color>%s</color>\n",obj.col2hex(pointcol));
+                kmlstr = kmlstr+sprintf("<scale>%.1f</scale>\n",pointsize);
+                kmlstr = kmlstr+sprintf("<Icon><href>%s</href></Icon>\n",icon);
+                kmlstr = kmlstr+"</IconStyle>\n";
+                kmlstr = kmlstr+"</Style>\n";
+            end
+
+            kmlstr = kmlstr+"<Folder>\n";
+            kmlstr = kmlstr+"<name>Position</name>\n";
+            for i=1:obj.n
+                kmlstr = kmlstr+"<Placemark>\n";
+                if pointcol == 0
+                    kmlstr = kmlstr+sprintf("<styleUrl>#P%d</styleUrl>\n",obj.stat(i));
+                else
+                    kmlstr = kmlstr+"<styleUrl>#P1</styleUrl>\n";
+                end
+                kmlstr = kmlstr+"<Point>\n";
+                if outalt>0
+                    kmlstr = kmlstr+"<extrude>1</extrude>\n";
+                    kmlstr = kmlstr+"<altitudeMode>absolute</altitudeMode>\n";
+                end
+                if outalt==0
+                    alt = 0.0;
+                elseif outalt==1
+                    alt = obj.pos.h(i);
+                elseif outalt==2
+                    alt =obj.pos.orthometric(i);
+                end
+                kmlstr = kmlstr+sprintf("<coordinates>%13.9f,%12.9f,%5.3f</coordinates>\n",obj.pos.lon(i),obj.pos.lat(i),alt);
+                kmlstr = kmlstr+"</Point>\n";
+                kmlstr = kmlstr+"</Placemark>\n";
+            end
+
+            kmlstr = kmlstr+"</Folder>\n";
+        end
+        %% Convert color vector to KML color string
+        function chex = col2hex(~,c)
+            arguments
+                ~
+                c (:,3)
+            end
+            nc = size(c,1);
+            ckml = round(255*fliplr(c)); % order is BGR
+            hs = reshape(string(dec2hex(ckml,2)),nc,3);
+            chex = char("FF"+hs(:,1)+hs(:,2)+hs(:,3));
         end
     end
 end
