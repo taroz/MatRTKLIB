@@ -33,6 +33,7 @@ classdef Gsol < handle
     %   setSolStruct(solstr);          Set solution from solution struct
     %   setSolTimePos(time, pos);      Set solution from gt.Gtime and gt.Gpos objects
     %   setOrg(pos, type);             Set coordinate origin
+    %   setOrgGpos(gpos);              Set coordinate origin by gt.Gpos
     %   outSol(file, [gopt]);          Output solution file
     %   insert(idx, gsol);             Insert gt.Gsol object
     %   append(gsol);                  Append gt.Gsol object
@@ -238,6 +239,26 @@ classdef Gsol < handle
                 obj.vel.setOrg(org, orgtype);
                 obj.vcov.setOrg(org, orgtype);
             end
+        end
+        %% setOrgGpos
+        function setOrgGpos(obj, gpos)
+            % setOrgGpos: Set coordinate origin by gt.Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrgGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos : 1x1, gt.Gpos, Coordinate origin position
+            %
+            arguments
+                obj gt.Gsol
+                gpos gt.Gpos
+            end
+            if isempty(gpos.llh)
+                error("gpos.llh is empty");
+            end
+            obj.setOrg(gpos.llh(1,:),"llh");
         end
         %% outSol
         function outSol(obj, file, gopt)

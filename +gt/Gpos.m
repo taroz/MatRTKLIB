@@ -25,6 +25,7 @@ classdef Gpos < handle
     % Gpos Methods:
     %   setPos(pos, type);              Set position
     %   setOrg(pos, type);              Set coordinate origin
+    %   setOrgGpos(gpos);               Set coordinate origin by gt.Gpos
     %   insert(idx, gpos);              Insert gt.Gpos object
     %   append(gpos);                   Append gt.Gpos object
     %   addOffset(offset, [coordtype]); Add position offset
@@ -150,6 +151,26 @@ classdef Gpos < handle
                 obj.llh = rtklib.enu2llh(obj.enu, obj.orgllh);
                 obj.xyz = rtklib.enu2xyz(obj.enu, obj.orgllh);
             end
+        end
+        %% setOrgGpos
+        function setOrgGpos(obj, gpos)
+            % setOrgGpos: Set coordinate origin by gt.Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrgGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos : 1x1, gt.Gpos, Coordinate origin position
+            %
+            arguments
+                obj gt.Gpos
+                gpos gt.Gpos
+            end
+            if isempty(gpos.llh)
+                error("gpos.llh is empty");
+            end
+            obj.setOrg(gpos.llh(1,:),"llh");
         end
         %% insert
         function insert(obj, idx, gpos)

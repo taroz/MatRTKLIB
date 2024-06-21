@@ -37,6 +37,7 @@ classdef Gcov < handle
     %   setCovVec(cov, type); Set covariance vector
     %   setCov(cov, type);    Set covariance matrix
     %   setOrg(pos, type);    Set coordinate origin and update covariance matrix
+    %   setOrgGpos(gpos);     Set coordinate origin by gt.Gpos
     %   insert(idx, gvel);    Insert gt.Gcov object
     %   append(gcov);         Append gt.Gcov object
     %   gcov = copy();        Copy object
@@ -245,6 +246,26 @@ classdef Gcov < handle
             elseif ~isempty(obj.enu)
                 obj.xyz = rtklib.covecefsol(obj.enu, obj.orgllh);
             end
+        end
+        %% setOrgGpos
+        function setOrgGpos(obj, gpos)
+            % setOrgGpos: Set coordinate origin by gt.Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrgGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos : 1x1, gt.Gpos, Coordinate origin position
+            %
+            arguments
+                obj gt.Gcov
+                gpos gt.Gpos
+            end
+            if isempty(gpos.llh)
+                error("gpos.llh is empty");
+            end
+            obj.setOrg(gpos.llh(1,:),"llh");
         end
         %% insert
         function insert(obj, idx, gcov)

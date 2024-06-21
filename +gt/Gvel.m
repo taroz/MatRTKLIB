@@ -27,6 +27,7 @@ classdef Gvel < handle
     % Gvel Methods:
     %   setVel(vel, veltype);        Set velocity
     %   setOrg(pos, postype);        Set coordinate origin
+    %   setOrgGpos(gpos);            Set coordinate origin by gt.Gpos
     %   insert(idx, gvel);           Insert gt.Gvel object
     %   append(gvel);                Append gt.Gvel object
     %   addOffset(offset, [coordtype]); Add offset to velocity data
@@ -137,6 +138,26 @@ classdef Gvel < handle
             end
             obj.v2 = vecnorm(obj.enu(:,1:2), 2, 2);
             obj.v3 = vecnorm(obj.enu, 2, 2);
+        end
+        %% setOrgGpos
+        function setOrgGpos(obj, gpos)
+            % setOrgGpos: Set coordinate origin by gt.Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrgGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos : 1x1, gt.Gpos, Coordinate origin position
+            %
+            arguments
+                obj gt.Gvel
+                gpos gt.Gpos
+            end
+            if isempty(gpos.llh)
+                error("gpos.llh is empty");
+            end
+            obj.setOrg(gpos.llh(1,:),"llh");
         end
         %% insert
         function insert(obj, idx, gvel)

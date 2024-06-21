@@ -27,6 +27,7 @@ classdef Gerr < handle
     % Gerr Methods:
     %   setErr(err, type);            Set error
     %   setOrg(pos, postype);         Set coordinate origin
+    %   setOrgGpos(gpos);             Set coordinate origin by gt.Gpos
     %   insert(idx, gerr);            Insert gt.Gerr object
     %   append(gerr);                 Append gt.Gerr object
     %   addOffset(offset, [coordtype]); Add offset to error
@@ -161,6 +162,26 @@ classdef Gerr < handle
             end
             obj.d2 = vecnorm(obj.enu(:,1:2), 2, 2);
             obj.d3 = vecnorm(obj.enu, 2, 2);
+        end
+        %% setOrgGpos
+        function setOrgGpos(obj, gpos)
+            % setOrgGpos: Set coordinate origin by gt.Gpos
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setOrgGpos(gpos)
+            %
+            % Input: ------------------------------------------------------
+            %   gpos : 1x1, gt.Gpos, Coordinate origin position
+            %
+            arguments
+                obj gt.Gerr
+                gpos gt.Gpos
+            end
+            if isempty(gpos.llh)
+                error("gpos.llh is empty");
+            end
+            obj.setOrg(gpos.llh(1,:),"llh");
         end
         %% insert
         function insert(obj, idx, gerr)
