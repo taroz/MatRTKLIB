@@ -167,8 +167,8 @@
 ## Google earth kml/gpx converter
 | RTKLIB function name | Ported | Vector input support| Note |
 | :---: | :---: | :---: | :---: |
-| convkml      | WIP |  | |
-| convgpx      | WIP |  | |
+| convkml      | ✔️ |  | |
+| convgpx      | ✔️ |  | |
 
 ## SBAS functions
 | RTKLIB function name | Ported | Vector input support| Note |

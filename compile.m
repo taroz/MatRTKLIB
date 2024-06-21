@@ -157,8 +157,8 @@ eval(['mex outsol.c sol2sol.c opt2opt.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c .
 % outnmea_gsv
 
 %% Google Earth kml/gpx converter
-% convkml
-% convgpx
+eval(['mex convkml_.c -output convkml sol2sol.c -I../RTKLIB/src ../RTKLIB/src/convkml.c ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);
+eval(['mex convgpx_.c -output convgpx sol2sol.c -I../RTKLIB/src ../RTKLIB/src/convgpx.c ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/solution.c ../RTKLIB/src/geoid.c -outdir ../../+rtklib' option]);
 
 %% SBAS functions
 % sbsreadmsg
@@ -171,7 +171,7 @@ eval(['mex loadopts.c opt2opt.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB
 eval(['mex saveopts.c opt2opt.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/options.c -outdir ../../+rtklib' option]);
 
 %% Integer ambiguity resolution
-eval(['mex lambda_.c  -output lambda -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/lambda.c -outdir ../../+rtklib' option]);
+eval(['mex lambda_.c -output lambda -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/lambda.c -outdir ../../+rtklib' option]);
 
 %% Standard positioning
 eval(['mex pntpos_.c -output pntpos obs2obs.c nav2nav.c eph2eph.c pcv2pcv.c erp2erp.c opt2opt.c sol2sol.c ssat2ssat.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/pntpos.c  ../RTKLIB/src/ephemeris.c  ../RTKLIB/src/sbas.c  ../RTKLIB/src/preceph.c ../RTKLIB/src/ionex.c ../RTKLIB/src/geoid.c ../RTKLIB/src/solution.c -outdir ../../+rtklib' option]);
