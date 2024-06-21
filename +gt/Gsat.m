@@ -487,7 +487,7 @@ classdef Gsat < handle
             % for each satellite system.
             %
             % Usage: ------------------------------------------------------
-            %   obj.referenceSat(tidx)
+            %   obj.referenceSat([tidx])
             % Input: ------------------------------------------------------
             %  [tidx]: Logical or numeric to select time (optional)
             %          Default: tidx = 1:obj.n

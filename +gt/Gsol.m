@@ -249,11 +249,11 @@ classdef Gsol < handle
             % options in the solution file header.
             %
             % Usage: ------------------------------------------------------
-            %   obj.outSol(file, gopt)
+            %   obj.outSol(file, [gopt])
             %
             % Input: ------------------------------------------------------
             %   file : Output solution file name (???.pos)
-            %  [gopt] : RTKLIB process option object
+            %  [gopt] : RTKLIB process option object (optional)
             %
             arguments
                 obj gt.Gsol
@@ -442,8 +442,8 @@ classdef Gsol < handle
             %   obj.selectTimeSpan(ts, te)
             %
             % Input: ------------------------------------------------------
-            %   ts  : Start time (datenum or gt.Gtime)
-            %   te  : End time (datenum or gt.Gtime)
+            %   ts  : Start time (gt.Gtime)
+            %   te  : End time (gt.Gtime)
             %
             % Output: -----------------------------------------------------
             %   gsol : 1x1, Selected gt.Gsol object
@@ -467,7 +467,7 @@ classdef Gsol < handle
             % The index may be a logical or numeric index.
             %
             % Usage: ------------------------------------------------------
-            %   obj.struct(idx)
+            %   obj.struct([idx])
             %
             % Input: ------------------------------------------------------
             %  [idx]: Logical or numeric index to select (optional)
@@ -527,7 +527,7 @@ classdef Gsol < handle
             % NaN is inserted into the solution at that time.
             %
             % Usage: ------------------------------------------------------
-            %   obj.fixedInterval(idx)
+            %   obj.fixedInterval([dt])
             %
             % Input: ------------------------------------------------------
             %  [dt]  : 1x1, double, Time interval for resampling (s)
@@ -693,7 +693,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.mean(stat, idx)
+            %   obj.mean([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to compute mean position (optional)
@@ -727,7 +727,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.meanLLH(stat, idx)
+            %   obj.meanLLH([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to compute mean position (optional)
@@ -761,7 +761,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.meanXYZ(stat, idx)
+            %   obj.meanXYZ([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to compute mean position (optional)
@@ -795,7 +795,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.meanENU(stat, idx)
+            %   obj.meanENU([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to compute mean position (optional)
@@ -831,7 +831,7 @@ classdef Gsol < handle
             % [FIX, FLOAT, SBAS, DGPS, SINGLE, PPP, DR]
             %
             % Usage: ------------------------------------------------------
-            %   obj.solStatCount(stat)
+            %   obj.solStatCount([stat])
             %
             % Input: ------------------------------------------------------
             %  [stat] : Solution status (optional)
@@ -856,7 +856,7 @@ classdef Gsol < handle
             % [FIX, FLOAT, SBAS, DGPS, SINGLE, PPP, DR]][
             %
             % Usage: ------------------------------------------------------
-            %   obj.solStatRate(stat)
+            %   obj.solStatRate([stat])
             %
             % Input: ------------------------------------------------------
             %  [stat] : Solution status (optional)
@@ -945,7 +945,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plot(stat, idx)
+            %   obj.plot([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to plot (optional)
@@ -990,7 +990,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotAll(idx)
+            %   obj.plotAll([idx])
             %
             % Input: ------------------------------------------------------
             %  [idx] : Logical or numeric index to select (optional)
@@ -1047,7 +1047,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotMap(stat, idx)
+            %   obj.plotMap([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to plot (optional)
@@ -1081,7 +1081,7 @@ classdef Gsol < handle
             % -------------------------------------------------------------
             %
             % Usage: ------------------------------------------------------
-            %   obj.plotSatMap(stat, idx)
+            %   obj.plotSatMap([stat], [idx])
             %
             % Input: ------------------------------------------------------
             %  [stat]: Solution status to plot (optional)
