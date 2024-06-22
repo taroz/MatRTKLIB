@@ -29,8 +29,7 @@
 | tow2doy      | ✔️ | ✔️ | Function change from time2doy |
 | utc2gmst     | ✔️ | ✔️ | |
 | adjgpsweek   | ✔️ | ✔️ | |
-| reppath      | WIP |  | |
-| reppaths     | WIP |  | |
+| reppath      | ✔️ |  | |
 
 ## Coordinates transformation
 | RTKLIB function name | Ported | Vector input support| Note |

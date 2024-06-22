@@ -49,8 +49,7 @@ eval(['mex epoch2doy.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtk
 eval(['mex tow2doy.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex utc2gmst.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 eval(['mex adjgpsweek.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
-% reppath
-% reppaths
+eval(['mex reppath.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
 
 %% Coordinates transformation
 eval(['mex xyz2llh.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c -outdir ../../+rtklib' option]);
@@ -180,7 +179,7 @@ eval(['mex pntpos_.c -output pntpos obs2obs.c nav2nav.c eph2eph.c pcv2pcv.c erp2
 eval(['mex rtkinit.c opt2opt.c rtk2rtk.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/rtkpos.c ../RTKLIB/src/pntpos.c  ../RTKLIB/src/ephemeris.c  ../RTKLIB/src/sbas.c  ../RTKLIB/src/preceph.c ../RTKLIB/src/ionex.c ../RTKLIB/src/tides.c ../RTKLIB/src/lambda.c ../RTKLIB/src/ppp.c ../RTKLIB/src/ppp_ar.c -outdir ../../+rtklib' option]);
 eval(['mex rtkpos_.c -output rtkpos obs2obs.c nav2nav.c eph2eph.c pcv2pcv.c erp2erp.c opt2opt.c rtk2rtk.c sol2sol.c ssat2ssat.c -I../RTKLIB/src ../RTKLIB/src/rtkcmn.c ../RTKLIB/src/rtkpos.c ../RTKLIB/src/pntpos.c ../RTKLIB/src/ephemeris.c ../RTKLIB/src/sbas.c ../RTKLIB/src/preceph.c ../RTKLIB/src/ionex.c ../RTKLIB/src/tides.c ../RTKLIB/src/lambda.c ../RTKLIB/src/ppp.c ../RTKLIB/src/ppp_ar.c ../RTKLIB/src/geoid.c ../RTKLIB/src/solution.c -outdir ../../+rtklib' option]);
 
-%% Precise point positioning 
+%% Precise point positioning
 % pppos
 
 %% Post-processing positioning
