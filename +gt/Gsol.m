@@ -1093,6 +1093,7 @@ classdef Gsol < handle
             figure;
             geoplot(obj.pos.lat(idxstat),obj.pos.lon(idxstat),"color",[0.2 0.2 0.2]);
             hold on;
+            idxstat = idxstat & gsol.stat~=0;
             geoscatter(obj.pos.lat(idxstat),obj.pos.lon(idxstat),20,gt.C.C_SOL(obj.stat(idxstat),:),"filled");
             drawnow
         end
