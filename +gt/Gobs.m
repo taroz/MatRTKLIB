@@ -1213,23 +1213,21 @@ classdef Gobs < handle
                 warning([freq ': No observations'])
             else
                 f = figure;
-                f.Position(2) = f.Position(2)-f.Position(4);
-                f.Position(4) = 2*f.Position(4);
+                f.Position(4) = 1.2*f.Position(4);
                 y = gobs.nsat:-1:1;
                 for i=1:gobs.nsat
                     scatter(gobs.time.t,y(i)*ones(gobs.n,1),[],gobs.(freq).S(:,i),'filled');
                     hold on;
-
-                    grid on;
-                    xlim([gobs.time.t(1) gobs.time.t(end)]);
-                    ylim([0 gobs.nsat+1]);
-
-                    yticks(1:gobs.nsat)
-                    yticklabels(fliplr(gobs.satstr));
-                    c = colorbar(gca,'northoutside');
-                    c.Label.String = [freq ' SNR (dB-Hz)'];
-                    drawnow
                 end
+                grid on;
+                xlim([gobs.time.t(1) gobs.time.t(end)]);
+                ylim([0 gobs.nsat+1]);
+
+                yticks(1:gobs.nsat)
+                yticklabels(fliplr(gobs.satstr));
+                c = colorbar(gca,'northoutside');
+                c.Label.String = freq+" SNR (dB-Hz)";
+                drawnow
             end
         end
         %% plotNSat
@@ -1250,7 +1248,7 @@ classdef Gobs < handle
             %
             arguments
                 obj gt.Gobs
-                freq string {mustBeMember(freq,{"L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"})} = "L1"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"])} = "L1"
                 snrth (1,1) double = 0.0
                 sidx {mustBeInteger, mustBeVector} = 1:obj.nsat
             end
@@ -1270,7 +1268,7 @@ classdef Gobs < handle
                 set(gca,'ColorOrder',col);
                 legend(string(gt.C.SYSNAME(double(satsyss))));
                 xlim([gobs.time.t(1) gobs.time.t(end)]);
-                title(['Number of ' freq ' observations (CNR threhould ' num2str(snrth) ' dB-Hz)']);
+                title("Number of "+freq+" observations (CNR threhould "+num2str(snrth)+" dB-Hz)");
                 drawnow
             end
         end
