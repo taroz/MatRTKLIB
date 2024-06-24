@@ -164,6 +164,7 @@ classdef Gsat < handle
             
             % mask unhealthy satellite
             idx = obj.svh~=0;
+            idx(:,gobs.sys==gt.C.SYS_QZS) = false; % ToDo: Fix QZSS health
             obj.x(idx) = NaN;
             obj.y(idx) = NaN;
             obj.z(idx) = NaN;
