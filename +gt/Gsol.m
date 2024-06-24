@@ -908,7 +908,7 @@ classdef Gsol < handle
             %   file:  Output KML file name (???.kml)
             %  [open]: 1x1, Open KML file (optional) (0:off,1:on)
             %          Default: off
-            %  [lw]:   1x1, Line width (0: No line) (optional) Default: 3.0
+            %  [lw]:   1x1, Line width (0: No line) (optional) Default: 1.0
             %  [lc]:   Line Color, MATLAB Style, e.g. "r" or [1 0 0]
             %          (optional) Default: "w"
             %  [ps]:   1x1, Point size (0: No point) (optional) Default: 0.5
