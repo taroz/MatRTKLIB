@@ -29,11 +29,12 @@ classdef Gpos < handle
     %   insert(idx, gpos);              Insert gt.Gpos object
     %   append(gpos);                   Append gt.Gpos object
     %   addOffset(offset, [coordtype]); Add position offset
+    %   outPos(file, type, [idx]);      Output position to file
+    %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   gerr = difference(gpos);        Compute difference between two gt.Gpos objects
     %   gvel = gradient(dt, [idx]);     Compute velocity based on position gradient
     %   gpos = copy();                  Copy object
     %   gpos = select(idx);             Select position from index
-    %   outpos(file, type, [idx]);      Output position to file
     %   [gpos, gcov] = mean([idx]);     Compute mean position and covariance
     %   [mllh, sdenu] = meanLLH([idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF position and standard deviation
@@ -55,7 +56,6 @@ classdef Gpos < handle
     %   east = east([idx]);             Get local east position
     %   north = north([idx]);           Get local north position
     %   up = up([idx]);                 Get local up position
-    %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   plot([idx]);                    Plot position
     %   plotMap([idx]);                 Plot position to map
     %   plotSatMap([idx]);              Plot position to satellite map
@@ -259,6 +259,111 @@ classdef Gpos < handle
                     obj.setPos(obj.xyz+offset, 'xyz');
             end
         end
+        %% outPos
+        function outPos(obj, file, type, idx)
+            % outPos: Output position to file
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.outPos(file, type, [idx])
+            %
+            % Input: ------------------------------------------------------
+            %   file: Output file name
+            %   type: 1x1, Position type 'llh' or 'llhdms' or 'xyz' or 'enu'
+            %  [idx]: Logical or numeric index to select (optional)
+            %         Default: idx = 1:obj.n
+            %
+            arguments
+                obj gt.Gpos
+                file (1,:) char
+                type (1,:) char {mustBeMember(type,{'llh','llhdms','xyz','enu'})}
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+            end
+            gpos = obj.select(idx);
+            llhdms = gpos.llhDMS();
+            fid = fopen(file,'w');
+            for i=1:gpos.n
+                switch type
+                    case 'llh'
+                        fprintf(fid, '%.8f %.8f %.4f\n', gpos.llh(i,1), gpos.llh(i,2), gpos.llh(i,3));
+                    case 'llhdms'
+                        fprintf(fid, '%.0f %.0f  %.6f ', llhdms{1}(i,1), llhdms{1}(i,2), llhdms{1}(i,3));
+                        fprintf(fid, '%.0f %.0f  %.6f ', llhdms{2}(i,1), llhdms{2}(i,2), llhdms{2}(i,3));
+                        fprintf(fid, '%.4f\n', llhdms{3}(i));
+                    case 'xyz'
+                        fprintf(fid, '%.4f %.4f %.4f\n', gpos.xyz(i,1), gpos.xyz(i,2), gpos.xyz(i,3));
+                    case 'enu'
+                        fprintf(fid, '%.4f %.4f %.4f\n', gpos.enu(i,1), gpos.enu(i,2), gpos.enu(i,3));
+                end
+            end
+            fclose(fid);
+        end
+        %% outKML
+        function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
+            % outKML: Output Google Earth KML file
+            % -------------------------------------------------------------
+            % Output Google Earth KML file. If Google Earth is installed, 
+            % it will automatically open the KML file by default.
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt])
+            %
+            % Input: ------------------------------------------------------
+            %   file:  Output KML file name (???.kml)
+            %  [open]: 1x1, Open KML file (optional) (0:off,1:on)
+            %          Default: off
+            %  [lw]:   1x1, Line width, 0: No line (optional) Default: 3.0
+            %  [lc]:   Line Color, MATLAB Style, e.g. "r" or [1 0 0]
+            %          (optional) Default: "r"
+            %  [ps]:   1x1, Point size, 0: No point (optional) Default: 0
+            %  [pc]:   Point Color, MATLAB Style, e.g. "r" or [1 0 0]
+            %          (optional) Default: "r"
+            %  [idx]:  Logical or numeric index to select (optional)
+            %          Default: idx = 1:obj.n
+            %  [alt]:  1x1, Output altitude (optional) 
+            %          (0:off,1:elipsoidal,2:geodetic) Default: off
+            %
+            arguments
+                obj gt.Gpos
+                file (1,:) char
+                open (1,1) = 0
+                lw (1,1) = 3.0
+                lc = "r"
+                ps (1,1) = 0
+                pc = "r"
+                idx {mustBeInteger, mustBeVector} = 1:obj.n
+                alt (1,1) = 0
+            end
+            if obj.n==0
+                error('No data to output');
+            end
+            if isempty(obj.llh)
+                error('llh must be set to a value');
+            end    
+            gpos = obj.select(idx);
+            gpos = gpos.select(~isnan(gpos.llh(:,1)));
+            kmlstr = "";
+            kmlstr = kmlstr+"<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\n";
+            kmlstr = kmlstr+"<kml xmlns=\""http://earth.google.com/kml/2.1\"">\n";
+            kmlstr = kmlstr+"<Document>\n";
+
+            if lw ~= 0
+                kmlstr = kmlstr+gpos.kmltrack(lc, lw, alt);
+            end
+            if ps ~= 0
+                kmlstr = kmlstr+gpos.kmlpoint(pc, ps, alt);
+            end
+            kmlstr = kmlstr+"</Document>\n";
+            kmlstr = kmlstr+"</kml>\n";
+
+            fid = fopen(file,"wt");
+            fprintf(fid, kmlstr);
+            fclose(fid);
+
+            if open
+                system(file);
+            end
+        end
         %% difference
         function gerr = difference(obj, gpos)
             % difference: Compute difference between two gt.Gpos objects
@@ -375,45 +480,6 @@ classdef Gpos < handle
                 gpos = gt.Gpos(obj.enu(idx,:), 'enu');
             end
             if ~isempty(obj.orgllh); gpos.setOrg(obj.orgllh, 'llh'); end
-        end
-        %% outpos
-        function outpos(obj, file, type, idx)
-            % outpos: Output position to file
-            % -------------------------------------------------------------
-            %
-            % Usage: ------------------------------------------------------
-            %   obj.outpos(file, type, [idx])
-            %
-            % Input: ------------------------------------------------------
-            %   file: Output file name
-            %   type: 1x1, Position type 'llh' or 'llhdms' or 'xyz' or 'enu'
-            %  [idx]: Logical or numeric index to select (optional)
-            %         Default: idx = 1:obj.n
-            %
-            arguments
-                obj gt.Gpos
-                file (1,:) char
-                type (1,:) char {mustBeMember(type,{'llh','llhdms','xyz','enu'})}
-                idx {mustBeInteger, mustBeVector} = 1:obj.n
-            end
-            gpos = obj.select(idx);
-            llhdms = gpos.llhDMS();
-            fid = fopen(file,'w');
-            for i=1:gpos.n
-                switch type
-                    case 'llh'
-                        fprintf(fid, '%.8f %.8f %.4f\n', gpos.llh(i,1), gpos.llh(i,2), gpos.llh(i,3));
-                    case 'llhdms'
-                        fprintf(fid, '%.0f %.0f  %.6f ', llhdms{1}(i,1), llhdms{1}(i,2), llhdms{1}(i,3));
-                        fprintf(fid, '%.0f %.0f  %.6f ', llhdms{2}(i,1), llhdms{2}(i,2), llhdms{2}(i,3));
-                        fprintf(fid, '%.4f\n', llhdms{3}(i));
-                    case 'xyz'
-                        fprintf(fid, '%.4f %.4f %.4f\n', gpos.xyz(i,1), gpos.xyz(i,2), gpos.xyz(i,3));
-                    case 'enu'
-                        fprintf(fid, '%.4f %.4f %.4f\n', gpos.enu(i,1), gpos.enu(i,2), gpos.enu(i,3));
-                end
-            end
-            fclose(fid);
         end
         %% mean
         function [gpos, gcov] = mean(obj, idx)
@@ -943,72 +1009,6 @@ classdef Gpos < handle
                 error('enu must be set to a value');
             end
             up = obj.enu(idx,3);
-        end
-        %% outKML
-        function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
-            % outKML: Output Google Earth KML file
-            % -------------------------------------------------------------
-            % Output Google Earth KML file. If Google Earth is installed, 
-            % it will automatically open the KML file by default.
-            %
-            % Usage: ------------------------------------------------------
-            %   obj.outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt])
-            %
-            % Input: ------------------------------------------------------
-            %   file:  Output KML file name (???.kml)
-            %  [open]: 1x1, Open KML file (optional) (0:off,1:on)
-            %          Default: off
-            %  [lw]:   1x1, Line width, 0: No line (optional) Default: 3.0
-            %  [lc]:   Line Color, MATLAB Style, e.g. "r" or [1 0 0]
-            %          (optional) Default: "r"
-            %  [ps]:   1x1, Point size, 0: No point (optional) Default: 0
-            %  [pc]:   Point Color, MATLAB Style, e.g. "r" or [1 0 0]
-            %          (optional) Default: "r"
-            %  [idx]:  Logical or numeric index to select (optional)
-            %          Default: idx = 1:obj.n
-            %  [alt]:  1x1, Output altitude (optional) 
-            %          (0:off,1:elipsoidal,2:geodetic) Default: off
-            %
-            arguments
-                obj gt.Gpos
-                file (1,:) char
-                open (1,1) = 0
-                lw (1,1) = 3.0
-                lc = "r"
-                ps (1,1) = 0
-                pc = "r"
-                idx {mustBeInteger, mustBeVector} = 1:obj.n
-                alt (1,1) = 0
-            end
-            if obj.n==0
-                error('No data to output');
-            end
-            if isempty(obj.llh)
-                error('llh must be set to a value');
-            end    
-            gpos = obj.select(idx);
-            gpos = gpos.select(~isnan(gpos.llh(:,1)));
-            kmlstr = "";
-            kmlstr = kmlstr+"<?xml version=\""1.0\"" encoding=\""UTF-8\""?>\n";
-            kmlstr = kmlstr+"<kml xmlns=\""http://earth.google.com/kml/2.1\"">\n";
-            kmlstr = kmlstr+"<Document>\n";
-
-            if lw ~= 0
-                kmlstr = kmlstr+gpos.kmltrack(lc, lw, alt);
-            end
-            if ps ~= 0
-                kmlstr = kmlstr+gpos.kmlpoint(pc, ps, alt);
-            end
-            kmlstr = kmlstr+"</Document>\n";
-            kmlstr = kmlstr+"</kml>\n";
-
-            fid = fopen(file,"wt");
-            fprintf(fid, kmlstr);
-            fclose(fid);
-
-            if open
-                system(file);
-            end
         end
         %% plot
         function plot(obj, idx)
