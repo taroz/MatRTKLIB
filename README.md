@@ -4,11 +4,11 @@
 # Feautures
 - Incorporates RTKLIB as a submodule and provides MATLAB wrappers for almost all RTKLIB functions
   - Calling functions of RTKLIB on MATLAB is `rtklib.****`
-  - Support for vector inputs for all functions
+  - Support for vector inputs for almost all functions
   - Any updates to RTKLIB (new satellites, RINEX version support, etc.) can be reflected immediately
 
-- Provides original GNSS classes (**gt**: GNSS Tools) using RTKLIB
-  - Calling functions of **gt** on MATLAB is `gt.****`
+- Provides original GNSS classes (**gt: GNSS Tools**) using RTKLIB
+  - To create a GNSS Tools object in MATLAB, use `gt.****`
   - Provides for reading, editing, visualization, analysis, and export of RINEX files and positioning solutions
 
 - Provides a very wide variety of specific examples commonly used in GNSS analysis. For example
@@ -16,10 +16,10 @@
   - Removal of specific satellite observations from RINEX files ()
   - Computing double-difference pseudoranges and carrier phase residuals ()
   - Error analysis with a kinematic positioning reference ()
-  - See [examples]() for more details.
+  - See [examples](./examples) for more details.
 
 # Demo
-TBD
+![](https://github.com/taroz/Misc/blob/master/data/MatRTKLIB/demo.gif?raw=true)
 
 # Installation
 If you do not want to compile **MatRTKLIB** yourself, you can download a pre-compiled package:
