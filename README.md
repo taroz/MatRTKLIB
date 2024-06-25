@@ -12,10 +12,10 @@
   - Provides for reading, editing, visualization, analysis, and export of RINEX files and positioning solutions
 
 - Provides a very wide variety of specific examples commonly used in GNSS analysis. For example
-  - Step-by-step implementation of stand-alone and RTK positioning ()
-  - Removal of specific satellite observations from RINEX files ()
-  - Computing double-difference pseudoranges and carrier phase residuals ()
-  - Error analysis with a kinematic positioning reference ()
+  - Step-by-step implementation of stand-alone and RTK positioning (`estimate_position_spp1_step_by_step.m`, `estimate_position_rtk_step_by_step.m`)
+  - Removal of specific satellite observations from RINEX files (`edit_rinex_observation4.m`)
+  - Computing double-difference pseudoranges and carrier phase residuals (`compute_double_difference.m`)
+  - Error analysis with a kinematic positioning reference (`evaluate_position_error.m`)
   - See [examples](./examples) for more details.
 
 # Demo
@@ -48,6 +48,9 @@ Or, if you have already cloned
 The compilation procedure is as follows.
 1. In MATLAB, enter `mex -setup` to see if compiler is configured
 2. Run `compile.m`
+
+Note: If you are syncing directories via OneDrive or Dropbox, the compilation may fail. 
+If this happens, please pause the synchronization.
 
 # Citation
 TBD
