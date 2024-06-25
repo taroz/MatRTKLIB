@@ -1,5 +1,5 @@
 clc; clear; close all;
-addpath ..\
+addpath ../
 
 %% Calendar time vector
 epochs = [2024 6 17 1 2 3;...

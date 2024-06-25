@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\kinematic\";
+addpath ../
+datapath = "./data/kinematic/";
 
 %% Read RINEX observation file
 gobs = gt.Gobs(datapath+"rover.obs");

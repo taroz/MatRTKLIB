@@ -1,5 +1,5 @@
 clc; clear; close all;
-addpath ..\
+addpath ../
 
 %% Latitude, Longitude, Ellipsoidal height
 llh = [35      139      100;

@@ -1,6 +1,6 @@
 clc; clear; close all;
-addpath ..\
-datapath = '.\data\kinematic\';
+addpath ../
+datapath = './data/kinematic/';
 
 %% Read position from CSV file
 data = readtable(datapath+"reference.csv","VariableNamingRule","preserve");

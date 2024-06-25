@@ -76,7 +76,7 @@ classdef Grtk < handle
                 obj gt.Grtk
                 file (1,:) char
             end
-            optstr = rtklib.loadopts(file);
+            optstr = rtklib.loadopts(obj.absPath(file));
             rtkstr = rtklib.rtkinit(optstr);
             obj.setRtkStruct(rtkstr);
         end
@@ -175,6 +175,18 @@ classdef Grtk < handle
         function help(~)
             % help: Show help
             doc gt.Grtk
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end

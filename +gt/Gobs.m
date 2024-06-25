@@ -136,7 +136,7 @@ classdef Gobs < handle
                 file (1,:) char
             end
             try
-                [obs, basepos, fcn] = rtklib.readrnxobs(file);
+                [obs, basepos, fcn] = rtklib.readrnxobs(obj.absPath(file));
             catch
                 error('Wrong RINEX observation file: %s',file);
             end
@@ -281,7 +281,7 @@ classdef Gobs < handle
             if ~isempty(obj.pos)
                 xyz = obj.pos.xyz;
             end
-            rtklib.outrnxobs(file, obsstr, xyz, fcn);
+            rtklib.outrnxobs(obj.absPath(file), obsstr, xyz, fcn);
         end
         %% insert
         function insert(obj, idx, gobs)
@@ -1427,6 +1427,15 @@ classdef Gobs < handle
                     if isfield(obj.(f),'resLdd'); dst.(f).resLdd(tidx1,sidx1) = obj.(f).resLdd(tidx2,sidx2); end
                 end
             end
+        end
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end

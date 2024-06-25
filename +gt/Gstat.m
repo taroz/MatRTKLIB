@@ -91,7 +91,7 @@ classdef Gstat < handle
                 obj gt.Gstat
                 file (1,:) char
             end
-            statstr = rtklib.readsolstat(file);
+            statstr = rtklib.readsolstat(obj.absPath(file));
             obj.setStatStruct(statstr);
         end
         %% setStatStruct
@@ -140,6 +140,18 @@ classdef Gstat < handle
         function help(~)
             % help: Show help
             doc gt.Gstat
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end

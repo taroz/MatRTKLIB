@@ -75,19 +75,19 @@ classdef Gnav < handle
                 obj gt.Gnav
                 file (1,:) char
             end
-            paths = rtklib.expath(file);
+            paths = rtklib.expath(obj.absPath(file));
             for path = paths
                 try
                     if ~exist('navstr','var')
-                        navstr = rtklib.readrnxnav(path{:});
+                        navstr = rtklib.readrnxnav(obj.absPath(path{:}));
                     else
-                        navstr = rtklib.readrnxnav(path{:}, navstr);
+                        navstr = rtklib.readrnxnav(obj.absPath(path{:}), navstr);
                     end
                 catch
                 end
             end
             if ~exist('navstr','var')
-                error('Wrong RINEX navigation file: %s',file);
+                error('Wrong RINEX navigation file: %s',obj.absPath(file));
             end
 
             obj.setNavStruct(navstr);
@@ -144,7 +144,7 @@ classdef Gnav < handle
                 obj gt.Gnav
                 file (1,:) char
             end
-            navstr = rtklib.readsp3(file, obj.struct());
+            navstr = rtklib.readsp3(obj.absPath(file), obj.struct());
             obj.setNavStruct(navstr);
         end
         %% readCLK
@@ -162,7 +162,7 @@ classdef Gnav < handle
                 obj gt.Gnav
                 file (1,:) char
             end
-            navstr = rtklib.readrnxc(file, obj.struct());
+            navstr = rtklib.readrnxc(obj.absPath(file), obj.struct());
             obj.setNavStruct(navstr);
         end
         %% readERP
@@ -180,7 +180,7 @@ classdef Gnav < handle
                 obj gt.Gnav
                 file (1,:) char
             end
-            obj.erp = rtklib.readerp(file);
+            obj.erp = rtklib.readerp(obj.absPath(file));
         end
         %% readSatPCV
         function readSatPCV(obj, file, gtime)
@@ -200,7 +200,7 @@ classdef Gnav < handle
                 file (1,:) char
                 gtime gt.Gtime
             end
-            navstr = rtklib.readsap(file, gtime.ep(1,:), obj.struct());
+            navstr = rtklib.readsap(obj.absPath(file), gtime.ep(1,:), obj.struct());
             obj.setNavStruct(navstr);
         end
         %% readDCB
@@ -219,7 +219,7 @@ classdef Gnav < handle
                 obj gt.Gnav
                 file (1,:) char
             end
-            navstr = rtklib.readdcb(file, obj.struct());
+            navstr = rtklib.readdcb(obj.absPath(file), obj.struct());
             obj.setNavStruct(navstr);
         end
         %% outNav
@@ -331,6 +331,18 @@ classdef Gnav < handle
         function help(~)
             % help: Show help
             doc gt.Gnav
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end

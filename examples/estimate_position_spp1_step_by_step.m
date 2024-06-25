@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\static\"; % Static data
+addpath ../
+datapath = "./data/static/"; % Static data
 
 %% Read RINEX observation and navigation file
 nav = gt.Gnav(datapath+"base.nav");

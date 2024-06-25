@@ -1,5 +1,5 @@
 clear; clc; close all;
-addpath ..\
+addpath ../
 
 %% Generate position
 enu = zeros(11,3); enu(:,1) = 0:100:1000;

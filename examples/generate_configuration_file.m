@@ -1,6 +1,6 @@
 clc; clear; close all;
-addpath ..\
-datapath = ".\data\kinematic\";
+addpath ../
+datapath = "./data/kinematic/";
 
 %% % RTKLIB constants
 C = gt.C; 

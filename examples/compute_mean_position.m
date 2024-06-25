@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\static\";
+addpath ../
+datapath = "./data/static/";
 
 %% Read RTKLIB solution file (static data)
 gsol = gt.Gsol(datapath+"rover_rtk.pos");

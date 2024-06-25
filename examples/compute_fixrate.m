@@ -1,9 +1,9 @@
 clc; clear; close all;
-addpath ..\
-basepath = '.\data\kinematic\';
+addpath ../
+basepath = "./data/kinematic/";
 
 %% Read RTKLIB solution file
-gsol = gt.Gsol([basepath 'rover_rtk.pos']);
+gsol = gt.Gsol(basepath+"rover_rtk.pos");
 
 %% Check solution time interval
 % Solution contains many missing epochs

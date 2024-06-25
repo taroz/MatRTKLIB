@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\static\"; % Static data
+addpath ../
+datapath = "./data/static/"; % Static data
 
 %% Read RINEX observation/navigation file
 obsr = gt.Gobs(datapath+"rover.obs");

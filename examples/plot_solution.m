@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\kinematic\";
+addpath ../
+datapath = "./data/kinematic/";
 
 %% Read RTKLIB solution file
 gsol = gt.Gsol(datapath+"rover_rtk.pos");

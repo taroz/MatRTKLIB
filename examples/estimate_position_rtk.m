@@ -1,6 +1,6 @@
 clc; clear; close all;
-addpath ..\
-datapath = ".\data\kinematic\";
+addpath ../
+datapath = "./data/kinematic/";
 
 %% Read RINEX observation and navigation file
 gnav = gt.Gnav(datapath+"base.nav");

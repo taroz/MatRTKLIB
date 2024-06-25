@@ -1,6 +1,6 @@
 clear; clc; close all;
-addpath ..\
-datapath = ".\data\static\";
+addpath ../
+datapath = "./data/static/";
 
 %% Rover and base position
 % Read position from text file

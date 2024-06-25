@@ -109,7 +109,7 @@ classdef Gopt < handle
             if isempty(file)
                 optstr = rtklib.loadopts();
             else
-                optstr = rtklib.loadopts(file);
+                optstr = rtklib.loadopts(obj.absPath(file));
             end
             obj.setOptStruct(optstr);
         end
@@ -179,7 +179,7 @@ classdef Gopt < handle
                 file (1,:) char
             end
             optstr = obj.struct();
-            rtklib.saveopts(file, optstr);
+            rtklib.saveopts(obj.absPath(file), optstr);
         end
         %% copy
         function gopt = copy(obj)
@@ -253,6 +253,18 @@ classdef Gopt < handle
         function help(~)
             % help: Show help
             doc gt.Gopt
+        end
+    end
+    %% Private functions
+    methods(Access=private)
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end

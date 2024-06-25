@@ -114,7 +114,7 @@ classdef Gsol < handle
                 obj gt.Gsol
                 file (1,:) char
             end
-            [sol, sol.rb] = rtklib.readsol(file);
+            [sol, sol.rb] = rtklib.readsol(obj.absPath(file));
 
             % reference position
             if all(sol.rb == [0,0,0])
@@ -299,9 +299,9 @@ classdef Gsol < handle
                 if ~isa(gopt, 'gt.Gopt')
                     error('gt.Gopt must be input')
                 end
-                rtklib.outsol(file, solstr, gopt.struct);
+                rtklib.outsol(obj.absPath(file), solstr, gopt.struct);
             else
-                rtklib.outsol(file, solstr);
+                rtklib.outsol(obj.absPath(file), solstr);
             end
         end
         %% insert
@@ -1035,7 +1035,7 @@ classdef Gsol < handle
             fclose(fid);
 
             if open
-                system(file);
+                system(obj.absPath(file));
             end
         end
         %% plot
@@ -1345,6 +1345,15 @@ classdef Gsol < handle
             ckml = round(255*fliplr(c)); % order is BGR
             hs = reshape(string(dec2hex(ckml,2)),nc,3);
             chex = char("FF"+hs(:,1)+hs(:,2)+hs(:,3));
+        end
+        %% Convert from relative path to absolute path
+        function apath = absPath(~, rpath)
+            if isstring(rpath)
+                rpath = char(rpath);
+            end
+            [dirname, filename, ext] = fileparts(rpath);
+            [~,pathinfo] = fileattrib(dirname);
+            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
         end
     end
 end
