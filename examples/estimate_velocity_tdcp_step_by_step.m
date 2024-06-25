@@ -1,20 +1,20 @@
-clc; clear; close all;
+clear; clc; close all;
 addpath ..\
-datapath = ".\data\kinematic\";
+datapath = ".\data\static\";
 
 %% Read RINEX observation and navigation file
 nav = gt.Gnav(datapath+"base.nav");
-obs = gt.Gobs(datapath+"base.obs"); % Static data
+obs = gt.Gobs(datapath+"rover.obs");
 
 %% Initial position/velocity
-posini = gt.Gpos(repmat(obs.pos.xyz,[obs.n 1]),"xyz"); % Approximatly position
-velini = gt.Gvel(zeros(obs.n,3),"xyz"); % Approximatly velocity
+posini = gt.Gpos(repmat(obs.pos.xyz,[obs.n 1]),"xyz"); % Approximate position
+velini = gt.Gvel(zeros(obs.n,3),"xyz"); % Approximate velocity
 
 %% Select observations for position computation
 SNR_TH = 30; % SNR threshold (dBHz)
 mask = obs.L1.S<SNR_TH;
-obs = obs.maskL(mask);
-obs = obs.maskLLI(); % Carrier phase mask using LLI flag (Important!)
+obs.maskL(mask);
+obs.maskLLI(); % Carrier phase mask using LLI flag (Important!)
 
 %% Compute carrier phase residuals
 sat = gt.Gsat(obs,nav);
@@ -80,4 +80,5 @@ end
 velest = gt.Gvel(xlog(:,1:3)/obs.dt,"xyz",obs.pos.xyz,"xyz"); % Convert from relative position to velocity
 err = velest-gt.Gvel([0 0 0],"xyz",obs.pos.xyz,"xyz");
 err.plot
+disp("RMS ENU velocity error (m)");
 err.rmsENU

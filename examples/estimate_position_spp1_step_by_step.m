@@ -1,24 +1,24 @@
-clc; clear; close all;
+clear; clc; close all;
 addpath ..\
 datapath = ".\data\static\"; % Static data
 
 %% Read RINEX observation and navigation file
 nav = gt.Gnav(datapath+"base.nav");
-obs = gt.Gobs(datapath+"rover_1Hz.obs");
+obs = gt.Gobs(datapath+"rover.obs");
 
 % Select only GPS
 obs = obs.selectSat(obs.sys==gt.C.SYS_GPS);
 
 %% Position reference
-llhref = readmatrix(datapath+"rover_mean_position.txt");
+llhref = readmatrix(datapath+"rover_position.txt");
 
 %% Select observations for position computation
 SNR_TH = 30; % SNR threshold (dBHz)
-mask = obs.L1.S<SNR_TH;
-% obs = obs.maskP(mask);
+EL_TH = 10; % Elevation angle threshold (deg)
+obs.maskP(obs.L1.S<SNR_TH);
 
 %% Initials
-nx = 4; % Position in ECEF and receiver clock [x,y,z,dtr]'
+nx = 3+1; % Position in ECEF and receiver clock [x,y,z,dtr]'
 x = zeros(nx,1); % Initial position is center of the Earth
 xlog = zeros(obs.n,nx); % For logging solution
 
@@ -34,13 +34,14 @@ for i=1:obs.n
 
         % resP = obs.P-(rng-dts+ion+trp)-dtr-tgd
         resP = obsc.L1.resPc-x(4)-nav.getTGD(sat.sat);
-        
-        idx = ~isnan(resP); % Index not NaN
+
+        idx = ~isnan(resP) & sat.el>EL_TH; % Index not NaN
         nobs = nnz(idx); % Number of current observation
 
         % Simple elevation angle dependent weight model
         varP90 = 0.5^2;
         w = 1./(varP90./sind(sat.el(idx))); 
+        sys = obsc.sys(idx);
 
         % Design matrix
         H = zeros(nobs,nx);

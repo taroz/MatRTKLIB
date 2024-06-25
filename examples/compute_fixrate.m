@@ -9,18 +9,26 @@ gsol = gt.Gsol([basepath 'rover_rtk.pos']);
 % Solution contains many missing epochs
 gsol.time.plotDiff();
 
+fprintf("Time interval of solution is not constant (including missing): nepoch=%d\n",gsol.n);
+% Status rate/count
+disp(gt.C.SOLQNAME(1:7));
+disp(gsol.statRate);
+disp(gsol.statCount);
+
 % This is incorrect fixed rate
-fprintf('Fixed rate=%.1f%% (%d/%d)\n',...
-    gsol.solStatRate(gt.C.SOLQ_FIX), ...
-    gsol.solStatCount(gt.C.SOLQ_FIX), ...
-    gsol.n);
+gsol.showStatRate;
+gsol.showFixRate;
 
 %% Create solution for fixed time interval (insert NaN)
 gsol_fixed = gsol.fixedInterval();
 gsol_fixed.time.plotDiff(); ylim([0 1]);
 
+fprintf("\n\nTime interval of solution is constant: nepoch=%d\n",gsol_fixed.n);
+% Status rate/count
+disp(gt.C.SOLQNAME(1:7));
+disp(gsol_fixed.statRate);
+disp(gsol_fixed.statCount);
+
 % This is correct fixed rate
-fprintf('Fixed rate=%.1f%% (%d/%d)\n',...
-    gsol_fixed.solStatRate(gt.C.SOLQ_FIX), ...
-    gsol_fixed.solStatCount(gt.C.SOLQ_FIX), ...
-    gsol_fixed.n);
+gsol_fixed.showStatRate;
+gsol_fixed.showFixRate;

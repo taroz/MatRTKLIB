@@ -4,7 +4,7 @@ datapath = ".\data\static\";
 
 %% Read RINEX navigation and observation files
 gnav = gt.Gnav(datapath+"base.nav");
-gobs = gt.Gobs(datapath+"rover_1Hz.obs");
+gobs = gt.Gobs(datapath+"rover.obs");
 
 %% Plot satellite constellation
 % RINEX header position is used for receiver position in default

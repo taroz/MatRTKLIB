@@ -1,19 +1,19 @@
-clc; clear; close all;
+clear; clc; close all;
 addpath ..\
-datapath = ".\data\kinematic\";
+datapath = ".\data\static\";
 
 %% Read RINEX observation and navigation file
 nav = gt.Gnav(datapath+"base.nav");
-obs = gt.Gobs(datapath+"base.obs"); % Static data
+obs = gt.Gobs(datapath+"rover.obs");
 
 %% Initial position/velocity
-posini = obs.pos; % Approximatly position
+posini = obs.pos; % Approximate position
 velini = gt.Gvel(zeros(obs.n,3),"xyz"); % Initial velocity is set to zero
 
 %% Select observations for position computation
 SNR_TH = 30; % SNR threshold (dBHz)
 mask = obs.L1.S<SNR_TH;
-obs = obs.maskD(mask);
+obs.maskD(mask);
 
 %% Compute Doppler residuals
 sat = gt.Gsat(obs,nav);
@@ -59,4 +59,5 @@ end
 velest = gt.Gvel(xlog(:,1:3),"xyz",obs.pos.xyz,"xyz");
 err = velest-gt.Gvel([0 0 0],"xyz",obs.pos.xyz,"xyz");
 err.plot
+disp("RMS ENU velocity error (m)");
 err.rmsENU

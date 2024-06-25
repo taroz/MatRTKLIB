@@ -4,7 +4,7 @@ datapath = ".\data\static\";
 
 %% Rover and base position
 % Read position from text file
-posrllh = readmatrix(datapath+"rover_mean_position.txt");
+posrllh = readmatrix(datapath+"rover_position.txt");
 posbllh = readmatrix(datapath+"base_position.txt");
 
 posr = gt.Gpos(posrllh,"llh");
@@ -16,7 +16,7 @@ obsb = gt.Gobs(datapath+"base.obs");
 nav = gt.Gnav(datapath+"base.nav");
 
 %% Mask observation
-obsr = obsr.mask(obsr.L1.S<35);
+obsr.mask(obsr.L1.S<35);
 
 %% Synchronize the satellites and time of the two observations
 % Satellite and time of the two observations do not match

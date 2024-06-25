@@ -3,7 +3,7 @@ addpath ..\
 datapath = ".\data\static\";
 
 %% Read RINEX observation file
-gobs = gt.Gobs(datapath+"rover_1Hz.obs");
+gobs = gt.Gobs(datapath+"rover.obs");
 
 %% Plot observation
 gobs.plot("L1");

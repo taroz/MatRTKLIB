@@ -6,10 +6,16 @@ datapath = ".\data\kinematic\";
 gsol = gt.Gsol(datapath+"rover_rtk.pos");
 
 %% Plot solution file
-gsol.plot();
+gsol.plot
 
 %% Plot only Fixed Position
 gsol.plot(gt.C.SOLQ_FIX);
 
 %% Plot all solutions
-gsol.plotAll();
+gsol.plotAll
+
+%% Plot soltion to map
+gsol.plotMap
+
+%% Plot soltion to satellite map
+gsol.plotSatMap

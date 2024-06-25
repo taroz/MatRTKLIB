@@ -9,7 +9,7 @@ gsol = gt.Gsol(datapath+"rover_rtk.pos");
 gpos = gsol.mean(gt.C.SOLQ_FIX);
 
 %% Write mean position to file
-gpos.outpos(datapath+"rover_mean_position.txt","llh");
+gpos.outPos(datapath+"rover_position.txt","llh");
 
 %% Plot
 % set mean position to origin

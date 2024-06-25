@@ -3,7 +3,7 @@ addpath ..\
 datapath = ".\data\kinematic\";
 
 %% Read RINEX observation/navigation file
-obs = gt.Gobs(datapath+"base.obs");
+obs = gt.Gobs(datapath+"base.obs"); % Static data
 nav = gt.Gnav(datapath+"base.nav");
 
 %% Compute residuals
@@ -14,7 +14,7 @@ sat = gt.Gsat(obs, nav); % Compute satellite position
 sat.setRcvPosVel(obs.pos, gt.Gvel([0 0 0],"xyz"));
 
 % Elevation mask (15 degree)
-obs = obs.mask(sat.el<15);
+obs.mask(sat.el<15);
 
 % Compute residuals
 obs = obs.residuals(sat);

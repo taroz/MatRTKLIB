@@ -14,7 +14,7 @@ sat = gt.Gsat(obs, nav);
 sat.setRcvPos(obs.pos);
 
 % Elevation mask (15 degree)
-obs = obs.mask(sat.el<15);
+obs.mask(sat.el<15);
 
 % Compute residuals
 obs = obs.residuals(sat);

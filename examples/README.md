@@ -11,6 +11,7 @@ This directory contains MatRTKLIB examples.
 | compute_residuals_doppler.m              | Compute Doppler residuals |
 | compute_residuals_pseudorange.m          | Compute pseudorange residuals |
 | convert_coordinate.m                     | Convert LLH, ECEF and ENU position to each other |
+| convert_solution_to_kml.m                | Convert positioning solution to Google Earth KML file |
 | convert_time.m                           | Convert GPS time, calender time and UTC time to each other |
 | edit_rinex_observation1.m                | Read and write RINEX observation  |
 | edit_rinex_observation2.m                | Trim RINEX observation using time span |
@@ -18,8 +19,10 @@ This directory contains MatRTKLIB examples.
 | edit_rinex_observation4.m                | Exclude satellites from RINEX observation |
 | edit_solution.m                          | Read position solution file and trim solution |
 | estimate_position_rtk.m                  | RTK-GNSS positioning using RTKLIB |
+| estimate_position_rtk_step_by_step.m     | Step by step example of RTK-GNSS positioning |
 | estimate_position_spp.m                  | Single point positioning using RTKLIB |
-| estimate_position_spp_step_by_step.m     | Step by step example of single point positioning |
+| estimate_position_spp1_step_by_step.m    | Step by step example of single point positioning |
+| estimate_position_spp2_step_by_step.m    | Step by step example of single point positioning |
 | estimate_velocity_doppler_step_by_step.m | Step by step example of velocity estimation by Doppler |
 | estimate_velocity_tdcp_step_by_step.m    | Step by step example of velocity estimation by TDCP |
 | evaluate_position_error.m                | Evaluate positioning accuracy and plot error |
@@ -28,6 +31,7 @@ This directory contains MatRTKLIB examples.
 | generate_solution_file.m                 | Generate RTKLIB solution file  |
 | plot_observation1.m                      | Show observation status and number of satellite |
 | plot_observation2.m                      | Show raw GNSS measurements |
+| plot_position.m                          | Show positon on map |
 | plot_satellite_constellation1.m          | Show satellite constellation |
 | plot_satellite_constellation2.m          | Show satellite elevation and azimuth angles |
 | plot_solution.m                          | Show RTK position solutions  |

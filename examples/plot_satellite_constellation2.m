@@ -4,7 +4,7 @@ basepath = ".\data\static\";
 
 %% Read RINEX navigation and observation files
 gnav = gt.Gnav(basepath+"base.nav");
-gobs = gt.Gobs(basepath+"rover_1Hz.obs");
+gobs = gt.Gobs(basepath+"rover.obs");
 
 %% Compute satellite position
 gsat = gt.Gsat(gobs,gnav);

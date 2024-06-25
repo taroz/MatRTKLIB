@@ -8,12 +8,12 @@ pos = gt.Gpos(llh,"llh");
 %% Geoid heigh
 gh = pos.geoid(); % RTKLIB internal Geoid model (EGM96 1°x1°)
 
-disp("Geoid Height:");
+disp("Geoid Height (m):");
 disp(gh);
 
 %% Orthometric height
 oh = pos.orthometric();
 
-disp("Orthometric Height:");
+disp("Orthometric Height (m):");
 disp(oh);
 disp(pos.h-gh);
