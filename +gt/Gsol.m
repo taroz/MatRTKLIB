@@ -49,8 +49,10 @@ classdef Gsol < handle
     %   [mllh, sdenu] = meanLLH([stat],[idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([stat],[idx]); Compute mean ECEF position and standard deviation
     %   [menu, sdenu] = meanENU([stat],[idx]); Compute mean ENU position and standard deviation
-    %   nstat = solStatCount([stat]);  Count solution status
-    %   rstat = solStatRate([stat]);   Compute solution status rate
+    %   nstat = statCount([stat]);  Count solution status
+    %   rstat = statRate([stat]);   Compute solution status rate
+    %   str = fixRateStr();         Ambiguity fixed rate string
+    %   showFixRate();              Show ambiguity fixed rate
     %   outKML(file, [open], [lw], [lc], [ps], [pc], [idx], [alt]); Output Google Earth KML file
     %   plot([stat],[idx]);            Plot solution position
     %   plotAll([stat],[idx]);         Plot all solution
@@ -844,15 +846,15 @@ classdef Gsol < handle
             end
             [menu, sdenu] = gsol.pos.meanENU(idxstat);
         end
-        %% solStatCount
-        function nstat = solStatCount(obj, stat)
-            % solStatCount: Count solution status
+        %% statCount
+        function nstat = statCount(obj, stat)
+            % statCount: Count solution status
             % -------------------------------------------------------------
             % The order of solution status (SOLQ_???) is as follows:
             % [FIX, FLOAT, SBAS, DGPS, SINGLE, PPP, DR]
             %
             % Usage: ------------------------------------------------------
-            %   obj.solStatCount([stat])
+            %   obj.statCount([stat])
             %
             % Input: ------------------------------------------------------
             %  [stat] : Solution status (optional)
@@ -869,15 +871,15 @@ classdef Gsol < handle
                 nstat(1,i) = nnz(obj.stat==double(stat(i)));
             end
         end
-        %% solStatRate
-        function rstat = solStatRate(obj, stat)
-            % solStatRate: Compute solution status rate
+        %% statRate
+        function rstat = statRate(obj, stat)
+            % statRate: Compute solution status rate
             % -------------------------------------------------------------
             % The order of solution status (SOLQ_???) is as follows:
             % [FIX, FLOAT, SBAS, DGPS, SINGLE, PPP, DR]][
             %
             % Usage: ------------------------------------------------------
-            %   obj.solStatRate([stat])
+            %   obj.statRate([stat])
             %
             % Input: ------------------------------------------------------
             %  [stat] : Solution status (optional)
@@ -890,10 +892,78 @@ classdef Gsol < handle
                 obj gt.Gsol
                 stat (1,:) = 1:7
             end
-            nstat = obj.solStatCount(stat);
+            nstat = obj.statCount(stat);
             rstat = 100*nstat/obj.n;
         end
-
+        %% statRateStr
+        function str = statRateStr(obj)
+            % statRateStr: Solution status rate string
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   str = obj.statRateStr()
+            %
+            % Output: -----------------------------------------------------
+            %   str : String, (Fix: %.1f% (%d/%d),...)
+            %
+            arguments
+                obj gt.Gsol
+            end
+            name = string(gt.C.SOLQNAME(unique(obj.stat)));
+            rate = obj.statRate(unique(obj.stat));
+            count = obj.statCount(unique(obj.stat));
+            str = "";
+            for i=1:length(name)
+                if i>=2
+                    str = str+", ";
+                end
+                str = str+sprintf("%s:%.1f%% (%d/%d)",name(i),rate(i),count(i),obj.n);
+            end
+        end
+        %% showStatRate
+        function showStatRate(obj)
+            % showStatRate: Show status rate
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   obj.showStatRate()
+            %
+            arguments
+                obj gt.Gsol
+            end
+            disp(obj.statRateStr);
+        end
+        %% fixRateStr
+        function str = fixRateStr(obj)
+            % fixRateStr: Ambiguity fixed rate string
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   str = obj.fixRateStr()
+            %
+            % Output: -----------------------------------------------------
+            %   str : String, (Fixed rate: %.1f% (%d/%d))
+            %
+            arguments
+                obj gt.Gsol
+            end
+            nfix = obj.statCount(gt.C.SOLQ_FIX);
+            rfix = obj.statRate(gt.C.SOLQ_FIX);
+            str = sprintf("Fixed rate: %.1f%% (%d/%d)",rfix,nfix,obj.n);
+        end
+        %% showFixRate
+        function showFixRate(obj)
+            % showFixRate: Show ambiguity fixed rate
+            % -------------------------------------------------------------
+            % 
+            % Usage: ------------------------------------------------------
+            %   obj.showFixRate()
+            %
+            arguments
+                obj gt.Gsol
+            end
+            disp(obj.fixRateStr);
+        end
         %% outKML
         function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
             % outKML: Output Google Earth KML file
@@ -999,6 +1069,7 @@ classdef Gsol < handle
             xlabel('East (m)');
             ylabel('North (m)');
             grid on; axis equal;
+            title(obj.statRateStr);
             nexttile;
             obj.plotSolStat(gsol.time.t(idxstat), enu_(idxstat,3), gsol.stat(idxstat), 0);
             grid on;
