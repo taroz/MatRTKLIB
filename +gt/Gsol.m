@@ -10,9 +10,10 @@ classdef Gsol < handle
     % gsol = Gsol(solstr);  Create gt.Gsol object from solution struct
     %   sol    : 1x1, RTKLIB solution struct
     %
-    % gsol = Gsol(time, pos);  Create gt.Gsol object from time and position
+    % gsol = Gsol(time, pos, [stat]);  Create gt.Gsol object from time and position
     %   time   : 1x1, Time, gt.Gtime object
     %   pos    : 1x1, Position, gt.Gpos object
+    %  [stat]  : 1x1, Solution status (optional)
     % ---------------------------------------------------------------------
     % Gsol Properties:
     %   n      : 1x1, Number of epochs
@@ -31,7 +32,7 @@ classdef Gsol < handle
     % Gsol Methods:
     %   setSolFile(file);              Set solution from file
     %   setSolStruct(solstr);          Set solution from solution struct
-    %   setSolTimePos(time, pos);      Set solution from gt.Gtime and gt.Gpos objects
+    %   setSolTimePos(gtime, gpos, [stat]); Set solution from gt.Gtime and gt.Gpos objects
     %   setOrg(pos, type);             Set coordinate origin
     %   setOrgGpos(gpos);              Set coordinate origin by gt.Gpos
     %   outSol(file, [gopt]);          Output solution file
@@ -91,6 +92,8 @@ classdef Gsol < handle
                 obj.setSolStruct(varargin{1}); % sol struct
             elseif nargin==2
                 obj.setSolTimePos(varargin{1}, varargin{2});
+            elseif nargin==3
+                obj.setSolTimePos(varargin{1}, varargin{2}, varargin{3});
             else
                 error('Wrong input arguments');
             end
@@ -178,38 +181,43 @@ classdef Gsol < handle
             end
         end
         %% setSolTimePos
-        function setSolTimePos(obj, time, pos)
+        function setSolTimePos(obj, gtime, gpos, stat)
             % setSolTimePos: Set solution from gt.Gtime and gt.Gpos objects
             % -------------------------------------------------------------
             % gtime and gpos must be the same size.
             %
             % Usage: ------------------------------------------------------
-            %   obj.setSolTimePos(time, pos)
+            %   obj.setSolTimePos(time, pos, [stat])
             %
             % Input: ------------------------------------------------------
             %   gtime : Time, gt.Gtime object
-            %   gpos  :  Position, gt.Gpos object
+            %   gpos  : Position, gt.Gpos object
+            %   stat  : Solution status (optional) Default: gt.C.SOLQ_FIX
             %
             arguments
                 obj gt.Gsol
-                time gt.Gtime
-                pos gt.Gpos
+                gtime gt.Gtime
+                gpos gt.Gpos
+                stat = gt.C.SOLQ_FIX
             end
-            if time.n ~= pos.n
+            if gtime.n ~= gpos.n
                 error('Time and pos must be same size');
             end
-            if isempty(pos.xyz)
+            if isempty(gpos.xyz)
                 error('pos.xyz must be set to a value');
             end
-            solstr.n = time.n;
-            solstr.rb = pos.orgxyz;
-            solstr.ep = time.ep;
-            solstr.rr = [pos.xyz zeros(solstr.n,3)];
+            if isscalar(stat)
+                stat = stat*ones(gtime.n,1);
+            end
+            solstr.n = gtime.n;
+            solstr.rb = gpos.orgxyz;
+            solstr.ep = gtime.ep;
+            solstr.rr = [gpos.xyz zeros(solstr.n,3)];
             solstr.qr = zeros(solstr.n,6);
             solstr.qv = zeros(solstr.n,6);
             solstr.dtr = zeros(solstr.n,6);
             solstr.type = zeros(solstr.n,1);
-            solstr.stat = ones(solstr.n,1);
+            solstr.stat = stat;
             solstr.ns = ones(solstr.n,1);
             solstr.age = zeros(solstr.n,1);
             solstr.ratio = zeros(solstr.n,1);
@@ -909,7 +917,7 @@ classdef Gsol < handle
             arguments
                 obj gt.Gsol
             end
-            name = string(gt.C.SOLQNAME(unique(obj.stat)));
+            name = string(gt.C.SOLQNAME(double(unique(obj.stat))));
             rate = obj.statRate(unique(obj.stat));
             count = obj.statCount(unique(obj.stat));
             str = "";
