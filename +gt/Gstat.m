@@ -150,8 +150,12 @@ classdef Gstat < handle
                 rpath = char(rpath);
             end
             [dirname, filename, ext] = fileparts(rpath);
-            [~,pathinfo] = fileattrib(dirname);
-            apath = fullfile(pathinfo.Name, strcat([filename, ext]));
+            [status, pathinfo] = fileattrib(dirname);
+            if status==1
+                apath = fullfile(pathinfo.Name, strcat([filename, ext]));
+            else
+                error('Directory does not exist: %s',dirname);
+            end
         end
     end
 end
