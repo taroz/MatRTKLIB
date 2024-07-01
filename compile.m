@@ -8,7 +8,7 @@ obs100Hz_option = true; % whether 100Hz observation data can be handled
 
 %% Setting
 path = fileparts(mfilename('fullpath'));
-srcpath = [path '/MatRTKLIB/src'];
+srcpath = [path '/src/mex'];
 cd(srcpath);
 
 option = ' -DENAGLO -DENAGAL -DENAQZS -DENACMP -DENAIRN -DNFREQ=7 -v';
