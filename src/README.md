@@ -40,8 +40,8 @@
 | enu2xyz      | ✔️ | ✔️ | New development function |
 | enu2llh      | ✔️ | ✔️ | New development function |
 | llh2enu      | ✔️ | ✔️ | New development function |
-| ecefv2enuv   | ✔️ | ✔️ | Function change from ecef2enu |
-| enuv2ecefv   | ✔️ | ✔️ | Function change from enu2ecef |
+| ecef2enu     | ✔️ | ✔️ | Function change from ecef2enu |
+| enu2ecef     | ✔️ | ✔️ | Function change from enu2ecef |
 | covenu       | ✔️ | ✔️ | |
 | covenusol    | ✔️ | ✔️ | New development function |
 | covecef      | ✔️ | ✔️ | |
