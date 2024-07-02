@@ -1,5 +1,5 @@
-% SAT2ANTOFF Compute satellite antenna phase center offset in ECEF coordinate
-%  [dx, dy, dz] = SAT2ANTOFF(epoch, rsx, rsy, rsz, sat, nav)
+% SATANTOFF Compute satellite antenna phase center offset in ECEF coordinate
+%  [dx, dy, dz] = SATANTOFF(epoch, rsx, rsy, rsz, sat, nav)
 %
 % Inputs: 
 %    epoch : Mx6, calendar day/time in GPST
