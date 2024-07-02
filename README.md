@@ -6,7 +6,7 @@
   - Calling functions of RTKLIB on MATLAB is `rtklib.****`
   - Support for vector inputs/outputs for almost all functions
   - Any updates to RTKLIB (new satellites, RINEX version support, etc.) can be reflected immediately
-  - RTKLIB porting progress is [here](./src/mex/)
+  - RTKLIB porting progress is [here](./src/)
 
 - Provides original GNSS classes (**GT: GNSS Tools**) using RTKLIB
   - To create a GNSS Tools object in MATLAB, use `gt.****`
