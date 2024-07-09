@@ -1,7 +1,7 @@
 # MatRTKLIB
 **MatRKTLIB** provides a MATLAB wrapper for [RTKLIB](https://github.com/tomojitakasu/RTKLIB), an open source GNSS data processing library, and also provides various processes required for actual GNSS analysis and research in its own MATLAB classes. Originally maintained for my own research, I have made it open source.
 
-# Feautures
+# Features
 - Incorporates RTKLIB as a submodule and provides MATLAB wrappers for almost all RTKLIB functions
   - Calling functions of RTKLIB on MATLAB is `rtklib.****`
   - Support for vector inputs/outputs for almost all functions
@@ -30,7 +30,7 @@ If you do not want to compile **MatRTKLIB** yourself, you can download a pre-com
 git clone https://github.com/taroz/MatRTKLIB.git
 ```
 
-To install **MatRTKLIB**, simply add its folder path to your MATLAB path list in MATLAB comand window:
+To install **MatRTKLIB**, simply add its folder path to your MATLAB path list in MATLAB command window:
 
 ```matlab
 addpath('/path/to/MatRTKLIB');
@@ -63,4 +63,4 @@ Note: If you are syncing directories via OneDrive or Dropbox, the compilation ma
 If this happens, please pause the synchronization.
 
 # Citation
-TBD
+Under review...
