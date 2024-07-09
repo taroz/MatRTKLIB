@@ -1,9 +1,13 @@
-clear; clc; close all;
+%% compute_residuals_pseudorange.m
+% Compute pseudorange residuals
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 
 %% Read RINEX observation/navigation file
-obs = gt.Gobs(datapath+"base.obs");
+obs = gt.Gobs(datapath+"base.obs"); % static data
 nav = gt.Gnav(datapath+"base.nav");
 
 %% Compute residuals

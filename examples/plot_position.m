@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% plot_position.m
+% Show position on map
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 
 %% Generate position

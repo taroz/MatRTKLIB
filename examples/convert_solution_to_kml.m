@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% convert_solution_to_kml.m
+% Convert positioning solution to Google Earth KML file
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

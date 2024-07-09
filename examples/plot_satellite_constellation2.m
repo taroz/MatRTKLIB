@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% plot_satellite_constellation2.m
+% Show satellite elevation and azimuth angles
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 basepath = "./data/static/";
 

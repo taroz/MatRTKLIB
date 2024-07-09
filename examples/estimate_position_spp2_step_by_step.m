@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% estimate_position_spp2_step_by_step.m
+% Step by step example of single point positioning
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/"; % Static data
 
@@ -9,7 +13,7 @@ obs = gt.Gobs(datapath+"rover.obs");
 %% Position reference
 pos_ref = gt.Gpos(readmatrix(datapath+"rover_position.txt"),"llh");
 pos_ini = pos_ref.copy;
-pos_ini.addOffset([10 10 10],"xyz");
+pos_ini.addOffset([10 10 10],"xyz"); % Initial position is true position + 10 m offset
 
 %% Compute residuals
 sat = gt.Gsat(obs, nav); % Compute satellite position
@@ -28,7 +32,7 @@ w = 1./(varP90./sind(sat.el));
 
 %% Initials
 nx = 3+length(unique(obs.sys)); % Position in ECEF and receiver clock [x,y,z,dtr]'
-x = [pos_ini.xyz zeros(1,nx-3)]'; % Initial position is center of the Earth
+x = [pos_ini.xyz zeros(1,nx-3)]'; % Initial position
 xlog = zeros(obs.n,nx); % For logging solution
 
 %% Point positioning

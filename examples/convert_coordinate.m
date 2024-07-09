@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% convert_coordinate.m
+% Convert LLH, ECEF and ENU position to each other
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 
 %% Latitude, Longitude, Ellipsoidal height

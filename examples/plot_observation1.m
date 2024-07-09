@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% plot_observation1.m
+% Show observation status and number of satellite
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 

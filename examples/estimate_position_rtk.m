@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% estimate_position_rtk.m
+% RTK-GNSS positioning using RTKLIB
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

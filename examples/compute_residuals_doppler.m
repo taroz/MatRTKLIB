@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% compute_residuals_doppler.m
+% Compute Doppler residuals
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

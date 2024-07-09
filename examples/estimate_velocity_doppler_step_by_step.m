@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% estimate_velocity_doppler_step_by_step.m
+% Step by step example of velocity estimation by Doppler
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 

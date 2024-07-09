@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% generate_solution_file.m
+% Generate RTKLIB solution file
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = './data/kinematic/';
 

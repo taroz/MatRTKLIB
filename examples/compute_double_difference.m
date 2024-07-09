@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% compute_double_difference.m
+% Compute double-differenced GNSS observation
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 

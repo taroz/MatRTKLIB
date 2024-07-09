@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% convert_time.m
+% Convert GPS time, calender time and UTC time to each other
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 
 %% Calendar time vector

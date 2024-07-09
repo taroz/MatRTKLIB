@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% compute_float_ambiguity.m
+% Compute double-differenced float carrier phase ambiguity
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 

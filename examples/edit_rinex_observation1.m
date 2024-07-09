@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% edit_rinex_observation1.m
+% Read and write RINEX observation
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

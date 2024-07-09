@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% evaluate_velocity_error.m
+% Evaluate velocity accuracy and plot error
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

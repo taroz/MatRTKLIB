@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% plot_satellite_constellation1.m
+% Show satellite constellation
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 

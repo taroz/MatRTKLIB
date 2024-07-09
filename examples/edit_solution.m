@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% edit_solution.m
+% Read position solution file and trim solution
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = './data/kinematic/';
 

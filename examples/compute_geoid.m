@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% compute_geoid.m
+% Compute Geoid and orthometric hight
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 
 %% Latitude, Longitude, Ellipsoidal height

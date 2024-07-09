@@ -1,5 +1,8 @@
-clear;
-clc; close all;
+%% edit_rinex_observation4.m
+% Exclude satellites from RINEX observation
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% plot_solution.m
+% Show RTK position solutions
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

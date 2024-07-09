@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% edit_rinex_observation3.m
+% Modify RINEX observation interval
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

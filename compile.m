@@ -1,3 +1,7 @@
+%% compile.m
+% Compile RTRKLIB wrappers
+% Author: Taro Suzuki
+
 clear;
 close all;
 clc;

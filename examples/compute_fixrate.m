@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% compute_fixrate.m
+% Compute ambiguity fixed rate from RTK-GNSS solution
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 basepath = "./data/kinematic/";
 

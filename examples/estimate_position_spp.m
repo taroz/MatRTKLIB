@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% estimate_position_spp.m
+% Single point positioning using RTKLIB
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

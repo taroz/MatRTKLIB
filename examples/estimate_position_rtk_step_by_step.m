@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% estimate_position_rtk_step_by_step.m
+% Step by step example of RTK-GNSS positioning
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/"; % Static data
 

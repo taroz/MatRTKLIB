@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% generate_configuration_file.m
+% Generate RTKLIB configuration file
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 

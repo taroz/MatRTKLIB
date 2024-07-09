@@ -1,4 +1,8 @@
-clear; clc; close all;
+%% compute_mean_position.m
+% Compute mean position from solution file
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/static/";
 
@@ -17,3 +21,6 @@ gsol.setOrg(gpos.llh, "llh");
 
 % plot fixed position (mean position is center)
 gsol.plot(gt.C.SOLQ_FIX);
+
+% display mean position
+disp(gpos.meanLLH)

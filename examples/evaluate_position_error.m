@@ -1,4 +1,8 @@
-clc; clear; close all;
+%% evaluate_position_error.m
+% Evaluate positioning accuracy and plot error
+% Author: Taro Suzuki
+
+clear; close all; clc;
 addpath ../
 datapath = "./data/kinematic/";
 
