@@ -1,7 +1,4 @@
 % program   : RTKPOST ver.2.4.3 b34
-% inp file  : C:\Users\TARO\Dropbox\experiments\20230620_ppp\test\nagoya2\nagoya2.obs
-% inp file  : C:\Users\TARO\Dropbox\experiments\20230620_ppp\test\nagoya2\base.obs
-% inp file  : C:\Users\TARO\Dropbox\experiments\20230620_ppp\test\nagoya2\base.nav
 % obs start : 2023/07/11 06:00:19.2 GPST (week2270 194419.2s)
 % obs end   : 2023/07/11 06:26:42.4 GPST (week2270 196002.4s)
 % pos mode  : Kinematic

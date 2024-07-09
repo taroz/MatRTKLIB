@@ -1,7 +1,6 @@
      3.02           N: GNSS NAV DATA    M: Mixed            RINEX VERSION / TYPE
 RTKCONV 2.4.3 p02                       20230720 001941 UTC PGM / RUN BY / DATE 
 format: u-blox UBX                                          COMMENT             
-log: F:\OneDrive - kaiyodai.ac.jp\共有\高精度測位チャレンジ\COMMENT             
 GPSA    .1863E-07   .1490E-07  -.1192E-06  -.5960E-07       IONOSPHERIC CORR    
 GPSB    .1311E+06   .1638E+06  -.1966E+06  -.2621E+06       IONOSPHERIC CORR    
 GAL     .1538E+03   .4688E+00   .1572E-01                   IONOSPHERIC CORR    
