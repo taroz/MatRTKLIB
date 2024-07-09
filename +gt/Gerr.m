@@ -343,7 +343,7 @@ classdef Gerr < handle
                 mxyz = obj.meanXYZ(idx);
                 gerr = gt.Gerr(mxyz, 'xyz');
             end
-            if ~ismpty(obj.orgllh)
+            if ~isempty(obj.orgllh)
                 gerr.setOrg(obj.orgllh,'llh');
             end
             gcov = gt.Gcov(obj);

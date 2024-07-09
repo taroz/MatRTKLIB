@@ -223,7 +223,6 @@ classdef Gsat < handle
             obj.sys = gt.C.SYS(sys_);
             obj.satstr = rtklib.satno2id(obj.sat);
             obj.time = gtime;
-            obj.obs = gobs;
             obj.nav = gnav;
         end
         %% setRcvPos

@@ -299,7 +299,7 @@ classdef Gvel < handle
                 enu_ = cumtrapz(dt*obj.enu(idx,:));
                 gpos = gt.Gpos(enu_, 'enu');
             end
-            if ~isempty(obj.orgllh); gvel.setOrg(obj.orgllh, 'llh'); end
+            if ~isempty(obj.orgllh); gpos.setOrg(obj.orgllh, 'llh'); end
         end
         %% copy
         function gvel = copy(obj)
@@ -374,7 +374,7 @@ classdef Gvel < handle
                 mxyz = obj.meanXYZ(idx);
                 gvel = gt.Gvel(mxyz, 'xyz');
             end
-            if ~ismpty(obj.orgllh)
+            if ~isempty(obj.orgllh)
                 gvel.setOrg(obj.orgllh,'llh');
             end
             gcov = gt.Gcov(obj);

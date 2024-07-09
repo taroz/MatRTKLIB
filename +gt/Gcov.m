@@ -85,7 +85,7 @@ classdef Gcov < handle
                     error('Wrong input arguments');
                 end
             end
-            if nargin==4; obj.setOrg(org, orgtype); end
+            if nargin==4; obj.setOrg(varargin{3}, varargin{4}); end
         end
         %% setGpos
         function setGpos(obj, gpos)
