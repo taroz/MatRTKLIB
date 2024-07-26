@@ -42,6 +42,7 @@ classdef Gtime < handle
     %   append(gtime);              Append gt.Gtime object
     %   addOffset(offset);          Add offset to time
     %   round([ndigit]);            Round time to the nearest arbitrary digit
+    %   roundInterval([dt]);        Round time to the arbitrary interval
     %   gtime = copy();             Copy object
     %   gtime = select(idx);        Select time from index
     %   gtime = selectTimeSpan(ts, te); Select time from time span
@@ -298,6 +299,25 @@ classdef Gtime < handle
                 ndigit (1,1) {mustBeInteger} = 2
             end
             t_ = dateshift(obj.t,'start','minute') + seconds(round(second(obj.t), ndigit));
+            obj.setDatetime(t_);
+        end
+
+        function roundInterval(obj, dt)
+            % round: Round time to the arbitrary interval
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.roundInterval([dt])
+            %
+            % Input: ------------------------------------------------------
+            %  [dt] : 1x1, Arbitrary time interval (s) (optional)
+            %              Default: dt = 1
+            %
+            arguments
+                obj gt.Gtime
+                dt (1,1) = 1
+            end
+            t_ = obj.roundDateTime(obj.t,dt);
             obj.setDatetime(t_);
         end
         %% copy
