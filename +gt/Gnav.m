@@ -128,6 +128,9 @@ classdef Gnav < handle
             obj.ion.cmp = navstr.ion_cmp;
             obj.ion.irn = navstr.ion_irn;
             obj.dcb = navstr.cbias;
+            
+            % eliminateDuplicated ephemeris
+            obj.eliminateDuplicate();
         end
         %% readSP3
         function readSP3(obj, file)
@@ -347,6 +350,27 @@ classdef Gnav < handle
             else
                 error('Directory does not exist: %s',dirname);
             end
+        end
+        %% Eliminate duplicated ephemeris
+        function eliminateDuplicate(obj)
+            % GPS
+            teph = struct2table(obj.eph);
+            uniquesat = unique(teph.sat);
+            idxeliminate = [];
+            for i=1:length(uniquesat)
+                sys = rtklib.satsys(uniquesat(i));
+                % GPS
+                if sys==gt.C.SYS_GPS
+                    idx = find(teph.sat==uniquesat(i));
+                    tephsat = teph(idx,:);
+                    [~,idxsort] = sortrows(tephsat,"ttr");
+                    toc = gt.Gtime(tephsat.toc(idxsort,:));
+                    idxduplicate = abs(diff(toc.t))<seconds(60);
+                    idxeliminate = [idxeliminate; idx(idxsort(idxduplicate))];
+                end
+                % ToDo: check other systems
+            end
+            obj.eph(idxeliminate) = [];
         end
     end
 end
