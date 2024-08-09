@@ -484,9 +484,9 @@ classdef Gsol < handle
                 ts gt.Gtime
                 te gt.Gtime
             end
-            tr = obj.roundDateTime(obj.time.t,2);
-            tsr = obj.roundDateTime(ts.t,2);
-            ter = obj.roundDateTime(te.t,2);
+            tr = obj.roundDateTime(obj.time.t, obj.dt);
+            tsr = obj.roundDateTime(ts.t, obj.dt);
+            ter = obj.roundDateTime(te.t, obj.dt);
 
             idx = tr>=tsr & tr<=ter;
             gsol = obj.select(idx);
