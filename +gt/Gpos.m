@@ -10,7 +10,7 @@ classdef Gpos < handle
     %                [latitude(deg), longitude(deg), ellipsoidal height(m)] or
     %                [ECEF x(m), ECEF y(m), ECEF z(m)] or
     %                [east(m), north(m), up(m)]
-    %   type     : 1x1, Coordinate type: 'llh' or 'xyz' or 'enu'
+    %   type     : 1x1, Coordinate type: 'llh' or 'xyz' or 'enu' or 'nmeallh'
     %  [orgpos]  : 1x3, Coordinate origin 1x3 position vector
     %  [orgtype] : 1x1, Coordinate type: 'llh' or 'xyz'
     % ---------------------------------------------------------------------
@@ -92,12 +92,12 @@ classdef Gpos < handle
             %
             % Input: ------------------------------------------------------
             %   pos    : Mx3, Position data
-            %   postype: 1x1, Position type 'llh' or 'xyz' or 'enu'
+            %   postype: 1x1, Position type 'llh' or 'xyz' or 'enu' or 'nmeallh'
             %
             arguments
                 obj gt.Gpos
                 pos (:,3) double
-                postype (1,:) char {mustBeMember(postype,{'llh','xyz','enu'})}
+                postype (1,:) char {mustBeMember(postype,{'llh','xyz','enu','nmeallh'})}
             end
             obj.n = size(pos,1);
             switch postype
@@ -115,6 +115,12 @@ classdef Gpos < handle
                         obj.llh = rtklib.enu2llh(obj.enu, obj.orgllh);
                         obj.xyz = rtklib.enu2xyz(obj.enu, obj.orgllh);
                     end
+                case 'nmeallh'
+                    latdeg = obj.ddmm2deg(pos(:,1));
+                    londeg = obj.ddmm2deg(pos(:,2));
+                    obj.llh = [latdeg londeg pos(:,3)];
+                    obj.xyz = rtklib.llh2xyz(obj.llh);
+                    if ~isempty(obj.orgllh); obj.enu = rtklib.llh2enu(obj.llh, obj.orgllh); end
             end
         end
         %% setOrg
@@ -302,7 +308,7 @@ classdef Gpos < handle
         function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
             % outKML: Output Google Earth KML file
             % -------------------------------------------------------------
-            % Output Google Earth KML file. If Google Earth is installed, 
+            % Output Google Earth KML file. If Google Earth is installed,
             % it will automatically open the KML file by default.
             %
             % Usage: ------------------------------------------------------
@@ -320,7 +326,7 @@ classdef Gpos < handle
             %          (optional) Default: "r"
             %  [idx]:  Logical or numeric index to select (optional)
             %          Default: idx = 1:obj.n
-            %  [alt]:  1x1, Output altitude (optional) 
+            %  [alt]:  1x1, Output altitude (optional)
             %          (0:off,1:elipsoidal,2:geodetic) Default: off
             %
             arguments
@@ -339,7 +345,7 @@ classdef Gpos < handle
             end
             if isempty(obj.llh)
                 error('llh must be set to a value');
-            end    
+            end
             gpos = obj.select(idx);
             gpos = gpos.select(~isnan(gpos.llh(:,1)));
             kmlstr = "";
@@ -1202,6 +1208,16 @@ classdef Gpos < handle
             ckml = round(255*fliplr(c)); % order is BGR
             hs = reshape(string(dec2hex(ckml,2)),nc,3);
             chex = char("FF"+hs(:,1)+hs(:,2)+hs(:,3));
+        end
+        %% Convert ddmm.mm to degree
+        function deg = ddmm2deg(~,ddmm)
+            arguments
+                ~
+                ddmm (:,1) double
+            end
+            d = fix(ddmm/100);
+            df = (ddmm-d*100)/60;
+            deg = d+df;
         end
     end
 end
