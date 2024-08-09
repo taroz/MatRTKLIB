@@ -366,6 +366,12 @@ classdef Gobs < handle
                     end
                 end
             end
+            % merge glofcn
+            glofcn_ = obj.glofcn;
+            obj.glofcn = NaN(1,obsstr.nsat);
+            obj.glofcn(sidx1) = glofcn_;
+            obj.glofcn(sidx2) = gobs.glofcn;
+
             obj.setObsStruct(obsstr);
         end
         %% maskP
@@ -1277,7 +1283,7 @@ classdef Gobs < handle
             % plotSky: Plot satellite constellation
             % -------------------------------------------------------------
             % Display satellite constellation display.
-            % The receiver location uses the antenna location in the RINEX 
+            % The receiver location uses the antenna location in the RINEX
             % header.
             %
             % Usage: ------------------------------------------------------
