@@ -21,6 +21,12 @@ classdef Gtime < handle
     %   ymd     : Mx3 or 1x3, [year, month, day]
     %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
     %
+    % gtime = Gtime(hhmmss, ymd, [utcflag]);  Create gt.Gtime object from
+    %                                      NMEA style
+    %   hhmmss  : Mx1, String, hour,minute,second in NMEA style
+    %   ymd     : Mx3 or 1x3, [year, month, day]
+    %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
+    %
     % gtime = Gtime(t, [utcflag]);  Create gt.Gtime object from MATLAB datetime
     %   t       : Mx1, MATLAB datetime vector
     %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC
@@ -37,6 +43,7 @@ classdef Gtime < handle
     %   setEpoch(epoch, [utcflag]); Set calendar time vector
     %   setGPST(tow, week);         Set GPS time of week and GPS week
     %   setSod(sod, ymd, [utcflag]);Set seconds of day
+    %   setNMEA(hhmmss, ymd, [utcflag]);Set NEMA time sytle
     %   setDatetime(t, [utcflag]);  Set MATLAB datetime
     %   insert(idx, gtime);         Insert gt.Gtime object
     %   append(gtime);              Append gt.Gtime object
@@ -88,6 +95,8 @@ classdef Gtime < handle
                     obj.setDatetime(varargin{1}, varargin{2}); % datetime+utcflag
                 elseif size(varargin{1}, 2) == 6
                     obj.setEpoch(varargin{1}, varargin{2}); % epoch+utcflag
+                elseif size(varargin{1}, 2) == 1 && isstring(varargin{1}) && size(varargin{2}, 2) == 3
+                    obj.setNMEA(varargin{1}, varargin{2}); % hhmmss+ymd
                 elseif size(varargin{1}, 2) == 1 && size(varargin{2}, 2) == 3
                     obj.setSod(varargin{1}, varargin{2}); % sod+ymd
                 elseif size(varargin{1}, 2) == 1 && size(varargin{2}, 2) == 1
@@ -96,7 +105,11 @@ classdef Gtime < handle
                     error('Wrong input arguments');
                 end
             elseif nargin==3
-                obj.setSod(varargin{1}, varargin{2}, varargin{3}); % sod+ymd+utcflag
+                if isstring(varargin{1})
+                    obj.setNMEA(varargin{1}, varargin{2}, varargin{3}); % hhmmss+ymd+utcflag
+                else
+                    obj.setSod(varargin{1}, varargin{2}, varargin{3}); % sod+ymd+utcflag
+                end
             else
                 error('Wrong input arguments');
             end
@@ -174,6 +187,38 @@ classdef Gtime < handle
                 utcflag (1,1) {mustBeInteger} = 0
             end
             if size(ymd,1) == 1; ymd = repmat(ymd, [size(sod,1), 1]); end
+            if utcflag
+                obj.ep = rtklib.utc2gpst([ymd, obj.sod2hms(sod)]);
+            else
+                obj.ep = [ymd, obj.sod2hms(sod)];
+            end
+            [obj.tow, obj.week] = rtklib.epoch2tow(obj.ep);
+            obj.t = obj.ep2datetime(obj.ep);
+            obj.n = size(obj.ep,1);
+        end
+
+        %% setNMEA
+        function setNMEA(obj, hhmmss, ymd, utcflag)
+            % setNMEA: Set NEMA time sytle
+            % -------------------------------------------------------------
+            %
+            % Usage: ------------------------------------------------------
+            %   obj.setNMEA(hhmmss, ymd, [utcflag])
+            %
+            % Input: ------------------------------------------------------
+            %   hhmmss  : Mx1, hour,minute,second in NMEA style
+            %   ymd     : Mx3 or 1x3, [year, month, day]
+            %  [utcflag]: 1x1, UTC flag 0:GPST, 1:UTC (optional)
+            %               Default: utcflag = 0
+            %
+            arguments
+                obj gt.Gtime
+                hhmmss (:,1) string
+                ymd (:,3) double
+                utcflag (1,1) {mustBeInteger} = 0
+            end
+            if size(ymd,1) == 1; ymd = repmat(ymd, [size(hhmmss,1), 1]); end
+            sod = obj.hhmmss2sod(hhmmss);
             if utcflag
                 obj.ep = rtklib.utc2gpst([ymd, obj.sod2hms(sod)]);
             else
@@ -749,6 +794,18 @@ classdef Gtime < handle
             m = fix((sod-3600*h)/60);
             s = sod-3600*h-60*m;
             hms = [h m s];
+        end
+        %% Convert hhmmss to seconds of day
+        function sod = hhmmss2sod(~, hhmmss)
+            arguments
+                ~
+                hhmmss (:,1) string
+            end
+            tstr = char(hhmmss);
+            h = str2num(tstr(:,1:2));
+            m = str2num(tstr(:,3:4));
+            s = str2num(tstr(:,5:end));
+            sod = 3600*h+60*m+s;
         end
         %% Convert epoch to datetime
         function t = ep2datetime(~, ep)
