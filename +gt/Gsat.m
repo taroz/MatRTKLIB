@@ -125,14 +125,16 @@ classdef Gsat < handle
                 obj.setSatObs(varargin{1},varargin{2},varargin{3}); % call rtklib.satposs
             elseif nargin==3 && size(varargin{1},2)==6
                 obj.setSat(varargin{1},varargin{2},varargin{3}); % call rtklib.satpos
-            elseif nargin==4
+            elseif nargin==4 && isa(varargin{1}, 'gt.Gobs')
+                obj.setSatObs(varargin{1},varargin{2},varargin{3},varargin{4}); % call rtklib.satposs
+            elseif nargin==4 && isa(varargin{1}, 'gt.Gtime')
                 obj.setSat(varargin{1},varargin{2},varargin{3},varargin{4}); % call rtklib.satpos
             else
                 error('Wrong input arguments');
             end
         end
         %% setSatObs
-        function setSatObs(obj, gobs, gnav, ephopt)
+        function setSatObs(obj, gobs, gnav, ephopt, clk)
             % setSatObs: Set satellite data at observation time
             % -------------------------------------------------------------
             % Compute satellite position/velocity and satellite clock at
@@ -155,12 +157,19 @@ classdef Gsat < handle
                 gobs gt.Gobs
                 gnav gt.Gnav
                 ephopt (1,1) = gt.C.EPHOPT_BRDC
+                clk (:,1) = zeros(gobs.n, 1)
             end
             if isenum(ephopt)
                 ephopt = double(ephopt);
             end
+            obsstr = gobs.struct;
+            for f = obj.FTYPE
+                if isfield(obsstr,f)
+                    obsstr.(f).P = obsstr.(f).P-clk;
+                end
+            end
             [obj.x,obj.y,obj.z,obj.vx,obj.vy,obj.vz,obj.dts,obj.ddts,obj.var,obj.svh] ...
-                = rtklib.satposs(gobs.struct, gnav.struct, ephopt);
+                = rtklib.satposs(obsstr, gnav.struct, ephopt);
             
             % mask unhealthy satellite
             idx = obj.svh~=0;
