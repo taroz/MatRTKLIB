@@ -1066,9 +1066,9 @@ classdef Gsol < handle
                 enu_ = rtklib.llh2enu(gsol.pos.llh, orgllh_);
             end
             if stat==0
-                idxstat = true(gsol.n,1);
+                idxstat = 1:gsol.n;
             else
-                idxstat = gsol.stat==stat;
+                idxstat = find(gsol.stat==stat);
             end
             figure;
             tiledlayout(3,1,'TileSpacing','Compact');
@@ -1080,6 +1080,7 @@ classdef Gsol < handle
             title(obj.statRateStr);
             nexttile;
             obj.plotSolStat(gsol.time.t(idxstat), enu_(idxstat,3), gsol.stat(idxstat), 0);
+            xlim([gsol.time.t(idxstat(1)) gsol.time.t(idxstat(end))]);
             grid on;
             ylabel('Up (m)');
             drawnow
