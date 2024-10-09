@@ -38,6 +38,7 @@ classdef Gobs < handle
     %   L9        : 1x1, L9 observation struct
     %  (Lwl)      : 1x1, Wide-lane linear combination struct
     %  (Lml)      : 1x1, Middle-lane linear combination struct
+    %  (Lewl)     : 1x1, Extra wide-lane linear combination struct
     %  (Lif)      : 1x1, Ionosphere-free linear combination struct
     % ---------------------------------------------------------------------
     % Gobs Methods:
@@ -101,10 +102,11 @@ classdef Gobs < handle
         L9     % L9 observation struct
         Lwl    % Wide-lane linear combination struct
         Lml    % Middle-lane linear combination struct
+        Lewl   % Extra wide-lane linear combination struct
         Lif    % Ionosphere-free linear combination struct
     end
     properties(Access=private)
-        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"];
+        FTYPE = ["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif"];
     end
     methods
         %% constructor
@@ -392,7 +394,7 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -442,7 +444,7 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -486,7 +488,7 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match');
@@ -537,7 +539,7 @@ classdef Gobs < handle
             arguments
                 obj gt.Gobs
                 mask logical
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif","ALL"])} = "ALL"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif","ALL"])} = "ALL"
             end
             if size(mask,1)~=obj.n || size(mask,2)~=obj.nsat
                 error('mask array size does not match the observations');
@@ -1028,8 +1030,9 @@ classdef Gobs < handle
             % linearCombination: Compute linear combination of observations
             % -------------------------------------------------------------
             % Compute following linear combination of observations
-            % Lwl: Wide-lane carrier phase
-            % Lml: Middle-lane carrier phase
+            % Lwl : Wide-lane carrier phase
+            % Lml : Middle-lane carrier phase
+            % Lewl: Extra wide-lane carrier phase
             %
             % Usage: ------------------------------------------------------
             %   gobs = obj.linearCombination()
@@ -1053,6 +1056,12 @@ classdef Gobs < handle
                 gobs.Lwl.freq = obj.L1.freq-obj.L2.freq;
                 gobs.Lwl.lam = gt.C.CLIGHT./gobs.Lwl.freq;
                 gobs.Lwl.L = obj.L1.L-obj.L2.L; % (cycle)
+            end
+            % extra wide-lane (L2-L5)
+            if ~isempty(obj.L2) && ~isempty(obj.L5)
+                gobs.Lewl.freq = obj.L2.freq-obj.L5.freq;
+                gobs.Lewl.lam = gt.C.CLIGHT./gobs.Lewl.freq;
+                gobs.Lewl.L = obj.L2.L-obj.L5.L; % (cycle)
             end
             % ToDo: other combinations
         end
@@ -1211,7 +1220,7 @@ classdef Gobs < handle
             %
             arguments
                 obj gt.Gobs
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"])} = "L1"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif"])} = "L1"
                 sidx {mustBeInteger, mustBeVector} = 1:obj.nsat
             end
             gobs = obj.selectSat(sidx);
@@ -1254,7 +1263,7 @@ classdef Gobs < handle
             %
             arguments
                 obj gt.Gobs
-                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lif"])} = "L1"
+                freq string {mustBeMember(freq,["L1","L2","L5","L6","L7","L8","L9","Lwl","Lml","Lewl","Lif"])} = "L1"
                 snrth (1,1) double = 0.0
                 sidx {mustBeInteger, mustBeVector} = 1:obj.nsat
             end
