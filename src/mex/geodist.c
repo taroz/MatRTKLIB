@@ -13,7 +13,7 @@
 /* mex interface */
 extern void mexFunction(int nargout, mxArray *argout[], int nargin,
                         const mxArray *argin[]) {
-    int i, j, m, nsat, nrrs;
+    int i, j, m, nsat, nrs, nrr;
     double rr[3], rs[3], e[3], *rrs, *rsx, *rsy, *rsz, *d, *ex, *ey, *ez;
 
     /* check arguments */
@@ -24,14 +24,18 @@ extern void mexFunction(int nargout, mxArray *argout[], int nargin,
 
     /* inputs */
     rsx = (double *)mxGetPr(argin[0]);
-    m = (int)mxGetM(argin[0]);
+    nrs = (int)mxGetM(argin[0]);
     rsy = (double *)mxGetPr(argin[1]);
     nsat = (int)mxGetN(argin[0]);
     rsz = (double *)mxGetPr(argin[2]);
     rrs = (double *)mxGetPr(argin[3]);
-    nrrs = (int)mxGetM(argin[3]);
+    nrr = (int)mxGetM(argin[3]);
 
-    // mexPrintf("m=%d nsat=%d\n",m,nsat);
+	if (nrs != 1 && nrr != 1 && nrs != nrr) {
+		mexErrMsgTxt("Either the number of epochs or the number of received positions must be 1 or the same");
+	}
+    m = nrs>=nrr?nrs:nrr;
+    //mexPrintf("m=%d nsat=%d nrs=%d nrr=%d\n",m,nsat,nrs,nrr);
 
     /* outputs */
     argout[0] = mxCreateDoubleMatrix(m, nsat, mxREAL);
@@ -45,7 +49,7 @@ extern void mexFunction(int nargout, mxArray *argout[], int nargin,
 
     /* call RTKLIB function */
     for (i = 0; i < m; i++) {
-        if (nrrs == 1) {
+        if (nrr == 1) {
             rr[0] = rrs[0];
             rr[1] = rrs[1];
             rr[2] = rrs[2];
@@ -54,11 +58,18 @@ extern void mexFunction(int nargout, mxArray *argout[], int nargin,
             rr[1] = rrs[i + m * 1];
             rr[2] = rrs[i + m * 2];
         }
-        // mexPrintf("i=%d rrx:%.1f rry:%.1f rrz:%.1f \n",i,rr[0],rr[1],rr[2]);
+        //mexPrintf("i=%d rrx:%.1f rry:%.1f rrz:%.1f \n",i,rr[0],rr[1],rr[2]);
         for (j = 0; j < nsat; j++) {
-            rs[0] = rsx[i + m * j];
-            rs[1] = rsy[i + m * j];
-            rs[2] = rsz[i + m * j];
+	        if (nrs == 1) {
+	            rs[0] = rsx[j];
+	            rs[1] = rsy[j];
+	            rs[2] = rsz[j];
+	        } else {
+	            rs[0] = rsx[i + m * j];
+	            rs[1] = rsy[i + m * j];
+	            rs[2] = rsz[i + m * j];
+	        }
+        	//mexPrintf("j=%d rsx:%.1f rsy:%.1f rsz:%.1f \n",j,rs[0],rs[1],rs[2]);
             if (mxIsNaN(rr[0]) || mxIsNaN(rr[1]) || mxIsNaN(rr[2])) {
                 d[i + m * j] = ex[i + m * j] = ey[i + m * j] = ez[i + m * j] = mxGetNaN();
                 continue;
