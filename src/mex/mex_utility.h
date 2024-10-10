@@ -66,11 +66,10 @@ extern void mxerp2erp(const mxArray *mxerp, erp_t *erp);
 // teph, int sat, const nav_t *nav,
 //                   double *dts);
 
-char msg[512];
-
 /* inline functions */
 inline void mxCheckNumberOfArguments(int nargin, int n) {
     if (nargin < n) {
+        char msg[512];
         sprintf(msg, "Wrong number of arguments: given %d, expected >=%d",
                 nargin, n);
         mexErrMsgTxt(msg);
@@ -83,6 +82,7 @@ inline void mxCheckSizeOfRows(const mxArray *arg, int row) {
     dim = mxGetDimensions(arg);
     m = (int)dim[0];
     if (m != row) {
+        char msg[512];
         sprintf(msg, "Wrong number of rows of argument: given %d, expected %d",
                 m, row);
         mexErrMsgTxt(msg);
@@ -95,6 +95,7 @@ inline void mxCheckSizeOfColumns(const mxArray *arg, int col) {
     dim = mxGetDimensions(arg);
     n = (int)dim[1];
     if (n != col) {
+        char msg[512];
         sprintf(msg,
                 "Wrong number of columns of argument: given %d, expected %d", n,
                 col);
@@ -109,12 +110,14 @@ inline void mxCheckSizeOfArgument(const mxArray *arg, int row, int col) {
     m = (int)dim[0];
     n = (int)dim[1];
     if (m != row) {
+        char msg[512];
         sprintf(msg, "Wrong number of rows of argument: given %d, expected %d",
                 m, row);
         mexErrMsgTxt(msg);
     }
 
     if (n != col) {
+        char msg[512];
         sprintf(msg,
                 "Wrong number of columns of argument: given %d, expected %d", n,
                 col);
@@ -133,6 +136,7 @@ inline void mxCheckSameSize(const mxArray *arg1, const mxArray *arg2) {
     m2 = (int)dim2[0];
     n2 = (int)dim2[1];
     if ((m1 != m2) || (n1 != n2)) {
+        char msg[512];
         sprintf(msg, "Not same size of arguments: arg:(%d,%d) arg:(%d,%d)",
                 m1, n1, m2, n2);
         mexErrMsgTxt(msg);
@@ -147,6 +151,7 @@ inline void mxCheckSameRows(const mxArray *arg1, const mxArray *arg2) {
     m1 = (int)dim1[0];
     m2 = (int)dim2[0];
     if (m1 != m2) {
+        char msg[512];
         sprintf(msg, "Not same number of rows: arg:%d arg:%d", m1, m2);
         mexErrMsgTxt(msg);
     }
@@ -160,6 +165,7 @@ inline void mxCheckSameColumns(const mxArray *arg1, const mxArray *arg2) {
     n1 = (int)dim1[1];
     n2 = (int)dim2[1];
     if (n1 != n2) {
+        char msg[512];
         sprintf(msg, "Not same number of columns: arg:%d arg:%d", n1, n2);
         mexErrMsgTxt(msg);
     }
@@ -186,6 +192,7 @@ inline void mxCheckScalar(const mxArray *arg) {
 inline void mxCheckNumberOfDimensions(const mxArray *arg, int dim) {
     int d = (int)mxGetNumberOfDimensions(arg);
     if (d != dim) {
+        char msg[512];
         sprintf(msg, "Wrong number of dimensions: given %d, expected %d", d,
                 dim);
         mexErrMsgTxt(msg);
@@ -199,6 +206,7 @@ inline void mxCheckSquareMatrix(const mxArray *arg) {
     m = (int)dim[0];
     n = (int)dim[1];
     if (m != n) {
+        char msg[512];
         sprintf(msg, "Not square matrix, rows: %d columns:%d", m, n);
         mexErrMsgTxt(msg);
     }
@@ -212,6 +220,7 @@ inline void mxCheckStruct(const mxArray *arg, const char **fields,
     }
     for (i = 0; i < nfields; i++) {
         if (mxGetFieldNumber(arg, fields[i]) < 0) {
+            char msg[512];
             sprintf(msg, "Input struct does not have filed: %s", fields[i]);
             mexErrMsgTxt(msg);
         }
