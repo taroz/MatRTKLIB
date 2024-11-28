@@ -44,8 +44,9 @@ classdef Gsol < handle
     %   gsol = selectTimeSpan(ts, te); Select solution from time span
     %   sol = struct([idx]);           Convert from gt.Gsol object to solution struct
     %   gsol = fixedInterval([dt]);    Resampling solution at fixed interval
-    %   [gsol,gsolref] = common(gsolref);      Extract common time with reference solution
-    %   gobs = obj.same(gobsref);              Same time as reference solution
+    %   [gsol, gsolref] = commoSol(gsolref);   Extract common time with reference solution
+    %   gsol = obj.sameSol(gsolref);           Same time as reference solution
+    %   gsol = obj.sameTime(gtimeref);         Same time as reference time
     %   [gpos, gcov] = mean([stat],[idx]);     Compute the position and covariance
     %   [mllh, sdenu] = meanLLH([stat],[idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([stat],[idx]); Compute mean ECEF position and standard deviation
@@ -317,7 +318,7 @@ classdef Gsol < handle
             %   gsol: 1x1, gt.Gsol object
             %
             arguments
-                obj gt.Gobs
+                obj gt.Gsol
                 idx (1,1) {mustBeInteger}
                 gsol gt.Gsol
             end
@@ -346,7 +347,7 @@ classdef Gsol < handle
         function append(obj, gsol)
             % append: Append gt.Gsol object
             % -------------------------------------------------------------
-            % Add gt.Gobs object.
+            % Add gt.Gsol object.
             % obj.n will be obj.n+gsol.n
             %
             % Usage: ------------------------------------------------------
@@ -618,10 +619,10 @@ classdef Gsol < handle
             gsol = gt.Gsol(solstrfix);
         end
         %% commonSol
-        function [gsolc,gsolrefc] = commonSol(obj, gsolref)
+        function [gsolc, gsolrefc] = commonSol(obj, gsolref)
             % common: Extract common time with reference solution
             % -------------------------------------------------------------
-            % Extract the common time between the reference gt.Gobs object
+            % Extract the common time between the reference gt.Gsol object
             % and the current object.
             %
             % Output new gt.Gsol object and reference gt.Gsol object.
@@ -649,7 +650,7 @@ classdef Gsol < handle
             gsolrefc = gsolref.select(tindref);
         end
         %% sameSol
-        function gsol = same(obj, gsolref)
+        function gsolref = sameSol(obj, gsolref)
             % same: Same time as reference solution
             % -------------------------------------------------------------
             % Create an gt.Gsol object whose time are consistent with
@@ -661,13 +662,13 @@ classdef Gsol < handle
             % solution, NaN is inserted into the solution.
             %
             % Usage: ------------------------------------------------------
-            %   gobs = obj.same(gobsref)
+            %   gsol = obj.sameSol(gsolref)
             %
             % Input: ------------------------------------------------------
-            %   gobsref : 1x1, Reference gt.Gobs object
+            %   gsolref : 1x1, Reference gt.Gsol object
             %
             % Output: -----------------------------------------------------
-            %   gobs : 1x1, New gt.Gobs object
+            %   gsol : 1x1, New gt.Gsol object
             %
             arguments
                 obj gt.Gsol
@@ -678,17 +679,87 @@ classdef Gsol < handle
             else
                 type = 0; % 0:xyz-ecef,1:enu-baseline
             end
-            
             solstr_ = obj.struct;
             n_ = gsolref.n;
             solstr.n = n_;
 
             t = obj.roundDateTime(obj.time.t, obj.dt);
-            tref = obj.roundDateTime(gsolref.time.t, gsolref.dt);
+            tref = obj.roundDateTime(gsolref.time, gsolref.dt);
 
             [~,idx1,idx2] = intersect(tref,t);
 
             ep_ = gsolref.time.ep;
+            ep_(idx1,:) = obj.time.ep(idx2,:);
+            solstr.ep = ep_;
+
+            solstr.rb = obj.pos.orgxyz;
+
+            solstr.rr = NaN(n_,6);
+            solstr.qr = NaN(n_,6);
+            solstr.qv = NaN(n_,6);
+            solstr.dtr = NaN(n_,6);
+            solstr.type = type*ones(n_,1);
+            solstr.stat = zeros(n_,1);
+            solstr.ns = NaN(n_,1);
+            solstr.age = NaN(n_,1);
+            solstr.ratio = NaN(n_,1);
+            solstr.thres = zeros(n_,1);
+
+            solstr.rr(idx1,:) = solstr_.rr(idx2,:);
+            solstr.qr(idx1,:) = solstr_.qr(idx2,:);
+            solstr.qv(idx1,:) = solstr_.qv(idx2,:);
+            solstr.dtr(idx1,:) = solstr_.dtr(idx2,:);
+            solstr.type(idx1) = solstr_.type(idx2,:);
+            solstr.stat(idx1) = solstr_.stat(idx2,:);
+            solstr.ns(idx1) = solstr_.ns(idx2,:);
+            solstr.age(idx1) = solstr_.age(idx2,:);
+            solstr.ratio(idx1) = solstr_.ratio(idx2,:);
+            solstr.thres(idx1) = solstr_.thres(idx2,:);
+
+            gsolref = gt.Gsol(solstr);
+        end
+
+        %% sameTime
+        function gsol = sameTime(obj, gtimeref)
+            % same: Same time as reference time
+            % -------------------------------------------------------------
+            % Create an gt.Gsol object whose time are consistent with
+            % the reference gt.Gtime object.
+            %
+            % gsol.time = gtimeref
+            %
+            % If the time of the reference time is not in the current
+            % solution, NaN is inserted into the solution.
+            %
+            % Usage: ------------------------------------------------------
+            %   gsol = obj.sameTime(gtimeref)
+            %
+            % Input: ------------------------------------------------------
+            %   gtimeref : 1x1, Reference gt.Gtime object
+            %
+            % Output: -----------------------------------------------------
+            %   gsol : 1x1, New gt.Gsol object
+            %
+            arguments
+                obj gt.Gsol
+                gtimeref gt.Gtime
+            end
+            if isempty(obj.pos.xyz)
+                type = 1; % 0:xyz-ecef,1:enu-baseline
+            else
+                type = 0; % 0:xyz-ecef,1:enu-baseline
+            end
+
+            solstr_ = obj.struct;
+            n_ = gtimeref.n;
+            solstr.n = n_;
+
+            t = obj.roundDateTime(obj.time.t, obj.dt);
+            tref = obj.roundDateTime(gtimeref.t, gtimeref.estInterval());
+
+            [~,idx1,idx2] = intersect(tref,t);
+
+            ep_ = gtimeref.ep;
             ep_(idx1,:) = obj.time.ep(idx2,:);
             solstr.ep = ep_;
 
@@ -907,7 +978,7 @@ classdef Gsol < handle
         function str = statRateStr(obj)
             % statRateStr: Solution status rate string
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   str = obj.statRateStr()
             %
@@ -932,7 +1003,7 @@ classdef Gsol < handle
         function showStatRate(obj)
             % showStatRate: Show status rate
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   obj.showStatRate()
             %
@@ -945,7 +1016,7 @@ classdef Gsol < handle
         function str = fixRateStr(obj)
             % fixRateStr: Ambiguity fixed rate string
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   str = obj.fixRateStr()
             %
@@ -963,7 +1034,7 @@ classdef Gsol < handle
         function showFixRate(obj)
             % showFixRate: Show ambiguity fixed rate
             % -------------------------------------------------------------
-            % 
+            %
             % Usage: ------------------------------------------------------
             %   obj.showFixRate()
             %
@@ -976,7 +1047,7 @@ classdef Gsol < handle
         function outKML(obj, file, open, lw, lc, ps, pc, idx, alt)
             % outKML: Output Google Earth KML file
             % -------------------------------------------------------------
-            % Output Google Earth KML file. If Google Earth is installed, 
+            % Output Google Earth KML file. If Google Earth is installed,
             % it will automatically open the KML file by default.
             %
             % Usage: ------------------------------------------------------
@@ -994,7 +1065,7 @@ classdef Gsol < handle
             %          e.g. "r" or [1 0 0] (optional) Default: 0
             %  [idx]:  Logical or numeric index to select (optional)
             %          Default: idx = 1:obj.n
-            %  [alt]:  1x1, Output altitude (optional) 
+            %  [alt]:  1x1, Output altitude (optional)
             %          (0:off,1:elipsoidal,2:geodetic) Default: off
             %
             arguments
@@ -1013,7 +1084,7 @@ classdef Gsol < handle
             end
             if isempty(obj.pos.llh)
                 error('llh must be set to a value');
-            end    
+            end
             gsol = obj.select(idx);
             gsol = gsol.select(~isnan(gsol.pos.llh(:,1)));
             kmlstr = "";
@@ -1286,7 +1357,7 @@ classdef Gsol < handle
         function kmlstr = kmlpoint(obj, pointcol, pointsize, outalt)
             icon = "http://maps.google.com/mapfiles/kml/pal2/icon18.png";
             kmlstr = "";
-            
+
             if pointcol == 0
                 for i=1:7
                     kmlstr = kmlstr+sprintf("<Style id=""P%d"">\n",i);
