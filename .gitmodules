@@ -1,4 +1,3 @@
 [submodule "src/RTKLIB"]
 	path = src/RTKLIB
-	url = https://github.com/tomojitakasu/RTKLIB.git
-	branch = rtklib_2.4.3
+	url = https://github.com/JAXA-SNU/MALIB.git
