@@ -39,7 +39,7 @@ extern sol_t *mxsol2sol(const mxArray *mxsol);
 extern mxArray *ssat2mxssat(const ssat_t *ssat, const gtime_t *time,
                             const int n);
 extern mxArray *solstat2mxsolstat(const solstat_t *stat, const int nstat);
-extern mxArray *rtk2mxrtk(const rtk_t *rtk, const int n);
+extern mxArray *rtk2mxrtk(const rtk_t *rtks, const int n);
 extern rtk_t mxrtk2rtk(const mxArray *mxrtk, const prcopt_t *popt,
                        const sol_t *sol);
 extern mxArray *peph2mxpeph(const peph_t *peph, const int n);
@@ -67,7 +67,7 @@ extern void mxerp2erp(const mxArray *mxerp, erp_t *erp);
 //                   double *dts);
 
 /* inline functions */
-inline void mxCheckNumberOfArguments(int nargin, int n) {
+static inline void mxCheckNumberOfArguments(int nargin, int n) {
     if (nargin < n) {
         char msg[512];
         sprintf(msg, "Wrong number of arguments: given %d, expected >=%d",
@@ -76,7 +76,7 @@ inline void mxCheckNumberOfArguments(int nargin, int n) {
     }
 }
 
-inline void mxCheckSizeOfRows(const mxArray *arg, int row) {
+static inline void mxCheckSizeOfRows(const mxArray *arg, int row) {
     int m;
     const mwSize *dim;
     dim = mxGetDimensions(arg);
@@ -89,7 +89,7 @@ inline void mxCheckSizeOfRows(const mxArray *arg, int row) {
     }
 }
 
-inline void mxCheckSizeOfColumns(const mxArray *arg, int col) {
+static inline void mxCheckSizeOfColumns(const mxArray *arg, int col) {
     int n;
     const mwSize *dim;
     dim = mxGetDimensions(arg);
@@ -103,7 +103,7 @@ inline void mxCheckSizeOfColumns(const mxArray *arg, int col) {
     }
 }
 
-inline void mxCheckSizeOfArgument(const mxArray *arg, int row, int col) {
+static inline void mxCheckSizeOfArgument(const mxArray *arg, int row, int col) {
     int m, n;
     const mwSize *dim;
     dim = mxGetDimensions(arg);
@@ -125,7 +125,7 @@ inline void mxCheckSizeOfArgument(const mxArray *arg, int row, int col) {
     }
 }
 
-inline void mxCheckSameSize(const mxArray *arg1, const mxArray *arg2) {
+static inline void mxCheckSameSize(const mxArray *arg1, const mxArray *arg2) {
     int m1, n1;
     int m2, n2;
     const mwSize *dim1, *dim2;
@@ -143,7 +143,7 @@ inline void mxCheckSameSize(const mxArray *arg1, const mxArray *arg2) {
     }
 }
 
-inline void mxCheckSameRows(const mxArray *arg1, const mxArray *arg2) {
+static inline void mxCheckSameRows(const mxArray *arg1, const mxArray *arg2) {
     int m1, m2;
     const mwSize *dim1, *dim2;
     dim1 = mxGetDimensions(arg1);
@@ -157,7 +157,7 @@ inline void mxCheckSameRows(const mxArray *arg1, const mxArray *arg2) {
     }
 }
 
-inline void mxCheckSameColumns(const mxArray *arg1, const mxArray *arg2) {
+static inline void mxCheckSameColumns(const mxArray *arg1, const mxArray *arg2) {
     int n1, n2;
     const mwSize *dim1, *dim2;
     dim1 = mxGetDimensions(arg1);
@@ -171,25 +171,25 @@ inline void mxCheckSameColumns(const mxArray *arg1, const mxArray *arg2) {
     }
 }
 
-inline void mxCheckCell(const mxArray *arg) {
+static inline void mxCheckCell(const mxArray *arg) {
     if (!mxIsCell(arg)) mexErrMsgTxt("Input argument must be Cell");
 }
 
-inline void mxCheckChar(const mxArray *arg) {
+static inline void mxCheckChar(const mxArray *arg) {
     if (!mxIsChar(arg)) mexErrMsgTxt("Input argument must be Char");
 }
 
-inline void mxCheckDouble(const mxArray *arg) {
+static inline void mxCheckDouble(const mxArray *arg) {
     if (!mxIsDouble(arg)) mexErrMsgTxt("Input argument must be Double");
 }
 
-inline void mxCheckScalar(const mxArray *arg) {
+static inline void mxCheckScalar(const mxArray *arg) {
     if (!mxIsDouble(arg) || mxGetNumberOfElements(arg) != 1) {
         mexErrMsgTxt("Input argument must be Scalar");
     }
 }
 
-inline void mxCheckNumberOfDimensions(const mxArray *arg, int dim) {
+static inline void mxCheckNumberOfDimensions(const mxArray *arg, int dim) {
     int d = (int)mxGetNumberOfDimensions(arg);
     if (d != dim) {
         char msg[512];
@@ -199,7 +199,7 @@ inline void mxCheckNumberOfDimensions(const mxArray *arg, int dim) {
     }
 }
 
-inline void mxCheckSquareMatrix(const mxArray *arg) {
+static inline void mxCheckSquareMatrix(const mxArray *arg) {
     int m, n;
     const mwSize *dim;
     dim = mxGetDimensions(arg);
@@ -212,7 +212,7 @@ inline void mxCheckSquareMatrix(const mxArray *arg) {
     }
 }
 
-inline void mxCheckStruct(const mxArray *arg, const char **fields,
+static inline void mxCheckStruct(const mxArray *arg, const char **fields,
                           const int nfields) {
     int i;
     if (!mxIsStruct(arg)) {
@@ -227,19 +227,19 @@ inline void mxCheckStruct(const mxArray *arg, const char **fields,
     }
 }
 
-inline void mxSetNaN(double *data, const int n) {
+static inline void mxSetNaN(double *data, const int n) {
     int i;
     for (i = 0; i < n; i++) data[i] = mxGetNaN();
 }
 
-inline int mxGetSize(const mxArray *arg) {
+static inline int mxGetSize(const mxArray *arg) {
     int m, n;
     m = (int)mxGetM(arg);
     n = (int)mxGetN(arg);
     return m > n ? m : n;
 }
 
-inline double *transpose_mw_malloc(const double *data, const mwSize *dims) {
+static inline double *transpose_mw_malloc(const double *data, const mwSize *dims) {
     int i, j, k;
     int m = (int)dims[0], n = (int)dims[1],
         d = ((int)dims[2] == 0) ? 1 : (int)dims[2];
@@ -255,7 +255,7 @@ inline double *transpose_mw_malloc(const double *data, const mwSize *dims) {
     return datat;
 }
 
-inline void transpose_mw(const double *data, const mwSize *dims,
+static inline void transpose_mw(const double *data, const mwSize *dims,
                          double *datat) {
     int i, j, k;
     int m = (int)dims[0], n = (int)dims[1],
@@ -269,7 +269,7 @@ inline void transpose_mw(const double *data, const mwSize *dims,
     }
 }
 
-inline double *transpose_malloc(const double *data, const int m, const int n,
+static inline double *transpose_malloc(const double *data, const int m, const int n,
                                 const int d) {
     int i, j, k;
     double *datat;
@@ -284,7 +284,7 @@ inline double *transpose_malloc(const double *data, const int m, const int n,
     return datat;
 }
 
-inline void transpose(const double *data, const int m, const int n, const int d,
+static inline void transpose(const double *data, const int m, const int n, const int d,
                       double *datat) {
     int i, j, k;
     for (i = 0; i < m; i++) {
@@ -296,14 +296,14 @@ inline void transpose(const double *data, const int m, const int n, const int d,
     }
 }
 
-inline void double2int(const double *ddata, const int n, int *idata) {
+static inline void double2int(const double *ddata, const int n, int *idata) {
     int i;
     for (i = 0; i < n; i++) {
         idata[i] = (int)ddata[i];
     }
 }
 
-inline void int2double(const int *idata, const int n, double *ddata) {
+static inline void int2double(const int *idata, const int n, double *ddata) {
     int i;
     for (i = 0; i < n; i++) {
         ddata[i] = (double)idata[i];
