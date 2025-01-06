@@ -20,6 +20,21 @@
 #define NR(opt) (NP(opt) + NI(opt) + NT(opt) + NL(opt))
 #define NX(opt) (NR(opt) + NB(opt))
 
+/* copy rtk_t */
+void rtkcopy(rtk_t *dist, const rtk_t *src) {
+    memcpy(&(dist->sol), &(src->sol), sizeof(src->sol));
+    memcpy(dist->rb, src->rb, sizeof(src->rb));
+    dist->nx = src->nx;
+    dist->na = src->na;
+    dist->tt = src->tt;
+    memcpy(dist->x, src->x, sizeof(double)*src->nx);
+    memcpy(dist->P, src->P, sizeof(double)*src->nx*src->nx);
+    memcpy(dist->xa, src->xa, sizeof(double)*src->na);
+    memcpy(dist->Pa, src->Pa, sizeof(double)*src->na*src->na);
+    dist->nfix = src->nfix;
+    memcpy(dist->errbuf, src->errbuf, sizeof(src->errbuf));
+}
+
 /* mex interface */
 extern void mexFunction(int nargout, mxArray *argout[], int nargin,
                         const mxArray *argin[]) {
@@ -119,9 +134,8 @@ extern void mexFunction(int nargout, mxArray *argout[], int nargin,
             mexPrintf("rtkpos: no solution %s", rtk.errbuf);
         }
         /* copy to output */
-        memcpy(&times[i], &obsrb[0].time, sizeof(gtime_t));
-        memcpy(&rtks[i], &rtk, sizeof(rtk));
         memcpy(&ssats[i*MAXSAT], rtk.ssat, sizeof(rtk.ssat));
+        rtkcopy(&rtks[i], &rtk); 
         addsol(&solbuf, &rtk.sol);
     }
 
