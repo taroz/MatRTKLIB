@@ -1,7 +1,7 @@
 # MatRTKLIB
 **MatRKTLIB** provides a MATLAB wrapper for [RTKLIB](https://github.com/tomojitakasu/RTKLIB), an open source GNSS data processing library, and also provides various processes required for actual GNSS analysis and research in its own MATLAB classes. Originally maintained for my own research, I have made it open source.
 
-# Updates
+## Updates
 ### January 13, 2025
 The backend has been changed to [MALIB](https://github.com/JAXA-SNU/MALIB), the successor to [RTKLIB](https://github.com/tomojitakasu/RTKLIB/tree/rtklib_2.4.3). If you have cloned the repository before, please run `git submodule update`.
 
