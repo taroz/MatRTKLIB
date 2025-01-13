@@ -45,6 +45,7 @@ Pre-compiled mex files are created in the following environments.
 - MATLAB 2024a
 - OS: Windows 11, Compiler: Microsoft Visual Studio 2022
 - OS: Ubuntu 20.04, Compiler: GCC
+- OS: macOS (Sequoia 15.2, Apple M4), Compiler: Xcode 16.2 (Clang)
 
 For 32-bit systems, you will need to recompile it yourself.
 When compiling, clone including submodules.
