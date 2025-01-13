@@ -47,6 +47,7 @@ classdef Gsol < handle
     %   [gsol, gsolref] = commoSol(gsolref);   Extract common time with reference solution
     %   gsol = obj.sameSol(gsolref);           Same time as reference solution
     %   gsol = obj.sameTime(gtimeref);         Same time as reference time
+    %   gsol = interp(gtime, [method]);        Interpolating solution at gtime
     %   [gpos, gcov] = mean([stat],[idx]);     Compute the position and covariance
     %   [mllh, sdenu] = meanLLH([stat],[idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([stat],[idx]); Compute mean ECEF position and standard deviation
@@ -718,7 +719,6 @@ classdef Gsol < handle
 
             gsolref = gt.Gsol(solstr);
         end
-
         %% sameTime
         function gsol = sameTime(obj, gtimeref)
             % same: Same time as reference time
@@ -788,6 +788,47 @@ classdef Gsol < handle
             solstr.thres(idx1) = solstr_.thres(idx2,:);
 
             gsol = gt.Gsol(solstr);
+        end
+        %% interp
+        function gsol = interp(obj, gtime, method)
+            % interp: Interpolating solution at gtime
+            % -------------------------------------------------------------
+            % Interpolate observation at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gsol = obj.interp(gtime, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   gtime : Query points, gt.Gtime object
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gsol: 1x1, Interpolated gt.Gsol object
+            %
+            arguments
+                obj gt.Gsol
+                gtime gt.Gtime
+                method (1,:) char {mustBeMember(method,{'linear','spline','makima'})} = 'linear'
+            end
+            if min(obj.time.t)>min(gtime.t) || max(obj.time.t)<max(gtime.t)
+                error("Query point is out of range (extrapolation)")
+            end
+            gsol = gt.Gsol();
+            gsol.n = gtime.n;
+            gsol.time = obj.time.interp(obj.time.t, gtime.t, method);
+            gsol.pos = obj.pos.interp(obj.time.t, gtime.t, method);
+            if ~isempty(gsol.vel); gsol.vel = obj.vel.interp(obj.time.t, gtime.t, method); end
+            gsol.pcov = obj.pcov.interp(obj.time.t, gtime.t, method);
+            if ~isempty(gsol.vcov); gsol.vcov = obj.vcov.interp(obj.time.t, gtime.t, method); end
+            gsol.dtr = interp1(obj.time.t, obj.dtr, gtime.t, method);
+            gsol.ns = round(interp1(obj.time.t, obj.ns, gtime.t, method));
+            gsol.stat = gt.C.SOLQ(round(interp1(obj.time.t, double(obj.stat), gtime.t, method)));
+            gsol.age = interp1(obj.time.t, obj.age, gtime.t, method);
+            gsol.ratio = interp1(obj.time.t, obj.ratio, gtime.t, method);
+            gsol.thres = interp1(obj.time.t, obj.thres, gtime.t, method);
+            gsol.dt = obj.time.estInterval();
         end
         %% mean
         function [gpos, gcov] = mean(obj, stat, idx)

@@ -61,7 +61,8 @@ classdef Gobs < handle
     %   gobs = selectTime(tidx);       Select observation from time index
     %   gobs = selectTimeSpan(ts, te); Select observation from time span
     %   obsstr = struct([tidx], [sidx]); Convert from gt.Gobs object to observation struct
-    %   gobs = fixedInterval([dt]);    Resampling object at fixed interval
+    %   gobs = fixedInterval([dt]);    Resampling observation at fixed interval
+    %   gobs = interp(gtime, [method]); Interpolating observation at gtime
     %   [gobsc, gobsrefc] = commonObs(gobsref); Extract common observations with reference observation
     %   [gobsc, gobsrefc] = commonSat(gobsref); Extract common satellite with reference observation
     %   [gobsc, gobsrefc] = commonTime(gobsref);Extract common time with reference observation
@@ -760,6 +761,52 @@ classdef Gobs < handle
                 end
             end
         end
+        %% interp
+        function gobs = interp(obj, gtime, method)
+            % interp: Interpolating observation at gtime
+            % -------------------------------------------------------------
+            % Interpolate observation at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gobs = obj.interp(gtime, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   gtime : Query points, gt.Gtime object
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gobs: 1x1, Interpolated gt.Gobs object
+            %
+            arguments
+                obj gt.Gobs
+                gtime gt.Gtime
+                method (1,:) char {mustBeMember(method,{'linear','spline','makima'})} = 'linear'
+            end
+            if min(obj.time.t)>min(gtime.t) || max(obj.time.t)<max(gtime.t)
+                error("Query point is out of range (extrapolation)")
+            end
+            obsstr.n = gtime.n;
+            obsstr.nsat = obj.nsat;
+            obsstr.sat = obj.sat;
+            obsstr.prn = obj.prn;
+            obsstr.sys = double(obj.sys);
+            obsstr.satstr = obj.satstr;
+            obsstr.ep = gtime.ep;
+            obsstr.tow = gtime.tow;
+            obsstr.week = gtime.week;
+
+            for f = obj.FTYPE
+                if ~isempty(obj.(f))
+                    obsstr.(f) = obj.initFreqStruct(f,obsstr.n,obsstr.nsat);
+                    obsstr.(f) = obj.setFreqStructInterp(obsstr.(f),gtime.t,obj.(f),obj.time.t,method);
+                end
+            end
+            gobs = gt.Gobs(obsstr);
+            gobs.pos = obj.pos;
+            gobs.glofcn = obj.glofcn;
+        end
         %% fixedInterval
         function gobs = fixedInterval(obj, dt)
             % fixedInterval: Resampling observation at fixed interval
@@ -1357,14 +1404,14 @@ classdef Gobs < handle
             tr = datetime(pt, "ConvertFrom", "posixtime", "TimeZone", "UTC");
         end
         %% Select LLI
-        function Isel = selectLLI(~,I,tind,sind)
+        function Isel = selectLLI(~,I,tidx,sidx)
             I(isnan(I)) = 0;
 
             I1 = I==1 | I==3;
             I2 = I==2 | I==3;
 
             I1sum = cumsum(I1);
-            I1sum_sel = I1sum(tind,sind);
+            I1sum_sel = I1sum(tidx,sidx);
             [n_sel,nsat_sel] = size(I1sum_sel);
             if n_sel>1
                 I1sel = [zeros(1,nsat_sel);diff(I1sum_sel,1)];
@@ -1373,9 +1420,17 @@ classdef Gobs < handle
                 I1sel = I1sum_sel;
                 I1sel(I1sel>=1) = 1;
             end
-            I2sel = 2*I2(tind,sind);
+            I2sel = 2*I2(tidx,sidx);
 
             Isel = I1sel+I2sel;
+        end
+        %% Interpolate LLI
+        function Ii = interpLLI(obj,t,I,ti)
+            Ii = zeros(size(ti,1),size(I,2));
+            tidx = interp1(t,1:length(t),ti,"previous");
+            [tidx_unique, idx] = unique(tidx);
+            Isel = obj.selectLLI(I,tidx_unique,1:size(I,2));
+            Ii(idx,:) = Isel;
         end
         %% Select observation
         function Fsel = selectFreqStruct(obj,F,tidx,sidx)
@@ -1409,6 +1464,17 @@ classdef Gobs < handle
             if isfield(F,"ctype"); Fset.ctype(sidx1) = F.ctype(sidx2); end
             if isfield(F,'freq'); Fset.freq(sidx1) = F.freq(sidx2); end
             if isfield(F,'lam'); Fset.lam(sidx1) = F.lam(sidx2); end
+        end
+        %% Set interpolated observation
+        function Fset = setFreqStructInterp(obj,Fset,tset,F,t,method)
+            if isfield(F,"P"); Fset.P = interp1(t,F.P,tset,method); end
+            if isfield(F,"L"); Fset.L = interp1(t,F.L,tset,method); end
+            if isfield(F,"D"); Fset.D = interp1(t,F.D,tset,method); end
+            if isfield(F,"S"); Fset.S = interp1(t,F.S,tset,method); end
+            if isfield(F,"I"); Fset.I = obj.interpLLI(t,F.I,tset); end
+            if isfield(F,"ctype"); Fset.ctype = F.ctype; end
+            if isfield(F,'freq'); Fset.freq = F.freq; end
+            if isfield(F,'lam'); Fset.lam = F.lam; end
         end
         %% Copy frequency and wavelength
         function copyFrequency(obj,dst,sidx1,sidx2)

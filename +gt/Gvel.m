@@ -35,6 +35,7 @@ classdef Gvel < handle
     %   gpos = integral(dt, [idx]);  Cumulative integral
     %   gvel = copy();               Copy object
     %   gvel = select([idx]);        Select velocity from index
+    %   gvel = interp(x, xi, [method]); Interpolating velocity
     %   [gvel, gcov] = mean([idx]):  Compute mean and variance of velocity
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean and standard deviation of ECEF velocity
     %   [menu, sdenu] = meanENU([idx]); Compute mean and standard deviation of ENU velocity
@@ -344,6 +345,44 @@ classdef Gvel < handle
                 gvel = gt.Gvel(obj.xyz(idx,:), 'xyz');
             else
                 gvel = gt.Gvel(obj.enu(idx,:), 'enu');
+            end
+            if ~isempty(obj.orgllh); gvel.setOrg(obj.orgllh, 'llh'); end
+        end
+        %% interp
+        function gvel = interp(obj, x, xi, method)
+            % interp: Interpolating velocity
+            % -------------------------------------------------------------
+            % Interpolate the velovity data at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gvel = obj.interp(x, xi, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   x     : Sample points
+            %   xi    : Query points
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gvel: 1x1, Interpolated gt.Gvel object
+            %
+            arguments
+                obj gt.Gvel
+                x {mustBeVector}
+                xi {mustBeVector}
+                method (1,:) char {mustBeMember(method,{'linear','spline','makima'})} = 'linear'
+            end
+            if length(x)~=obj.n
+                error('Size of x must be obj.n');
+            end
+            if min(x)>min(xi) || max(x)<max(xi)
+                error("Query point is out of range (extrapolation)")
+            end
+            if ~isempty(obj.xyz)
+                gvel = gt.Gvel(interp1(x, obj.xyz, xi, method), "xyz");
+            else
+                gvel = gt.Gvel(interp1(x, obj.enu, xi, method), "enu");
             end
             if ~isempty(obj.orgllh); gvel.setOrg(obj.orgllh, 'llh'); end
         end

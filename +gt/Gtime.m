@@ -53,6 +53,7 @@ classdef Gtime < handle
     %   gtime = copy();             Copy object
     %   gtime = select(idx);        Select time from index
     %   gtime = selectTimeSpan(ts, te); Select time from time span
+    %   gtime = interp(x, xi, [method]); Interpolating time
     %   dt = estInterval([ndigit]); Estimate time interval
     %   doy = doy([idx]);           Get day of year
     %   dow = dow([idx]);           Get day of week
@@ -382,6 +383,36 @@ classdef Gtime < handle
                 obj gt.Gtime
             end
             gtime = obj.select(1:obj.n);
+        end
+        %% interp
+        function gtime = interp(obj, x, xi, method)
+            % interp: Interpolating time
+            % -------------------------------------------------------------
+            % Interpolate the time data at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gtime = obj.interp(x, xi, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   x     : Sample points
+            %   xi    : Query points
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gtime: 1x1, Interpolated gt.Gtime object
+            %
+            arguments
+                obj gt.Gtime
+                x {mustBeVector}
+                xi {mustBeVector}
+                method string = "Linear"
+            end
+            if length(x)~=obj.n
+                error('Size of x must be obj.n');
+            end
+            gtime = gt.Gtime(interp1(x, obj.t, xi, method));
         end
         %% select
         function gtime = select(obj, idx)

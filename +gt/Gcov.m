@@ -42,6 +42,7 @@ classdef Gcov < handle
     %   append(gcov);         Append gt.Gcov object
     %   gcov = copy();        Copy object
     %   gcov = select(idx);   Select object from index
+    %   gcov = interp(x, xi, [method]); Interpolating covariance data
     %   cov = covXYZ([idx]);  Convert to 3x3 covariance matrix in ECEF coordinate
     %   cov = covENU([idx]);  Convert to 3x3 covariance matrix in ENU coordinate
     %   var = varXYZ([idx]);  Compute variance in ECEF coordinate
@@ -359,6 +360,43 @@ classdef Gcov < handle
                 gcov = gt.Gcov(obj.xyz(idx,:), 'xyz');
             else
                 gcov = gt.Gcov(obj.enu(idx,:), 'enu');
+            end
+            if ~isempty(obj.orgllh); gcov.setOrg(obj.orgllh, 'llh'); end
+        end
+        function gcov = interp(obj, x, xi, method)
+            % interp: Interpolating covariance data
+            % -------------------------------------------------------------
+            % Interpolate the covariance data at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gcov = obj.interp(x, xi, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   x     : Sample points
+            %   xi    : Query points
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gcov: 1x1, Interpolated gt.Gcov object
+            %
+            arguments
+                obj gt.Gcov
+                x {mustBeVector}
+                xi {mustBeVector}
+                method (1,:) char {mustBeMember(method,{'linear','spline','makima'})} = 'linear'
+            end
+            if length(x)~=obj.n
+                error('Size of x must be obj.n');
+            end
+            if min(x)>min(xi) || max(x)<max(xi)
+                error("Query point is out of range (extrapolation)")
+            end
+            if ~isempty(obj.xyz)
+                gcov = gt.Gcov(interp1(x, obj.xyz, xi, method), "xyz");
+            else
+                gcov = gt.Gcov(interp1(x, obj.enu, xi, method), "enu");
             end
             if ~isempty(obj.orgllh); gcov.setOrg(obj.orgllh, 'llh'); end
         end

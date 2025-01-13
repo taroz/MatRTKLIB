@@ -35,6 +35,7 @@ classdef Gpos < handle
     %   gvel = gradient(dt, [idx]);     Compute velocity based on position gradient
     %   gpos = copy();                  Copy object
     %   gpos = select(idx);             Select position from index
+    %   gpos = interp(x, xi, [method]); Interpolating position
     %   [gpos, gcov] = mean([idx]);     Compute mean position and covariance
     %   [mllh, sdenu] = meanLLH([idx]); Compute mean geodetic position and standard deviation
     %   [mxyz, sdxyz] = meanXYZ([idx]); Compute mean ECEF position and standard deviation
@@ -441,7 +442,7 @@ classdef Gpos < handle
         end
         %% copy
         function gpos = copy(obj)
-            % copy: Copy object
+            % copy: Copy position
             % -------------------------------------------------------------
             % MATLAB handle class is used, so if you want to create a
             % different object, you need to use the copy method.
@@ -459,7 +460,7 @@ classdef Gpos < handle
         end
         %% select
         function gpos = select(obj, idx)
-            % select: Select object from index
+            % select: Select position from index
             % -------------------------------------------------------------
             % Select position data from the index and return a new object.
             % The index may be a logical or numeric index.
@@ -484,6 +485,44 @@ classdef Gpos < handle
                 gpos = gt.Gpos(obj.llh(idx,:), 'llh');
             else
                 gpos = gt.Gpos(obj.enu(idx,:), 'enu');
+            end
+            if ~isempty(obj.orgllh); gpos.setOrg(obj.orgllh, 'llh'); end
+        end
+        %% interp
+        function gpos = interp(obj, x, xi, method)
+            % interp: Interpolating position
+            % -------------------------------------------------------------
+            % Interpolate the position data at the query point and return a
+            % new object.
+            %
+            % Usage: ------------------------------------------------------
+            %   gpos = obj.interp(x, xi, [method])
+            %
+            % Input: ------------------------------------------------------
+            %   x     : Sample points
+            %   xi    : Query points
+            %   method: Interpolation method (optional)
+            %           Default: method = "linear"
+            %
+            % Output: -----------------------------------------------------
+            %   gpos: 1x1, Interpolated gt.Gpos object
+            %
+            arguments
+                obj gt.Gpos
+                x {mustBeVector}
+                xi {mustBeVector}
+                method (1,:) char {mustBeMember(method,{'linear','spline','makima'})} = 'linear'
+            end
+            if length(x)~=obj.n
+                error('Size of x must be obj.n');
+            end
+            if min(x)>min(xi) || max(x)<max(xi)
+                error("Query point is out of range (extrapolation)")
+            end
+            if ~isempty(obj.xyz)
+                gpos = gt.Gpos(interp1(x, obj.xyz, xi, method), "xyz");
+            else
+                gpos = gt.Gpos(interp1(x, obj.enu, xi, method), "enu");
             end
             if ~isempty(obj.orgllh); gpos.setOrg(obj.orgllh, 'llh'); end
         end
