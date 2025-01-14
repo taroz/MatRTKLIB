@@ -819,9 +819,9 @@ classdef Gsol < handle
             gsol.n = gtime.n;
             gsol.time = obj.time.interp(obj.time.t, gtime.t, method);
             gsol.pos = obj.pos.interp(obj.time.t, gtime.t, method);
-            if ~isempty(gsol.vel); gsol.vel = obj.vel.interp(obj.time.t, gtime.t, method); end
+            if ~isempty(obj.vel); gsol.vel = obj.vel.interp(obj.time.t, gtime.t, method); end
             gsol.pcov = obj.pcov.interp(obj.time.t, gtime.t, method);
-            if ~isempty(gsol.vcov); gsol.vcov = obj.vcov.interp(obj.time.t, gtime.t, method); end
+            if ~isempty(obj.vcov); gsol.vcov = obj.vcov.interp(obj.time.t, gtime.t, method); end
             gsol.dtr = interp1(obj.time.t, obj.dtr, gtime.t, method);
             gsol.ns = round(interp1(obj.time.t, obj.ns, gtime.t, method));
             gsol.stat = gt.C.SOLQ(round(interp1(obj.time.t, double(obj.stat), gtime.t, method)));
