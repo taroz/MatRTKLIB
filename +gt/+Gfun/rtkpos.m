@@ -31,6 +31,9 @@ arguments
     gopt  gt.Gopt
     gobsb gt.Gobs = gt.Gobs()
 end
+if gobsr.n~=gobsb.n
+    gobsb = gobsb.sameTime(gobsr);
+end
 if gobsb.n==0
     [rtk, sol, stat] = rtklib.rtkpos(grtk.struct, gobsr.struct, gnav.struct, gopt.struct);
 else
