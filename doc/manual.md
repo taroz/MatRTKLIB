@@ -1,18 +1,32 @@
 ---
 title: MatRTKLIB Manual
-date: 2024/07/02
+date: 2025/03/08
 author: Taro Suzuki
 ---
 
 # Introduction
-**MatRKTLIB** provides a MATLAB wrapper for [RTKLIB](https://github.com/tomojitakasu/RTKLIB), an open source GNSS data processing library, and also provides various processes required for actual GNSS analysis and research in its own MATLAB classes. 
+**MatRKTLIB** provides a MATLAB wrapper for [RTKLIB](https://github.com/tomojitakasu/RTKLIB), an open source GNSS data processing library, and also provides various processes required for actual GNSS analysis and research in its own MATLAB classes.
 
-The features of the developed MatRTKLIB are as follows.
+This porting facilitates the use of RTKLIB from within the MATLAB environment. In addition to the porting, MatRTKLIB offers editing functions for GNSS observations and visualization methods, which are frequently necessary in the processing of GNSS analysis. MATLAB, a programming language, has been particularly well-suited to educational and research purposes, particularly for novices, due to its ease of use for vector and matrix calculations, as well as its extensive visualization functions for calculation results. However, there has been no complete porting of RTKLIB to MATLAB. The arrival of MatRTKLIB is expected to greatly reduce the cost of entry for novices in GNSS studies and development. The features of the developed MatRTKLIB are as follows.
 
 1. **MatRTKLIB** uses the RTKLIB source code as a submodule and compiles each RTKLIB function as an MEX function in C to provide calls in MATLAB, improving processing speed and allowing for immediate reflection of any feature additions to RTKLIB (e.g., support for new satellites/signals and support for new RINEX/RTCM versions).
 2. Single-input/output RTKLIB functions were adapted to the vector input/output to suit MATLAB's unique vector/matrix processing; this allows for batch processing of the GNSS data analysis without iterative processing, improving execution speed and code readability.
 3. Providing a unique MATLAB class called **GT**, which not only ports RTKLIB but also provides useful tools related to GNSS data processing, such as allowing easy editing of GNSS observation data, and computing linear combinations commonly used in GNSS data processing. GT also provides methods for visualizing various GNSS-related data using the visualization capabilities of MATLAB.
 4. The source code for various concrete examples of GNSS data processing is provided. Many sample implementations will facilitate understanding of GNSS data processing, such as step-by-step implementations of linear combination generation, residual evaluation, single-point positioning, and PPK using the double differences of the GNSS carrier phases.
+
+# GNSS Observation Model
+As MatRTKLIB is based on RTKLIB, the GNSS observation model conforms to the observation model adopted in [RTKLIB manual](https://www.rtklib.com/prog/manual_2.4.2.pdf). However, GT provides methods for calculating GNSS pseudorange and carrier phase residuals for positioning calculations and GNSS analysis. In this section, the pseudorange and carrier phase residual models provided by MatRTKLIB are explained.
+
+Let $\rho$ denote the GNSS pseudorange observation, and the residual model $v_\rho$ is expressed by the following equation.
+
+
+where $r_r^s$ is the geometric distance between the antenna and the satellite, corrected for the Sagnac effect, and is calculated using `rtklib.geodist()`. The satellite position can be calculated using `rtklib.satposs()`, using broadcast ephemeris or precise ephemeris. $c$ is the speed of light, and $t_r$ is the receiver clock error. $I$ is the ionosphere delay, and can be calculated using the Klobuchar model, etc., using `rtklib.ionomodel()`. $T$ is the tropospheric delay, and it can be calculated using the Saastamoinen model with `rtklib.tropmodel()`. In GT, it is possible to calculate the pseudorange residuals shown in equation (1) all at once using the method for calculating the pseudorange observation residuals (`gobs.residuals()`).
+
+Let $\phi$ denote the GNSS carrier phase observation, and the residual model $v_\phi$ is expressed by the following equation.
+
+where, $\lambda$ is the wavelength of the carrier wave, $B$ is the bias of the carrier phase including the initial phase, and $\delta \phi$ is a correction term that includes the antenna phase center offset, the earth tide, and the phase wind-up effect. The carrier phase and pseudorange residuals can be used to estimate the position of the receiver antenna and for various other analyses.
+
+Furthermore, GT provides `gobs.singleDifference()`, which calculates the difference between GNSS observations between reference stations, and `gobs.doubleDifference()`, which calculates the difference between observations between satellites. Using MatRTKLIB, it is possible to analyze these GNSS observation residuals and easily construct positioning methods, and it is expected to be used for various educational and research purposes.
 
 # Requirement
 **MatRTKLIB** was tested and compiled on the following
@@ -67,6 +81,41 @@ To create a GT object in MATLAB, use `gt.****`. See Appendix 2 for more informat
 
 ## Run examples
 MatRTKLIB contains over 30 examples, all of which exist as MATLAB script files in the `/examples` folder. You can learn how to use the GT class by running the examples. See Appendix 3 for a description of the types and contents of the examples.
+
+The examples folder contains a GNSS observation dataset for testing. Thus, all examples could be run without additional datasets.
+
+The following are three example problems and their results.
+
+### Example 1: Visualization of observation data
+This example is provided as `Example1_visualization_RINEX_observation.m` in the examples folder. The specific source code for visualizing RINEX observations is shown in Fig. 1-1.
+
+![Source code of example 1: Reading and visualizing RINEX observations.](Fig1-1.png){width=80%}
+
+As shown in Fig. 1, L1 creates a Gobs object by passing the RINEX observation file directly to the constructor of the Gobs class. L2 plots the satellite signals contained in the observation data, and the figure displayed in MATLAB is shown in Fig. 2. Similarly, L3 visualizes the number of satellite systems in the observation data (Fig. 3); L4 reads the RINEX navigation file and generates a Gnav object. L5 visualizes satellite constellations in the observation data by calculating the satellite positions using the receiver's approximate position in the RINEX observation file and navigation data (Fig. 4). Thus, MatRTKLIB can be used to concisely visualize signals in GNSS observations, changes in the number of satellites, and satellite constellations.
+
+![Visualizing the availability of the GNSS observations contained in RINEX files The plot represents the epoch at which the observations were obtained, and the color of the plot represents the signal strength.](Fig1-2.png){width=50%}
+
+![Visualize the change in the number of GNSS observations in the RINEX file. The colors represent the satellite system per GNSS.](Fig1-3.png){width=50%}
+
+![Visualize the GNSS constellations contained in the RINEX file. The color of the plot represents each satellite system, and the slider can be used to change the time.](Fig1-4.png){width=50%}
+
+### Example 2: Post-processing kinematic (PPK) analysis
+This example is provided as `Example2_PPK_analysis.m` in the examples folder. The source code for PPK positioning using GNSS base station observations is shown in Fig. 5. 
+
+![Source code of example 2: Post-processing kinematic (PPK) analysis using GNSS base station observation.](Fig2-1.png){width=80%}
+
+L1–L3 reads the RINEX observations and navigation data from the rover and reference station. L4 reads the configuration file, which is a processing option for RTKLIB, that contains the base station coordinates and analysis settings. L6–L7 calls the RTKPOS function of RTKLIB to perform PPK and generate a Gsol object, a class of positioning solutions. As shown on Figure 6, L8 represents the positioning solution. The green dots represent the FIX solution with resolved carrier-phase ambiguity and yellow dots represent the float solution. L9 outputs the computed solution to a file in RTKLIB solution format. Thus, MatRTKLIB facilitates performing positioning calculations and visualizing positioning solutions.
+
+![Visualize the position and status of GNSS positioning solutions. The color of the plot indicates whether carrier phase ambiguity is solved.](Fig2-2.png){width=50%}
+
+### Example 3: GNSS position error analysis
+This example is provided as `Example3_Positioining_error_analysis.m` in the examples folder. The source code for analyzing the errors in the positioning solution in Example 3 is shown in Figure 7.
+
+![Source code of example 3: Positioning error analysis.](Fig3-1.png){width=80%}
+
+L1 creates a Gsol object by passing a positioning solution file through a Gsol class constructor. L2 is a process that makes the time interval of the solution constant. L3–L4 read the reference location from the CSV file to create the Gpos object. L5 created an object of class Gerr by subtracting the Gsol and Gpos objects. Several GT classes support intuitive subtraction. L6 shows the cumulative distribution function of the third-dimensional position error plotted using the Gerr class methods (Figure 8). The Gerr class also provides other useful methods for analyzing GNSS positioning errors, including calculating statistics and plotting various errors.
+
+![Visualize the error of GNSS positioning solutions. This figure shows the cumulative distribution function of 3D position error.](Fig3-2.png){width=50%}
 
 \newpage
 
@@ -294,35 +343,38 @@ MatRTKLIB contains over 30 examples, all of which exist as MATLAB script files i
 # Appendix 3: Examples
 | File | Description |
 | ---- | ---- |
-| compute_double_difference.m              | Compute double-differenced GNSS observation |
-| compute_fixrate.m                        | Compute ambiguity fixed rate from RTK-GNSS solution |
-| compute_float_ambiguity.m                | Compute double-differenced float carrier phase ambiguity |
-| compute_geoid.m                          | Compute Geoid hight |
-| compute_mean_position.m                  | Compute mean position from solution file |
-| compute_residuals_doppler.m              | Compute Doppler residuals |
-| compute_residuals_pseudorange.m          | Compute pseudorange residuals |
-| convert_coordinate.m                     | Convert LLH, ECEF and ENU position to each other |
-| convert_solution_to_kml.m                | Convert positioning solution to Google Earth KML file |
-| convert_time.m                           | Convert GPS time, calender time and UTC time to each other |
-| edit_rinex_observation1.m                | Read and write RINEX observation  |
-| edit_rinex_observation2.m                | Trim RINEX observation using time span |
-| edit_rinex_observation3.m                | Modify RINEX observation interval |
-| edit_rinex_observation4.m                | Exclude satellites from RINEX observation |
-| edit_solution.m                          | Read position solution file and trim solution |
-| estimate_position_rtk.m                  | RTK-GNSS positioning using RTKLIB |
-| estimate_position_rtk_step_by_step.m     | Step by step example of RTK-GNSS positioning |
-| estimate_position_spp.m                  | Single point positioning using RTKLIB |
-| estimate_position_spp1_step_by_step.m    | Step by step example of single point positioning |
-| estimate_position_spp2_step_by_step.m    | Step by step example of single point positioning |
-| estimate_velocity_doppler_step_by_step.m | Step by step example of velocity estimation by Doppler |
-| estimate_velocity_tdcp_step_by_step.m    | Step by step example of velocity estimation by TDCP |
-| evaluate_position_error.m                | Evaluate positioning accuracy and plot error |
-| evaluate_velocity_error.m                | Evaluate velocity accuracy and plot error |
-| generate_configuration_file.m            | Generate RTKLIB configuration file |
-| generate_solution_file.m                 | Generate RTKLIB solution file  |
-| plot_observation1.m                      | Show observation status and number of satellite |
-| plot_observation2.m                      | Show raw GNSS measurements |
-| plot_position.m                          | Show positon on map |
-| plot_satellite_constellation1.m          | Show satellite constellation |
-| plot_satellite_constellation2.m          | Show satellite elevation and azimuth angles |
-| plot_solution.m                          | Show RTK position solutions  |
+| compute_double_difference.m                | Compute double-differenced GNSS observation |
+| compute_fixrate.m                          | Compute ambiguity fixed rate from RTK-GNSS solution |
+| compute_float_ambiguity.m                  | Compute double-differenced float carrier phase ambiguity |
+| compute_geoid.m                            | Compute Geoid and orthometric hight |
+| compute_mean_position.m                    | Compute mean position from solution file |
+| compute_residuals_doppler.m                | Compute Doppler residuals |
+| compute_residuals_pseudorange.m            | Compute pseudorange residuals |
+| convert_coordinate.m                       | Convert LLH, ECEF and ENU position to each other |
+| convert_solution_to_kml.m                  | Convert positioning solution to Google Earth KML file |
+| convert_time.m                             | Convert GPS time, calender time and UTC time to each other |
+| edit_rinex_observation1.m                  | Read and write RINEX observation |
+| edit_rinex_observation2.m                  | Trim RINEX observation using time span |
+| edit_rinex_observation3.m                  | Modify RINEX observation interval |
+| edit_rinex_observation4.m                  | Exclude satellites from RINEX observation |
+| edit_solution.m                            | Read position solution file and trim solution |
+| estimate_position_rtk.m                    | RTK-GNSS positioning using RTKLIB |
+| estimate_position_rtk_step_by_step.m       | Step by step example of RTK-GNSS positioning |
+| estimate_position_spp.m                    | Single point positioning using RTKLIB |
+| estimate_position_spp1_step_by_step.m      | Step by step example of single point positioning |
+| estimate_position_spp2_step_by_step.m      | Step by step example of single point positioning |
+| estimate_velocity_doppler_step_by_step.m   | Step by step example of velocity estimation by Doppler |
+| estimate_velocity_tdcp_step_by_step.m      | Step by step example of velocity estimation by TDCP |
+| evaluate_position_error.m                  | Evaluate positioning accuracy and plot error |
+| evaluate_velocity_error.m                  | Evaluate velocity accuracy and plot error |
+| Example1_visualization_RINEX_observation.m | Visualization of RINEX observation in GPS solutions paper |
+| Example2_PPK_analysis.m                    | Post-processing kinematic example in GPS solutions paper |
+| Example3_Positioning_error_analysis.m      | Positioning error analysis in GPS solutions paper |
+| generate_configuration_file.m              | Generate RTKLIB configuration file |
+| generate_solution_file.m                   | Generate RTKLIB solution file |
+| plot_observation1.m                        | Show observation status and number of satellite |
+| plot_observation2.m                        | Show raw GNSS measurements |
+| plot_position.m                            | Show position on map |
+| plot_satellite_constellation1.m            | Show satellite constellation |
+| plot_satellite_constellation2.m            | Show satellite elevation and azimuth angles |
+| plot_solution.m                            | Show RTK position solutions |
